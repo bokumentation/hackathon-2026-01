@@ -1,0 +1,54 @@
+# Tiny Tapeout project information (RF appendix, archived)
+project:
+  title:        "SALARAS-RX RF Ingress Barrier (appendix)"
+  author:       "The contributors"
+  discord:      ""
+  description:  "Manchester/RF fail-closed ingress boundary; CWE-354 problem evidence"
+  language:     "Verilog"
+  clock_hz:     20_000
+
+  tiles: "1x2"
+
+  top_module:  "tt_um_bokumentation_salaras_rx"
+
+  source_files:
+    - "sync2.v"
+    - "edge_detect.v"
+    - "state_machine.v"
+    - "data_validate.v"
+    - "frame_capture.v"
+    - "l1_framing_validator.v"
+    - "l2_integrity_verify.v"
+    - "l3_commit_gatekeeper.v"
+    - "salaras_rx_top.v"
+    - "project.v"
+
+pinout:
+  ui[0]: "digital_in"
+  ui[1]: "fault_ack"
+  ui[2]: ""
+  ui[3]: ""
+  ui[4]: "address[0]"
+  ui[5]: "address[1]"
+  ui[6]: "address[2]"
+  ui[7]: "address[3]"
+
+  uo[0]: "host_data[0]"
+  uo[1]: "host_data[1]"
+  uo[2]: "host_data[2]"
+  uo[3]: "host_data[3]"
+  uo[4]: "host_data[4]"
+  uo[5]: "host_data[5]"
+  uo[6]: "host_data[6]"
+  uo[7]: "host_data[7]"
+
+  uio[0]: "host_full"
+  uio[1]: "fault"
+  uio[2]: "manchester_clock"
+  uio[3]: "manchester_data"
+  uio[4]: ""
+  uio[5]: ""
+  uio[6]: ""
+  uio[7]: ""
+
+yaml_version: 6

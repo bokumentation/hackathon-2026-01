@@ -15,6 +15,6 @@ prep -top l3_formal
 flatten
 
 [files]
-src/l3_commit_gatekeeper.v
-src/salaras_rx_defs.svh
+appendix/rf/src/l3_commit_gatekeeper.v
+appendix/rf/src/salaras_rx_defs.svh
 synth/formal/l3_formal.sv

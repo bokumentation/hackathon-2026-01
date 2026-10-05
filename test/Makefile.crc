@@ -1,0 +1,13 @@
+SIM           ?= icarus
+TOPLEVEL_LANG ?= verilog
+SIM_BUILD      = sim_build/crc
+SRC_DIR        = $(CURDIR)/../appendix/rf/src
+
+VERILOG_SOURCES += $(SRC_DIR)/l2_integrity_verify.v
+VERILOG_SOURCES += $(CURDIR)/tb_crc.v
+COMPILE_ARGS    += -I$(SRC_DIR)
+
+TOPLEVEL = tb_crc
+MODULE   = test_crc_latency
+
+include $(shell cocotb-config --makefiles)/Makefile.sim

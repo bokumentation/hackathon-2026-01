@@ -4,7 +4,7 @@ import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import ClockCycles, RisingEdge
 
-CLK_PERIOD_NS = 50
+CLK_PERIOD_NS = 50_000
 
 
 async def reset(dut, cycles=10):

@@ -8,7 +8,7 @@ VENV       := venv
 PYTHON     := $(VENV)/bin/python
 PIP        := $(VENV)/bin/pip
 
-TOP        := tt_um_bokumentation_salaras_rx
+TOP        := tt_um_bokumentation_auth_boundary
 RTL_SRCS   := $(sort $(wildcard $(RTL_DIR)/*.v) $(wildcard $(RTL_DIR)/*.sv))
 SBY_FILES  := $(wildcard $(FORMAL_DIR)/*.sby)
 
@@ -29,6 +29,10 @@ help:
 	@echo "  make area         estimate cell, FF, and Cyclone V resource usage"
 	@echo "  make formal       run SymbiYosys formal properties"
 	@echo "  make test         run the cocotb testbench"
+	@echo "  make simon        run the SIMON-32/64 block and CBC-MAC tests"
+	@echo "  make l2           run the L2 authentication and freshness tests"
+	@echo "  make auth         run the integrated authentication and commit tests"
+	@echo "  make crc          measure the RF CRC streaming latency (comparison)"
 	@echo "  make sim          run the simulation evidence suites"
 	@echo "  make gds          instructions for ASIC hardening"
 	@echo "  make fpga         instructions for the DE10-Nano build"
@@ -79,6 +83,22 @@ formal:
 .PHONY: test
 test:
 	$(MAKE) -C $(TEST_DIR)
+
+.PHONY: simon
+simon:
+	$(MAKE) -C $(TEST_DIR) -f Makefile.simon
+
+.PHONY: l2
+l2:
+	$(MAKE) -C $(TEST_DIR) -f Makefile.l2
+
+.PHONY: auth
+auth:
+	$(MAKE) -C $(TEST_DIR) -f Makefile.auth
+
+.PHONY: crc
+crc:
+	$(MAKE) -C $(TEST_DIR) -f Makefile.crc
 
 .PHONY: sim
 sim:

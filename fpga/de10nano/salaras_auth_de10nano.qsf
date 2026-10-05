@@ -1,19 +1,16 @@
 set_global_assignment -name FAMILY "Cyclone V"
 set_global_assignment -name DEVICE 5CSEBA6U23I7
-set_global_assignment -name TOP_LEVEL_ENTITY salaras_rx_de10nano
+set_global_assignment -name TOP_LEVEL_ENTITY salaras_auth_de10nano
 set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
 set_global_assignment -name NUM_PARALLEL_PROCESSORS 4
 
-set_global_assignment -name VERILOG_FILE salaras_rx_de10nano.v
-set_global_assignment -name VERILOG_FILE ../../src/sync2.v
-set_global_assignment -name VERILOG_FILE ../../src/manchester_rx.v
-set_global_assignment -name VERILOG_FILE ../../src/frame_capture.v
-set_global_assignment -name VERILOG_FILE ../../src/l1_framing_validator.v
-set_global_assignment -name VERILOG_FILE ../../src/l2_integrity_verify.v
+set_global_assignment -name VERILOG_FILE salaras_auth_de10nano.v
+set_global_assignment -name VERILOG_FILE ../../src/simon32_64.v
+set_global_assignment -name VERILOG_FILE ../../src/l2_auth.v
 set_global_assignment -name VERILOG_FILE ../../src/l3_commit_gatekeeper.v
-set_global_assignment -name VERILOG_FILE ../../src/salaras_rx_top.v
+set_global_assignment -name VERILOG_FILE ../../src/salaras_auth_top.v
 set_global_assignment -name SEARCH_PATH ../../src
-set_global_assignment -name SDC_FILE salaras_rx_de10nano.sdc
+set_global_assignment -name SDC_FILE salaras_auth_de10nano.sdc
 
 set_location_assignment PIN_V11 -to CLOCK_50
 set_location_assignment PIN_AH17 -to KEY[0]
@@ -41,4 +38,9 @@ set_location_assignment PIN_W19 -to LEDR[7]
 set_location_assignment PIN_Y19 -to LEDR[8]
 set_location_assignment PIN_Y20 -to LEDR[9]
 
-set_location_assignment PIN_AC22 -to digital_in
+set_location_assignment PIN_AC22 -to gpio_frame_bit
+set_location_assignment PIN_Y21 -to gpio_load_en
+set_location_assignment PIN_AC23 -to gpio_fault_ack
+set_location_assignment PIN_W21 -to gpio_host_full
+set_location_assignment PIN_AB23 -to gpio_fault
+set_location_assignment PIN_AA20 -to gpio_done

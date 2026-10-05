@@ -4,7 +4,7 @@
 // A line "F<bit_index>" flips one bit in the internal buffer for fault injection.
 
 const int DATA_PIN = 4;
-const uint32_t TICK_US = 25; // 20 kHz core clock, matching the baseline half-period
+const uint32_t TICK_US = 50; // 20 kHz core clock, matching the baseline half-period
 
 void setup() {
   pinMode(DATA_PIN, OUTPUT);

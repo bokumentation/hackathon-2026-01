@@ -1,7 +1,80 @@
 # Simulation evidence
 
-Tier 1 evidence, reproducible with `make -C sim` and `make -C sim boundary`.
-Values are captured from the cocotb runs and the waveform figures in `out/`.
+Tier 1 evidence, reproducible with `make -C sim`, `make -C sim boundary`, and
+`make simon`. Values are captured from the cocotb runs and the waveform figures
+in `out/`.
+
+## L1 - SIMON-32/64 MAC latency (Tier A, M1)
+
+SIMON-32/64 is implemented as a serialized block cipher, one round per cycle,
+and validated against an independent Python reference (`test/simon_ref.py`) that
+matches the published SIMON-32/64 vector (key `1918111009080100`, plaintext
+`65656877`, ciphertext `C69BE9BB`).
+
+| Metric | Value |
+| --- | --- |
+| Block vectors validated | 49 (1 published plus 48 random) |
+| Rounds per block | 32 |
+| Block latency (start to done) | 33 clock cycles |
+| CBC-MAC | matches the reference over 3 blocks |
+
+The measured 33 cycles equals 32 rounds plus one pipeline cycle. This is the
+dominant term in the Tier A latency budget; the commit adds 1 to 2 cycles and
+the host visibility adds 0 to 1.
+
+## L2 - Authentication and freshness (Tier A, M2)
+
+`l2_auth` runs a CBC-MAC over counter plus payload (three blocks) and a strict
+freshness counter. Measured with `make l2`.
+
+| Case | Result |
+| --- | --- |
+| 20 clean frames (increasing counters) | all accepted, false reject 0 |
+| Forgery (payload modified, tag kept) | rejected |
+| Wrong key | rejected |
+| Replay (same counter) | authenticated but `fresh_ok=0`, not committed |
+| Stale counter | `fresh_ok=0` |
+| Fresh counter | accepted |
+| Single-bit flips (32 counter, 64 payload, 32 tag) | 128 of 128 rejected |
+| End-to-end MAC plus freshness latency | 107 clock cycles |
+
+The measured 107 cycles matches the estimate (three blocks at 33 cycles each
+plus FSM overhead). This is the measured Tier A latency for the authentication
+path; the commit and host visibility stages are added in M3.
+
+## L3 - Integrated authentication and commit (Tier A, M3)
+
+`salaras_auth_top` wires L2 into the shared `l3_commit_gatekeeper`. Measured with
+`make auth`.
+
+| Case | Result |
+| --- | --- |
+| Clean commit | `host_full=1`, `fault=0`, committed `{counter, payload}` matches |
+| Forgery | `host_full=0`, `fault=1` |
+| Replay | authenticated but `fresh_ok=0`, `host_full=0`, `fault=1` |
+| Sticky fault | holds until `fault_ack` |
+| Commit latency | 1 cycle |
+| End-to-end latency (start to `host_full`) | 108 cycles |
+| Two profiles | the same commit core is used for a synthetic CRC profile and the MAC profile |
+
+The Tier A end-to-end latency is 108 cycles: 107 for MAC plus freshness, plus 1
+for the commit. The RF appendix boundary commit was also 1 cycle, so the shared
+gate adds the same single cycle. Figure: `out/auth_commit.png` shows a clean
+accept and a rejected frame side by side.
+
+## Comparison: CRC vs MAC vs MAC+counter
+
+Measured with `make crc` (RF CRC path) and `make l2` / `make auth` (link path).
+
+| Property | CRC (keyless) | MAC (keyed) | MAC + counter |
+| --- | --- | --- | --- |
+| Latency | 73 cycles (72-bit streaming) | 107 cycles | 107 cycles (108 end to end) |
+| Random error detection | yes | yes | yes |
+| Forgery resistance | no, linear and recomputable | yes | yes |
+| Replay resistance | no | no | yes |
+| Extra state | none | none | 32-bit counter |
+
+This is why the committed design uses MAC plus counter rather than a keyless CRC.
 
 ## E1 - Baseline accepts corrupted frames (CWE-354)
 

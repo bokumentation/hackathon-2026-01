@@ -1,6 +1,6 @@
 SIM           ?= icarus
 TOPLEVEL_LANG ?= verilog
-SRC_DIR        = $(CURDIR)/../src
+SRC_DIR        = $(CURDIR)/../appendix/rf/src
 
 RTL_SOURCES = sync2.v edge_detect.v state_machine.v data_validate.v frame_capture.v \
               l1_framing_validator.v l2_integrity_verify.v l3_commit_gatekeeper.v \
