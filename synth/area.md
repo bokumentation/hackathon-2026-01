@@ -60,8 +60,27 @@ The committed successor is the authenticated boundary (`simon32_64`, `l2_auth`,
 | DSP blocks | 0 |
 
 This is a pre-integration estimate: it does not yet include the Tier B link
-layer or the Tier C CDC FIFO, and no sky130 hardening has been run for this
-module set.
+layer or the Tier C CDC FIFO.
+
+### Real sky130 signoff (link, 2x2)
+
+Hardened through `.github/workflows/gds.yaml` on the link
+(`tt_um_bokumentation_auth_boundary`). The 1x2 tile does not fit (GPL-0302 at
+density 0.6 and 0.8), so a 2x2 tile is used.
+
+| Metric | Value |
+| --- | --- |
+| Tile | 2x2 |
+| Die area | 334.88 x 225.76 um = 0.0756 mm^2 |
+| Synthesis cells | 2354 |
+| Magic DRC | 0 violations |
+| LVS | 0 errors |
+| Setup WNS / TNS | 0.00 / 0.00 (timing met) |
+| Worst setup slack | +10.79 ns |
+| Worst hold slack | +0.12 ns |
+| Power, typical | 1.87 mW |
+| Power, fastest | 2.20 mW |
+| Power, slowest | 1.46 mW |
 
 ## ASIC (sky130) estimate
 

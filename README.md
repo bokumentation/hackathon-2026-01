@@ -144,6 +144,8 @@ The DE10-Nano flow is documented in [`fpga/de10nano/README.md`](fpga/de10nano/RE
 - Integrity comparison: CRC 73 cycles (keyless), MAC 107 cycles, MAC plus
   counter 108 cycles.
 - Formal: five properties pass, proving the fail-closed structure.
+- Link sky130 signoff: 2x2 tile, die 0.0756 mm^2, 2354 cells, 0 DRC, 0 LVS,
+  WNS 0.00, typical power 1.87 mW.
 - RF appendix: real sky130 hardening on a 1x2 tile, die 0.0363 mm^2, WNS 0.00,
   typical power 1.21 mW.
 
