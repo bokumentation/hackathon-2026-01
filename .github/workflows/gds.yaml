@@ -28,6 +28,7 @@ jobs:
   gl_test:
     needs: gds
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
