@@ -43,5 +43,11 @@ detection-rate number is claimed.
 
 The field is affine over GF(2) (a one-bit payload flip gives a constant tail
 delta), but no standard CRC-24 matched. The exhaustive search is in
-`tools/crc_reveng.py`; see `tools/README.md`. L2 stays parameterized and the
-proposal documents the affine-reconstruction fallback.
+`tools/crc_reveng.py` and the recoverability analysis in
+`tools/affine_field.py`; see `tools/README.md`.
+
+The baseline author reports the same: the field is undocumented, no CRC matched
+during his testing, and it is suspected to be an error-correcting code up to
+24 bits (Kohnen, BSc Thesis, 2024). With 7 pairs the delta rank is only 5, so
+the full map is not recoverable; L2 stays parameterized and the proposal keeps
+the affine-reconstruction fallback.

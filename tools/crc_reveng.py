@@ -44,6 +44,19 @@ def bitrev(value, width):
     return int(f"{value:0{width}b}"[::-1], 2)
 
 
+def apply_bit_order(s, bit_order):
+    if bit_order == "msb":
+        return s
+    if bit_order == "lsb":
+        return s[::-1]
+    if bit_order == "byte_lsb":
+        out = ""
+        for i in range(0, len(s), 8):
+            out += s[i : i + 8][::-1]
+        return out
+    raise ValueError(bit_order)
+
+
 def message_bits(pair, prefix, order, endian, bit_order):
     vals = {"id": pair[0], "room": pair[1], "set": pair[2], "state": pair[3]}
     bits = []
@@ -55,10 +68,7 @@ def message_bits(pair, prefix, order, endian, bit_order):
         v = vals[name]
         if endian == "little":
             v = byteswap(v, w)
-        s = f"{v:0{w}b}"
-        if bit_order == "lsb":
-            s = s[::-1]
-        bits += [int(c) for c in s]
+        bits += [int(c) for c in apply_bit_order(f"{v:0{w}b}", bit_order)]
     return bits
 
 
@@ -96,7 +106,9 @@ def search():
         ["id", "room", "set", "state"],
     ]
     for order in orders:
-        for endian, bit_order in product(("big", "little"), ("msb", "lsb")):
+        for endian, bit_order in product(
+            ("big", "little"), ("msb", "lsb", "byte_lsb")
+        ):
             ref_bits = message_bits(ref, "none", order, endian, bit_order)
             dlist = []
             for p in PAIRS[1:]:
