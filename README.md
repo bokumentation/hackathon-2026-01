@@ -22,18 +22,20 @@ The problem is measured on a real baseline: the Tiny Tapeout 07 Manchester decod
 
 SALARAS-RX fixes this with three composable layers:
 
-| Layer | What it does | CWE closed |
-| --- | --- | --- |
-| **L2 auth** | SIMON-32/64 CBC-MAC over `counter + payload`, 32-bit tag | CWE-354, CWE-345 |
-| **L2 freshness** | Counter monotonicity check, session-scoped | CWE-294 |
-| **L3 commit** | Atomic fail-closed commit; sticky fault on any failure | CWE-1264, CWE-1245 |
+| Layer | Module | What it does | CWE closed |
+| --- | --- | --- | --- |
+| **L1 serial loader** | `l1_serial_loader.v` | Shift in 64-bit key then 128-bit frame (counter + payload + tag) over a single-bit interface; key-lock prevents second key load | CWE-20 |
+| **L2 auth** | `l2_auth.v` | SIMON-32/64 CBC-MAC over `counter + payload`, compare 32-bit tag; counter freshness check | CWE-354, CWE-345, CWE-294 |
+| **L3 commit** | `l3_commit_gatekeeper.v` | Atomic fail-closed commit; sticky fault on any auth or freshness failure | CWE-1264, CWE-1245 |
 
 ```
-frame  →  L2 auth (SIMON-32/64 CBC-MAC)
-              ↓  auth_ok + fresh_ok
-          L3 commit (fail-closed, sticky fault)
-              ↓  only on pass
-          host  (host_full, host_data)
+serial bits  →  L1 serial loader  (key-load / frame shift-in, FSM)
+                      ↓  counter + payload + tag + start
+               L2 auth  (SIMON-32/64 CBC-MAC + counter freshness)
+                      ↓  auth_ok + fresh_ok
+               L3 commit  (fail-closed, sticky fault)
+                      ↓  only on pass
+               host  (host_full, host_data)
 ```
 
 ![Authenticated ingress boundary architecture](assets/block-diagram-link.svg)
@@ -52,7 +54,7 @@ frame  →  L2 auth (SIMON-32/64 CBC-MAC)
 | Commit latency | 1 cycle | `make auth` |
 | Forgery rejected | yes | `make l2`, `make auth` |
 | Replay rejected | yes | `make auth` |
-| Formal properties | 5 blocking + 1 non-blocking | `make formal` |
+| Formal properties | 5 blocking + 1 non-blocking + 6 L1 | `make formal` |
 | ASIC die area | 0.0756 mm² (2×2 tile, sky130) | `gds.yaml` |
 | ASIC cell count | 2354 cells | `gds.yaml` |
 | ASIC power | 1.87 mW typical | `gds.yaml` |
@@ -78,7 +80,7 @@ Full evidence: [`sim/RESULTS.md`](sim/RESULTS.md) · [`synth/area.md`](synth/are
 
 ```
 .
-├── src/                  Committed RTL (simon32_64, l2_auth, l3_commit, top, project)
+├── src/                  Committed RTL (l1_serial_loader, simon32_64, l2_auth, l3_commit, top, project)
 ├── test/                 cocotb suites + Windows run_*.py scripts
 ├── synth/
 │   ├── formal/           SymbiYosys properties (.sby + .sv)

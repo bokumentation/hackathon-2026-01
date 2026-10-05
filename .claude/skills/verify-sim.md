@@ -8,7 +8,7 @@ Never claim a result that was not actually measured - check real test output bef
 
 ## Step 1 - RTL static checks
 
-For each source file in `src/`: simon32_64.v, l2_auth.v, l3_commit_gatekeeper.v, salaras_auth_top.v, project.v:
+For each source file in `src/`: simon32_64.v, l1_serial_loader.v, l2_auth.v, l3_commit_gatekeeper.v, salaras_auth_top.v, project.v:
 
 1. Confirm the file begins with `` `default_nettype none ``.
 2. Confirm every `output` port is driven on all paths (no inferred latches).
@@ -16,11 +16,11 @@ For each source file in `src/`: simon32_64.v, l2_auth.v, l3_commit_gatekeeper.v,
 
 Windows:
 ```
-iverilog -g2012 -o NUL -Isrc -Wall src\simon32_64.v src\l2_auth.v src\l3_commit_gatekeeper.v src\salaras_auth_top.v src\project.v
+iverilog -g2012 -o NUL -Isrc -Wall src\simon32_64.v src\l1_serial_loader.v src\l2_auth.v src\l3_commit_gatekeeper.v src\salaras_auth_top.v src\project.v
 ```
 Linux/CI:
 ```
-iverilog -g2012 -o /dev/null -Isrc -Wall src/simon32_64.v src/l2_auth.v src/l3_commit_gatekeeper.v src/salaras_auth_top.v src/project.v
+iverilog -g2012 -o /dev/null -Isrc -Wall src/simon32_64.v src/l1_serial_loader.v src/l2_auth.v src/l3_commit_gatekeeper.v src/salaras_auth_top.v src/project.v
 ```
 
 Report every warning and error.
@@ -29,10 +29,10 @@ Report every warning and error.
 
 Windows (no make):
 ```
-python run_simon_test.py
-python run_l2_test.py
-python run_auth_test.py
-python run_project_test.py
+python test/run_simon_test.py
+python test/run_l2_test.py
+python test/run_auth_test.py
+python test/run_project_test.py
 ```
 
 Linux/CI:
@@ -67,7 +67,8 @@ Latency numbers (regression if any differ by even 1 cycle):
 
 ## Step 4 - Formal status
 
-List .sby files under `synth/formal/`: simon32_64.sby, l1_framing.sby, l2_integrity.sby, l3_commit.sby, auth_top.sby, auth_data_integrity.sby.
+List .sby files under `synth/formal/`: simon32_64.sby, l1_link.sby, l2_integrity.sby, l3_commit.sby, auth_top.sby, auth_data_integrity.sby.
+Note: l1_framing.sby is for the appendix RF design, not Tier A. The Tier A L1 formal is l1_link.sby (6 properties: mutual exclusion of key_load/start, start only after key_locked, key_load only before lock, key_locked sticky, both are single-cycle pulses).
 
 If sby is available run each; otherwise report "formal not run - sby not installed locally, CI gate is authoritative".
 
@@ -77,9 +78,10 @@ Fill with actual measured values only:
 
 | Component | Tests | Latency | Formal | Status |
 | --- | --- | --- | --- | --- |
-| SIMON-32/64 | ?/2 | ? cycles/block | ? | PASS/FAIL |
-| L2 auth+freshness | ?/4 | ? cycles | ? | PASS/FAIL |
-| Auth top (L2+L3) | ?/6 | ? cycles e2e | ? | PASS/FAIL |
+| L1 serial loader | - | - | l1_link.sby (6 props) | PASS/FAIL |
+| SIMON-32/64 | ?/2 | ? cycles/block | simon32_64.sby | PASS/FAIL |
+| L2 auth+freshness | ?/4 | ? cycles | l2_integrity.sby | PASS/FAIL |
+| Auth top (L2+L3) | ?/6 | ? cycles e2e | auth_top.sby | PASS/FAIL |
 | Wrapper/project | ?/5 | - | - | PASS/FAIL |
 
 ## Step 6 - Regression report

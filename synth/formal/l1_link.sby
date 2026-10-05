@@ -1,0 +1,15 @@
+[options]
+mode bmc
+depth 200
+
+[engines]
+smtbmc
+
+[script]
+read -formal synth/formal/l1_link_formal.sv
+read -formal src/l1_serial_loader.v
+prep -top l1_link_formal
+
+[files]
+synth/formal/l1_link_formal.sv
+src/l1_serial_loader.v
