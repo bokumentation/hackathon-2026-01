@@ -29,13 +29,30 @@ SALARAS-RX fixes this with three composable layers:
 | **L3 commit** | `l3_commit_gatekeeper.v` | Atomic fail-closed commit; sticky fault on any auth or freshness failure | CWE-1264, CWE-1245 |
 
 ```
-serial bits  →  L1 serial loader  (key-load / frame shift-in, FSM)
-                      ↓  counter + payload + tag + start
-               L2 auth  (SIMON-32/64 CBC-MAC + counter freshness)
-                      ↓  auth_ok + fresh_ok
-               L3 commit  (fail-closed, sticky fault)
-                      ↓  only on pass
-               host  (host_full, host_data)
+untrusted link
+      │  frame_bit, load_en, key_mode
+      ▼
+┌─────────────────────────────────┐
+│  L1  l1_serial_loader           │  key-load / frame shift-in FSM
+│      key_locked after 64 bits   │  CWE-20
+└────────────┬────────────────────┘
+             │  counter(32) + payload(64) + tag(32) + start
+             ▼
+┌─────────────────────────────────┐
+│  L2  l2_auth                    │  SIMON-32/64 CBC-MAC (3 blocks)
+│      simon32_64 inside          │  + counter freshness check
+│      auth_ok, fresh_ok          │  CWE-354, CWE-345, CWE-294
+└────────────┬────────────────────┘
+             │  auth_ok & fresh_ok (on frame_done)
+             ▼
+┌─────────────────────────────────┐
+│  L3  l3_commit_gatekeeper       │  atomic fail-closed commit
+│      pass → host_full + data    │  sticky fault on failure
+│      fail → fault (sticky)      │  CWE-1264, CWE-1245
+└────────────┬────────────────────┘
+             │  host_full, host_data (only on pass)
+             ▼
+           host
 ```
 
 ![Authenticated ingress boundary architecture](assets/block-diagram-link.svg)

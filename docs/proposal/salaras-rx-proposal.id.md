@@ -1,4 +1,4 @@
-# A Reusable, Fail-Closed Authenticated Ingress Boundary for Serial/RF Links
+# SALARAS: Authenticated, Replay-Resistant Ingress Boundary for Lightweight Serial Links
 
 Kategori: IC Chip Design & FPGA Implementation
 
@@ -6,241 +6,343 @@ Area Fokus: 04 - Secure Communication (secure framing & interface integrity)
 
 ## 1. Ringkasan Ide (Executive Summary)
 
+SALARAS adalah IP gerbang ingress berbasis hardware yang memastikan *host* hanya pernah melihat *frame* yang terautentikasi dan segar. *Frame* yang gagal diperiksa tidak pernah sampai ke *host*.
+
 Masalah yang Diangkat:
 
-Penerima *serial*/RF ringan menguraikan *bitstream* yang tidak tepercaya langsung ke *shift register* dan mengekspos *field* integritas ke *host* tanpa memvalidasinya.
-
-Celah ini terukur pada *baseline* Manchester Tiny Tapeout 07, `tt07-bep-decode`: *field* integritas 24 bit (`tail_1..3`) diterima tetapi tidak pernah dicek, sehingga *payload* yang korup atau hasil *fault injection* tetap tampil sah bagi *host* (CWE-354).
+Penerima serial dan RF ringan memparsing *bitstream* tak tepercaya langsung ke register dan meneruskan *field* integritas ke *host* tanpa memeriksanya. Pada *baseline* Manchester Tiny Tapeout 07 `tt07-bep-decode`, kami mengukur bahwa *payload* korup dan *field* integritas korup tetap diteruskan dengan `full=1` (CWE-354). Tanpa kunci dan *counter*, penerima seperti ini juga tidak bisa membedakan *frame* asli dari *frame* palsu atau *frame* lama yang diputar ulang.
 
 Solusi yang Ditawarkan:
 
-Sebuah *boundary* ingress yang *fail-closed* dan dapat dipakai ulang: MAC berkunci (SIMON-32/64, CBC-MAC panjang tetap) ditambah *counter* kesegaran, dan *commit* atomik.
+Gerbang ingress *fail-closed* dengan tiga lapis pertahanan di dalam satu inti:
 
-*Boundary* menutup forgery (CWE-345), replay (CWE-294), de-sinkronisasi kendali/data (CWE-1264), *framing* tak sah (CWE-20), dan FSM yang macet (CWE-1245).
+1. **L1 Pemuat frame:** geser *frame* 128 bit (counter + payload + tag) dan kunci 64 bit secara serial, dengan kunci *write-once* yang terkunci sampai reset (CWE-20).
+2. **L2 Autentikasi:** MAC berkunci SIMON-32/64 dalam mode CBC-MAC panjang tetap, ditambah pemeriksaan *counter* monoton (CWE-345, CWE-354, CWE-294).
+3. **L3 Commit atomik:** data dan sinyal `host_full` dilepas bersamaan dalam satu siklus, hanya jika autentikasi dan kesegaran lulus; jika gagal, `fault` menyala dan lengket sampai di-*acknowledge* (CWE-1264, CWE-1245).
 
 Chip yang Dirancang:
 
-IP digital murni berukuran kecil dengan satu *clock* untuk cakupan yang dikomit, target ASIC sky130 dan FPGA DE10-Nano.
+IP digital murni, satu domain *clock*, tanpa *block RAM* dan DSP. Inti ini tidak bergantung pada *front-end*, sehingga dapat dipasang di belakang *baseline* resmi Area 04 TT07 SerDes, dekoder Manchester/RF, atau UART. Target: ASIC sky130 (Tiny Tapeout) dan FPGA DE10-Nano.
 
 Target Pengguna:
 
-Perancang *secure element* dan *smart card* *contactless*, *integrator* IP yang memerlukan blok *ingress-hardening*, serta tim *firmware* yang membutuhkan jaminan bahwa *frame* yang dibaca sudah terautentikasi.
+Perancang *secure element* dan perangkat identitas, *integrator* IP yang membutuhkan blok *ingress-hardening*, dan tim *firmware* yang perlu jaminan bahwa *frame* yang dibaca sudah terautentikasi.
 
 Hasil Terukur:
 
-- Verifikasi bit: 128 dari 128 *single-bit flip* ditolak.
-- Forgery, kunci salah, replay, dan *counter* basi ditolak; 20 *frame* bersih diterima (false reject 0).
-- Latensi ujung ke ujung 108 siklus *clock* (107 untuk MAC dan kesegaran, 1 untuk commit).
-- Lima properti formal lolos membuktikan sifat *fail-closed* (empat sifat inti ditambah satu properti FSM); satu properti integritas data tambahan (`auth_data_integrity`) berjalan sebagai verifikasi non-pemblokir.
-- Lampiran RF: *hardening* sky130 nyata pada tile 1x2, die 0,0363 mm persegi, WNS 0,00, daya tipikal 1,21 mW.
+| Metrik | Hasil | Sumber |
+| --- | --- | --- |
+| *Single-bit flip* pada *frame* | 128/128 ditolak | Simulasi cocotb |
+| Forgery, kunci salah, replay, *counter* basi | Semua ditolak | Simulasi cocotb |
+| False reject | 0 dari 20 *frame* bersih | Simulasi cocotb |
+| Latensi ujung ke ujung | 108 siklus (2,16 µs pada 50 MHz) | Simulasi |
+| Properti *fail-closed* | 5 properti lolos (3 inti, 2 lampiran RF) + 6 properti L1 | SymbiYosys |
+| *Hardening* sky130 | Tile 2×2, 0,0756 mm², 2354 sel, DRC 0, LVS 0, WNS 0,00, 1,87 mW | OpenLane |
 
 Dampak:
 
-*Frame* yang korup, dipalsukan, atau diputar ulang tidak lagi terlihat valid oleh *host*, dengan jaminan yang terukur dan dapat ditelusuri.
+*Frame* yang korup, dipalsukan, atau diputar ulang tidak lagi tampak sah bagi *host*. Pemeriksaan terjadi di *hardware*, sebelum data melewati batas kepercayaan, dengan biaya kurang dari 0,08 mm² dan 1,9 mW.
 
 ## 2. Latar Belakang & Rumusan Masalah (Problem Statement)
 
-Latar Belakang:
+### 2.1 Latar Belakang
 
-Tautan *serial* dan RF membawa data antara *transceiver*, terminal, dan *host* pada sistem identitas dan pembayaran.
+Tautan serial dan RF membawa data antara *transceiver*, terminal, *secure element*, dan *host* pada sistem identitas dan pembayaran. Pada rancangan ringan, *line coding* fisik (Manchester, 8b/10b) sering dianggap memadai. Akibatnya penerima memparsing *bitstream* tak tepercaya dan tidak mengautentikasi *frame* apa pun.
 
-Pada rancangan ringan, *line coding* fisik (Manchester, 8b/10b) dianggap memadai, sehingga penerima memparsing *bitstream* yang tidak tepercaya dan tidak mengautentikasi *frame* apa pun.
+Tiga kelas kegagalan mengikuti:
 
-Dua kelas kegagalan mengikuti.
+1. **Integritas tidak divalidasi (CWE-354, CWE-345).** CRC atau ECC tanpa kunci hanya mendeteksi error acak. Penyerang aktif dapat menghitung ulang nilai tersebut untuk *frame* palsu. Pemeriksaan yang tidak diimplementasikan sama sekali tidak memberi jaminan apa pun.
+2. **Replay (CWE-294).** *Frame* lama yang sah tetap sah jika tidak ada penanda kesegaran. Serangan *replay* dan *jamming-replay* pada *remote* 433 MHz (contoh terkenal: RollJam, Kamkar 2015) menunjukkan kelas serangan ini praktis pada tautan RF murah.
+3. **Commit tidak atomik (CWE-1264), FSM rapuh (CWE-1245), dan input tak tervalidasi (CWE-20).** Data dan sinyal kendali (`full`, *latch enable*) dapat terlepas satu sama lain, sehingga *host* bisa membaca data yang belum selesai diperiksa.
 
-Pertama, tidak ada validasi nilai integritas yang diterima (CWE-354): CRC atau ECC tanpa kunci mendeteksi error acak tetapi dapat dipalsukan oleh penyerang aktif, dan pemeriksaan yang tidak diimplementasikan tidak memberi jaminan apa pun.
+Verifikasi di *software* tidak menutup celah ini, karena *software* berjalan setelah data sudah melewati batas kepercayaan.
 
-Kedua, *commit* tidak atomik (CWE-1264): data dan kendali (`full`, *latch enable*) dapat terlepas di bawah *glitch* atau *jitter*.
+### 2.2 Bukti dari Tautan Nyata
 
-FSM yang rapuh (CWE-1245) dan *input* tak tervalidasi (CWE-20) memperburuk keduanya.
+Kami memakai `tt07-bep-decode` (dekoder Manchester 433 MHz, Tiny Tapeout 07) sebagai **contoh terukur**, bukan sebagai desain yang cacat untuk tujuan aslinya. Desain tersebut dibuat untuk mendekode protokol termostat dan memang tidak mengklaim keamanan. Justru karena itu ia mewakili pola umum pada penerima ringan.
 
-Bukti dari Tautan Nyata:
+- *Baseline* menerima *field* integritas 24 bit (`tail_1..3`) dan meneruskannya ke *host* tanpa pemeriksaan.
+- Dalam simulasi, *baseline* meng-*latch* *payload* korup dan *field* integritas korup dengan `full=1` (CWE-354, terukur; rincian di Lampiran F).
+- *Field* tersebut adalah kode pengoreksi galat yang tidak terdokumentasi (dikonfirmasi penulis *baseline*) dan algoritmanya belum dipecahkan. Karena itu kasus RF kami pakai sebagai **bukti kelas kerentanan**, bukan sebagai jalur integritas yang kami klaim sudah diperbaiki.
 
-*Baseline* `tt07-bep-decode` (Manchester 433 MHz, Tiny Tapeout 07) menerima *field* integritas 24 bit dan mengeksposnya ke *host* tanpa pemeriksaan.
+<figure class="proto"><img src="assets/sim-baseline-vulnerability.png" alt="Vulnerabilitas baseline"><figcaption>Gambar 1. Baseline tt07-bep-decode: full naik untuk frame bersih, payload korup, dan field integritas korup.</figcaption></figure>
 
-Kami mereproduksi konsekuensinya dalam simulasi: *baseline* meng-*latch* *payload* yang korup dan *field* integritas yang korup dengan `full=1` (CWE-354, terukur).
+### 2.3 Gap terhadap Solusi yang Tersedia
 
-*Field* tersebut bukan CRC standar, melainkan kode pengoreksi galat yang tidak terdokumentasi; hal ini dikonfirmasi penulis *baseline*, dan algoritmanya belum dipecahkan.
+Belum ada blok hemat area yang menggabungkan autentikasi, kesegaran, dan *commit* atomik *fail-closed* tepat di batas ingress.
 
-Kasus RF karena itu menjadi bukti kelas kerentanan, bukan jalur integritas kami yang sudah terpecahkan.
+| Pendekatan | Yang ditangani | Yang tidak ditangani |
+| --- | --- | --- |
+| *Parity* atau CRC | Error acak | Forgery, replay, *framing* |
+| 8b/10b penuh | Keseimbangan DC, sinkronisasi | Integritas sama sekali |
+| Dekoder standar | Validasi awal *frame* | Isi *frame* |
+| Verifikasi *software* | Fleksibel | Berjalan setelah batas kepercayaan dilewati |
+| MAC tanpa kesegaran | Forgery | Replay |
+| AEAD penuh (mis. Ascon) | Forgery dan kerahasiaan | Kesegaran dan *commit gating* tetap perlu dirancang; area lebih besar |
+| **SALARAS** | **Forgery, replay, commit atomik fail-closed** | Kerahasiaan (di luar cakupan, lihat Lampiran G) |
 
-<figure class="proto"><img src="assets/sim-baseline-vulnerability.png" alt="Vulnerabilitas baseline"><figcaption>Gambar: `full` tetap tinggi untuk frame bersih, payload korup, dan field integritas korup (baseline `tt07-bep-decode`).</figcaption></figure>
+### 2.4 Rumusan Masalah
 
-Gap terhadap Solusi yang Tersedia:
-
-| Pendekatan | Batas |
-| --- | --- |
-| *Parity* atau CRC byte | Mendeteksi error acak; tanpa framing; dapat dipalsukan |
-| 8b/10b penuh | Hanya keseimbangan DC; tanpa integritas |
-| Verifikasi *software* | Berjalan setelah data melewati batas kepercayaan |
-| Dekoder standar | Memvalidasi hanya awal frame |
-| MAC tanpa kesegaran | Tahan forgery tetapi dapat diputar ulang |
-
-Tidak ada yang menggabungkan autentikasi, kesegaran, dan *commit* atomik *fail-closed* pada *boundary* secara hemat area.
-
-Rumusan Masalah:
-
-1. Bagaimana mengautentikasi *frame* yang diterima terhadap forgery (CWE-345)?
-2. Bagaimana menolak *frame* yang diputar ulang tanpa state persisten (CWE-294)?
-3. Bagaimana mengomit data dan kendali secara atomik *fail-closed*, sehingga pemeriksaan gagal tidak pernah mencapai *host* (CWE-1264, CWE-1245)?
-4. Bagaimana menjadikannya inti yang dapat dipakai ulang pada *front-end* berbeda (Manchester/RF, SerDes, UART) dan pada FPGA maupun ASIC?
+1. Bagaimana mengautentikasi *frame* yang diterima terhadap forgery dengan biaya area yang sesuai untuk Tiny Tapeout (CWE-345)?
+2. Bagaimana menolak *frame* yang diputar ulang dalam satu sesi daya, tanpa memori *non-volatile* (CWE-294)?
+3. Bagaimana mengomit data dan kendali secara atomik dan *fail-closed*, sehingga *frame* yang gagal diperiksa tidak pernah terlihat oleh *host* (CWE-1264, CWE-1245)?
+4. Bagaimana menjadikannya inti yang dapat dipakai ulang di belakang *front-end* berbeda, terutama *baseline* resmi TT07 SerDes, serta pada FPGA maupun ASIC?
 
 ## 3. Proposed Chip Design
 
+SALARAS adalah satu inti digital satu *clock* yang duduk di antara *front-end* tak tepercaya dan *host*: *frame* masuk, diautentikasi, diperiksa kesegarannya, lalu dilepas atomik atau ditolak.
+
 ### 3.1 Arsitektur Sistem
 
-<figure class="proto"><img src="assets/block-diagram-link.svg" alt="Arsitektur boundary autentikasi"><figcaption>Gambar: arsitektur boundary autentikasi (Tier A, satu clock).</figcaption></figure>
+<figure class="proto"><img src="assets/block-diagram-link.svg" alt="Arsitektur boundary autentikasi"><figcaption>Gambar 2. Arsitektur SALARAS: batas kepercayaan, tiga lapis, jalur kunci terpisah. Semua yang datang dari tautan dianggap tak tepercaya; kunci masuk dari host lewat jalur terpisah, dan hanya L3 yang boleh melepas data ke host.</figcaption></figure>
 
-<figure class="proto"><img src="assets/frame-link.svg" alt="Format frame tautan"><figcaption>Gambar: format frame tautan dan rantai CBC-MAC.</figcaption></figure>
+<figure class="proto"><img src="assets/frame-link.svg" alt="Format frame tautan"><figcaption>Gambar: format frame tautan (128 bit) dan rantai CBC-MAC.</figcaption></figure>
+
+Format frame (128 bit + kunci terpisah):
+
+| Field | Lebar | Fungsi |
+| --- | --- | --- |
+| Counter | 32 bit | Penanda kesegaran, harus lebih besar dari *counter* terakhir yang diterima |
+| Payload | 64 bit | Data aplikasi |
+| Tag | 32 bit | CBC-MAC atas *counter* + *payload* |
+| Kunci | 64 bit | **Tidak** ikut *frame*; dimuat *host* lewat port tepercaya |
+
+Rantai CBC-MAC atas tiga blok 32 bit (B1 = counter, B2-B3 = payload), IV = 0, kunci 64 bit:
+
+**C₁ = E_K(B₁), C₂ = E_K(C₁ ⊕ B₂), tag = C₃ = E_K(C₂ ⊕ B₃)**
+
+*Frame* diterima hanya jika tag hasil hitung sama dengan tag yang diterima **dan** *counter* lebih besar dari *counter* terakhir yang diterima.
 
 Rincian modul:
 
-- `simon32_64.v`: blok cipher SIMON-32/64 terserialisasi, satu ronde per siklus.
-- `l2_auth.v`: menghitung CBC-MAC atas counter ditambah payload (tiga blok 32 bit), membandingkan tag, dan memeriksa kesegaran counter.
-- `l3_commit_gatekeeper.v`: mengomit secara atomik hanya saat autentikasi dan kesegaran lulus; jika gagal, menahan `host_full` dan menaikkan `fault` lengket.
-- `salaras_auth_top.v`: integrasi L2 dan L3.
-- `project.v`: pembungkus Tiny Tapeout dengan pemuat *frame* serial.
+| Modul | Lapisan | Fungsi |
+| --- | --- | --- |
+| `l1_serial_loader.v` | L1 | Geser kunci 64 bit dan *frame* 128 bit secara serial; kunci *write-once*, terkunci sampai reset |
+| `simon32_64.v` | L2 | Blok *cipher* SIMON-32/64 terserialisasi, satu ronde per siklus |
+| `l2_auth.v` | L2 | CBC-MAC atas *counter* + *payload* (tiga blok 32 bit), perbandingan tag, pemeriksaan kesegaran *counter* |
+| `l3_commit_gatekeeper.v` | L3 | *Commit* atomik hanya jika autentikasi dan kesegaran lulus; jika gagal, menahan `host_full` dan menaikkan `fault` lengket |
+| `salaras_auth_top.v` | L2+L3 | Integrasi L2 dan L3 |
+| `project.v` | Wrapper | Pembungkus Tiny Tapeout: instansiasi L1 + L2+L3 |
 
-Antarmuka:
+Antarmuka `salaras_auth_top`:
 
-- Masukan: kunci 64 bit, counter 32 bit, payload 64 bit, tag 32 bit.
-- Keluaran: `host_full`, `host_data`, `fault`, `auth_ok`, `fresh_ok`, `done`.
-- *Handshake* `full` dan notifikasi `fault`; `fault` lengket hingga di-*acknowledge*.
+| Sinyal | Arah | Lebar | Keterangan |
+| --- | --- | --- | --- |
+| `key` | Masuk (*host*) | 64 | Kunci MAC, dimuat lewat port tepercaya |
+| `counter`, `payload`, `tag` | Masuk (tautan) | 32, 64, 32 | *Frame* dari *front-end* |
+| `host_data` | Keluar | 96 | *Counter* + *payload* yang sudah lolos |
+| `host_full` | Keluar | 1 | Naik hanya jika `auth_ok` dan `fresh_ok` |
+| `auth_ok`, `fresh_ok`, `done` | Keluar | 1 | Status per *frame* |
+| `fault` | Keluar | 1 | Lengket sampai di-*acknowledge host* |
+
+*Handshake*: `host_full` sebagai penanda data siap; `fault` lengket hingga di-*acknowledge*.
 
 Arsitektur Pemrosesan dan Memori:
 
 - Aliran *streaming* satu arah; CBC-MAC berjalan sambil blok masuk.
-- Tidak memerlukan *block RAM*; state hanya register (LFSR/MAC, counter, flag).
+- Tanpa *block RAM* dan tanpa *buffer frame*. State hanya register: state *cipher*, *counter* terakhir, flag status.
 
 Konsumsi Daya:
 
 - Logika digital *clock* tunggal, tanpa DSP, PLL internal, atau memori besar.
-- MAC aktif hanya saat *frame* datang, sehingga aktivitas *switching* minimal saat *idle*.
+- MAC aktif hanya saat *frame* datang, sehingga aktivitas *switching* minimal saat *idle*. Hasil OpenLane: daya tipikal 1,87 mW.
 
-### 3.2 Estimasi Penggunaan Resource
+### 3.2 Security Design (Threat Model)
+
+Keamanan adalah titik awal desain ini, bukan fitur tambahan: setiap modul ada karena satu ancaman di tabel di bawah.
+
+**Aset yang dilindungi:** integritas dan keaslian *frame* yang sampai ke *host*, kesegaran *frame*, dan kerahasiaan kunci MAC.
+
+**Batas kepercayaan:**
+- *Tidak tepercaya:* semua yang datang dari tautan (*front-end* SerDes, Manchester/RF, UART), termasuk *counter*, *payload*, dan tag.
+- *Tepercaya:* *host* dan port pemuatan kunci. Kunci tidak pernah melewati tautan.
+
+**Kemampuan penyerang:** dapat menyadap, menyisipkan, mengubah, menghapus, dan memutar ulang *frame* pada tautan; dapat membuat error bit acak. **Tidak** memiliki kunci, tidak dapat membaca register internal, dan tidak melakukan serangan kanal samping atau *glitch* fisik (di luar cakupan, Lampiran G).
+
+**Ancaman, mitigasi, dan bukti:**
+
+| Ancaman | CWE | Mitigasi di hardware | Bukti |
+| --- | --- | --- | --- |
+| *Frame* palsu | CWE-345 | CBC-MAC SIMON-32/64, tag 32 bit | Forgery ditolak (simulasi) |
+| Integritas tidak dicek | CWE-354 | Tag selalu dihitung ulang dan dibandingkan sebelum *commit* | 128/128 *bit flip* ditolak |
+| Replay *frame* lama | CWE-294 | *Counter* harus naik ketat | Replay dan *counter* basi ditolak |
+| Data dan kendali terlepas | CWE-1264 | *Commit* satu siklus: `host_data` dan `host_full` dilepas bersamaan, dari salinan *frame* yang di-*latch* saat MAC dimulai | Properti formal |
+| FSM macet atau state ilegal | CWE-1245 | FSM terenumerasi penuh, *timeout*, `fault` lengket | Properti formal, uji *timeout* |
+| *Framing* tidak sah | CWE-20 | *Frame* dengan panjang atau struktur salah ditolak di pemuat | Uji *timeout* (Lampiran RF) |
+
+**Keputusan desain kriptografi:**
+
+- **Kenapa SIMON-32/64.** *Cipher* ini dirancang untuk *hardware* sangat kecil dan dapat diserialisasi satu ronde per siklus, sehingga muat di tile Tiny Tapeout 2×2. Kami sadar SIMON/SPECK ditolak sebagai standar ISO pada 2018 dan bahwa standar NIST untuk kriptografi ringan saat ini adalah Ascon. Karena itu *cipher* dibungkus antarmuka blok yang modular: dapat diganti ke SIMON-64/128 atau Ascon tanpa mengubah L2 dan L3, dengan biaya area lebih besar.
+- **CBC-MAC hanya untuk panjang tetap.** CBC-MAC aman hanya jika semua pesan berpanjang sama. Format *frame* dikunci pada tiga blok; jika suatu saat panjang *frame* variabel, mode diganti ke CMAC.
+- **Batas *birthday* blok 32 bit.** Dengan blok 32 bit, keamanan CBC-MAC turun setelah sekitar 2¹⁶ blok di bawah kunci yang sama, kira-kira 2×10⁴ *frame*. Kebijakan integrasi: kunci wajib dirotasi jauh di bawah batas ini (rekomendasi: setiap 2¹² *frame*).
+- **Peluang forgery per percobaan** sekitar 2⁻³² karena tag 32 bit.
+- **Waktu keputusan tetap.** Keputusan terima/tolak keluar pada siklus yang sama untuk semua *frame*. L2 selalu memproses ketiga blok tanpa jalan keluar lebih awal.
+- **Perilaku setelah reset.** *Counter* terakhir kembali ke 0 setelah reset. Rekomendasi integrasi: *host* memuat kunci sesi baru setiap *boot*. Kunci juga *write-once*: dimuat sekali setelah reset lewat mode kunci terpisah, lalu terkunci sampai reset.
+
+### 3.3 Estimasi Penggunaan Resource
 
 Estimasi FPGA (Yosys, sebelum sintesis Quartus):
 
-| Komponen | Estimasi | Kapasitas DE10-Nano |
+| Komponen | Estimasi | Kapasitas DE10-Nano (5CSEBA6U23I7) |
 | --- | --- | --- |
-| *Logic elements* / LUT | sekitar 360 LUT-setara | 41.910 ALM |
-| Register / flip-flop | 500 | 166.542 |
+| Logika | sekitar 360 LUT-setara | 41.910 ALM |
+| Register | sekitar 500 FF | 166.036 |
 | *Block RAM* (M10K) | 0 | 5.570 Kbit |
 | DSP | 0 | 112 |
 
+Satuan LUT-setara dari Yosys tidak sama dengan ALM Quartus; angka final menunggu laporan Fitter. Jumlah register lebih besar dari LUT karena sebagian besar state adalah register *frame*, kunci, dan state *cipher*.
+
 Target ASIC: Tiny Tapeout sky130 130nm via OpenLane.
 
-Lampiran RF memiliki hasil nyata: tile 1x2, die 0,0363 mm persegi, WNS 0,00, daya tipikal 1,21 mW.
+*Hardening* sky130 (hasil nyata): tile 2×2, die 0,0756 mm², 2354 sel, DRC 0, LVS 0, WNS 0,00, daya tipikal 1,87 mW.
 
-*Hardening* sky130 untuk tautan baru: tile 2x2, die 0,0756 mm persegi, 2354 sel, DRC 0, LVS 0, WNS 0,00, daya tipikal 1,87 mW.
+Lampiran RF memiliki hasil nyata terpisah: tile 1×2, die 0,0363 mm², WNS 0,00, daya tipikal 1,21 mW. Angka ini **bukan** angka inti SALARAS (lihat Lampiran F).
 
 Perangkat Lunak dan Tools:
 
-- Intel Quartus Prime (sintesis, fit, *timing*, SignalTap) untuk DE10-Nano.
-- OpenLane dan Yosys untuk jalur ASIC sky130.
+- Intel Quartus Prime (sintesis, *fit*, *timing*, SignalTap) untuk DE10-Nano.
+- OpenLane/OpenROAD dan Yosys untuk jalur ASIC sky130.
 - Verilator dan Icarus Verilog untuk simulasi dan lint.
-- cocotb dan pytest untuk testbench otomatis.
-- SymbiYosys untuk pembuktian formal.
+- cocotb dan pytest untuk *testbench* otomatis.
+- SymbiYosys (pembuktian formal, mesin smtbmc z3).
 
-### 3.3 Rencana Pengujian
+Laju: 108 siklus per *frame* pada 50 MHz = 2,16 µs, setara sekitar 29 Mbit/s *payload*. Angka ini jauh di atas laju tautan RF 433 MHz, sehingga autentikasi tidak menjadi *bottleneck*.
+
+### 3.4 Rencana Pengujian
 
 Simulasi RTL (S1, terukur):
 
-- Testbench cocotb men-*drive* MAC, L2, dan *commit* dengan matriks keberhasilan: *frame* bersih diterima, forgery, kunci salah, replay, dan *counter* basi ditolak, serta 128 dari 128 *single-bit flip* ditolak.
+- *Testbench* cocotb menguji L1, L2, dan *commit* dengan matriks keberhasilan: *frame* bersih diterima, forgery, kunci salah, replay, dan *counter* basi ditolak, serta 128 dari 128 *single-bit flip* ditolak.
 - Latensi diukur per tahap: 33 siklus per blok SIMON, 107 siklus untuk MAC dan kesegaran, 108 siklus ujung ke ujung.
 
-<figure class="proto"><img src="assets/sim-auth-commit.png" alt="Autentikasi dan commit"><figcaption>Gambar: satu frame bersih diterima dan satu frame korup ditolak pada boundary autentikasi.</figcaption></figure>
+<figure class="proto"><img src="assets/sim-auth-commit.png" alt="Autentikasi dan commit"><figcaption>Gambar 3. Inti SALARAS: frame pertama lolos (auth_ok, fresh_ok, host_full naik); frame kedua ditolak (host_full tetap rendah, fault naik).</figcaption></figure>
 
-<figure class="proto"><img src="assets/sim-boundary-timeout.png" alt="Timeout L1"><figcaption>Gambar: fault timeout pada jalur batas (bukti lampiran RF).</figcaption></figure>
+<figure class="proto"><img src="assets/sim-boundary-timeout.png" alt="Timeout L1"><figcaption>Gambar 4. Lampiran RF: tanpa transisi selama 4096 siklus, timeout_fault naik dan framing_ok turun, sehingga frame ditolak.</figcaption></figure>
+
+Pembuktian formal (SymbiYosys):
+
+| Job SymbiYosys | Properti | Lingkup |
+| --- | --- | --- |
+| `auth_top` | `host_full` hanya tinggi jika *frame* terakhir yang selesai lolos `auth_ok` dan `fresh_ok` | Inti |
+| `l3_commit` | `host_full` hanya tinggi jika keputusan *commit* terakhir menerima *frame* | Inti |
+| `simon32_64` | `done` hanya naik setelah tepat 32 ronde | Inti |
+| `l1_link` | 6 properti: `key_load`/`start` saling eksklusif, `start` hanya setelah kunci terkunci, `key_load` hanya sebelum kunci terkunci, `key_locked` lengket, keduanya *single-cycle pulse* | L1 |
+| `l1_framing` | `framing_ok` tidak pernah tinggi bersamaan dengan `timing_fault` atau `timeout_fault` | Lampiran RF |
+| `l2_integrity` | Register CRC selalu mulai dari nilai awal saat *frame* dimulai | Lampiran RF |
+| `auth_data_integrity` | Data yang dikomit sama dengan *frame* yang diautentikasi (non-pemblokir, depth=130) | Inti |
 
 Uji Hardware Board FPGA DE10-Nano (S2, rencana):
 
-- *Prosedur sintesis*: proyek Quartus dengan pembungkus board, SDC, dan pin assignment.
+- *Prosedur sintesis*: proyek Quartus dengan pembungkus *board*, SDC, dan *pin assignment*.
 - *Implementasi bitstream* (.sof/.rbf) dan pengujian *on-board real-time*.
 - Verifikasi sinyal internal dengan SignalTap pada `auth_ok`, `fresh_ok`, `done`, `host_full`, dan `fault`.
-- Pengujian *on-board* menunjukkan *frame* bersih diterima dan *frame* korup ditolak.
+- Uji *on-board*: *frame* bersih diterima, *frame* korup ditolak, replay tidak dikomit, *frame* yang mencoba memuat kunci baru diabaikan.
 - Fasilitas FPGA/sandbox dari penyelenggara dipakai pada *bootcamp* untuk menjalankan tahap ini.
 
 Metrik Keberhasilan Target:
 
 | Metrik | Target | Bukti |
 | --- | --- | --- |
-| Deteksi error satu bit | 100 persen | Simulasi (128/128) |
-| False reject | 0 persen | Simulasi (20 frame bersih) |
-| Forgery dan replay | ditolak | Simulasi |
-| Latensi ujung ke ujung | terukur 108 siklus | Simulasi |
-| *Fail-closed* | terbukti formal | SymbiYosys |
+| Deteksi error satu bit | 128/128 teramati; peluang lolos teoretis sekitar 2⁻³² | Simulasi |
+| False reject | 0 persen | Simulasi (20 *frame* bersih) |
+| Forgery dan replay | Ditolak | Simulasi, lalu *on-board* |
+| Latensi ujung ke ujung | 108 siklus | Simulasi, lalu SignalTap |
+| *Fail-closed* | 5 properti lolos (3 inti, 2 lampiran RF) + 6 L1 | SymbiYosys |
+| Fmax FPGA | Minimal 50 MHz (CLOCK_50) | Quartus Timing Analyzer |
 
 ## 4. Referensi
 
-- PERURI. "Buku Panduan Peserta PERURI Chip Hackathon 2026." https://summit.peruri.co.id/docs/Buku-Panduan-PERURI-Chip-Hackathon.pdf
-- Kohnen, Z. "Decoding Manchester coded transmissions in a fully digital ASIC." Skripsi, 2024.
-- Kohnen, Z. dan Alvarado, A. "Manchester decoder of a home thermostat's wireless protocol." FSiC, 2025.
-- Beaulieu, R. et al. "The SIMON and SPECK Families of Lightweight Block Ciphers." IACR ePrint 2013/404.
-- Tiny Tapeout. "Tiny Tapeout - Make Your Own Chip." https://tinytapeout.com/, 2024.
-- MITRE. "Common Weakness Enumeration (CWE): CWE-354 (Improper Validation of Integrity Check Value), CWE-345 (Insufficient Verification of Data Authenticity), CWE-294 (Authentication Bypass by Capture-replay), CWE-1264 (Hardware Logic with Insecure De-Synchronization between Control and Data Channels), CWE-1245 (Improper Finite State Machines in Hardware Logic), CWE-20 (Improper Input Validation)." https://cwe.mitre.org/, 2024.
-- Terasic. "DE10-Nano - Cyclone V FPGA Guide."
+1. PERURI. "Buku Panduan Peserta PERURI Chip Hackathon 2026." https://summit.peruri.co.id/docs/Buku-Panduan-PERURI-Chip-Hackathon.pdf
+2. PERURI. "Peruri Chip Design Datasheet" dan *baseline* rujukan Area 04 (TT07 SerDes, CDC FIFO).
+3. Kohnen, Z. "Decoding Manchester coded transmissions in a fully digital ASIC." Skripsi, 2024.
+4. Kohnen, Z. dan Alvarado, A. "Manchester decoder of a home thermostat's wireless protocol." FSiC, 2025.
+5. Beaulieu, R. et al. "The SIMON and SPECK Families of Lightweight Block Ciphers." IACR ePrint 2013/404.
+6. Bellare, M., Kilian, J., dan Rogaway, P. "The Security of the Cipher Block Chaining Message Authentication Code." Journal of Computer and System Sciences 61(3), 2000.
+7. NIST. SP 800-38B, "Recommendation for Block Cipher Modes of Operation: The CMAC Mode for Authentication." https://csrc.nist.gov/
+8. NIST. SP 800-232, "Ascon-Based Lightweight Cryptography Standards for Constrained Devices." https://csrc.nist.gov/
+9. Kamkar, S. "Drive It Like You Hacked It" (RollJam), DEF CON 23, 2015.
+10. Tiny Tapeout. "Tiny Tapeout - Make Your Own Chip." https://tinytapeout.com/, 2024.
+11. MITRE. "Common Weakness Enumeration (CWE): CWE-20, CWE-294, CWE-345, CWE-354, CWE-1245, CWE-1264." https://cwe.mitre.org/, 2024.
+12. Terasic. "DE10-Nano - Cyclone V FPGA User Manual."
+13. Intel. "Cyclone V Device Overview."
 
 ## 5. Lampiran
 
-### Lampiran A. Tim & Pembagian Peran
+### Lampiran A. Identitas Tim dan Pembagian Peran
 
-| Nama | NIM / NIP | Institusi | Program Studi | Keahlian | Peran |
-| --- | --- | --- | --- | --- | --- |
-| Ibrahim Fauzi Rahman | 1301213xxx | Universitas Telkom, Fakultas Teknik Elektro | S1 Teknik Elektro | RTL / Verilog | Perancang RTL, integrasi, sintesis |
-| Idris Syaifulloh | 1301210541 | Universitas Telkom, Fakultas Teknik Elektro | S1 Teknik Elektro | Verifikasi / Python | cocotb, *fault injection*, metrik |
-| Dr. Setia Jul Ismail, S.T., M.T. | NIP 197207xx | Universitas Telkom, Fakultas Teknik Elektro | - | Arsitektur / Metodologi | Pembimbing, validasi klaim |
+Tim **dinotice**, Universitas Telkom.
 
-### Lampiran B. Luaran & Demo
+| Nama | NIM / NIP | Institusi | Program Studi | Posisi | Keahlian | Peran |
+| --- | --- | --- | --- | --- | --- | --- |
+| Ibrahim Fauzi Rahman | 1301213xxx | Universitas Telkom, Fakultas Teknik Elektro | S1 Teknik Elektro | Ketua | RTL / Verilog | Perancang RTL, integrasi, sintesis |
+| Idris Syaifulloh | 1301210541 | Universitas Telkom, Fakultas Teknik Elektro | S1 Teknik Elektro | Anggota | Verifikasi / Python | cocotb, *fault injection*, metrik |
+| Dr. Setia Juli Irzal Ismail, S.T., M.T. | NIP 197207xx | Universitas Telkom, Fakultas Teknik Elektro | — | Dosen Pembimbing | Arsitektur / Metodologi | Pembimbing, validasi klaim |
 
-- Kode RTL Verilog, *script* testbench cocotb, dan properti formal.
-- Bitstream FPGA (.sof/.rbf) dan demo *on-board* (rencana *bootcamp*).
-- Repository sumber dan laporan teknis singkat.
+### Lampiran B. Luaran dan Demo
+
+- Kode RTL Verilog, *testbench* cocotb, dan properti formal SymbiYosys.
+- Hasil *hardening* sky130 (GDS, laporan DRC/LVS/timing/daya).
+- Bitstream FPGA (.sof/.rbf) dan demo *on-board* (*bootcamp*).
+- *Repository* sumber dan laporan teknis singkat.
 
 ### Lampiran C. Rencana Bootcamp (18-20 Oktober 2026)
 
 | Hari | Fokus | Deliverable |
 | --- | --- | --- |
-| Hari 1 | Finalisasi RTL tautan, integrasi SerDes, mulai analisis kriptografi lanjutan | RTL dapat disimulasikan |
-| Hari 2 | Sintesis Quartus, SignalTap, uji *fault injection* dan replay *on-board* | Bitstream dan laporan resource/timing |
-| Hari 3 | Pengukuran akhir, poles *hardening*, demo, presentasi Top 5 ke Top 3 | Demo dan materi presentasi |
+| 1 (18 Okt) | Integrasi inti dengan *baseline* TT07 SerDes; uji korupsi multi-bit acak dan replay setelah reset | RTL terintegrasi lolos simulasi |
+| 2 (19 Okt) | Sintesis Quartus, SignalTap, uji forgery dan replay *on-board* | Bitstream, laporan resource dan timing |
+| 3 (20 Okt) | Pengukuran akhir, poles *hardening*, demo, presentasi seleksi Top 3 | Demo dan materi presentasi |
 
 ### Lampiran D. Anggaran Latensi (terukur)
 
-| Tahap | Nilai |
+| Tahap | Siklus |
 | --- | --- |
-| Blok SIMON | 33 siklus |
-| MAC dan kesegaran | 107 siklus |
-| Commit | 1 siklus |
-| Ujung ke ujung | 108 siklus |
+| Satu blok SIMON-32/64 (32 ronde + 1) | 33 |
+| Tiga blok CBC-MAC | 99 |
+| *Overhead* FSM: 2 siklus *handshake start/done* per blok (×3), 1 siklus *latch* input, 1 siklus keputusan | 8 |
+| MAC dan kesegaran | 107 |
+| Commit | 1 |
+| **Ujung ke ujung** | **108** |
 
 ### Lampiran E. Perbandingan Integritas (terukur)
 
-| Properti | CRC tanpa kunci | MAC berkunci | MAC + counter |
+| Properti | CRC tanpa kunci | MAC berkunci | MAC + counter (SALARAS) |
 | --- | --- | --- | --- |
-| Latensi | 73 siklus | 107 siklus | 108 siklus |
-| Deteksi error acak | ya | ya | ya |
-| Ketahanan forgery | tidak | ya | ya |
-| Ketahanan replay | tidak | tidak | ya |
+| Latensi | 73 siklus (CRC serial 72 bit) | 107 siklus | 108 siklus |
+| Deteksi error acak | Ya | Ya | Ya |
+| Tahan forgery | Tidak | Ya | Ya |
+| Tahan replay | Tidak | Tidak | Ya |
+
+Tambahan satu siklus untuk kesegaran dan *commit* memberi ketahanan *replay*; tambahan 34 siklus dibanding CRC memberi ketahanan forgery.
 
 ### Lampiran F. Bukti Masalah (RF)
 
 *Baseline* `tt07-bep-decode` menerima `payload` dan *field* integritas yang korup dengan `full=1` (CWE-354, terukur). Rincian pada `sim/RESULTS.md`.
 
+Hasil *hardening* sky130 desain lampiran RF (front-end *baseline* ditambah L1 *framing*, L2 integritas CRC terparametrisasi, dan *gate* L3 yang sama dengan inti): tile 1×2, die 0,0363 mm², WNS 0,00, daya tipikal 1,21 mW. Angka ini **bukan** angka inti SALARAS (lihat 3.3).
+
 ### Lampiran G. Batasan
 
-- Tidak ada provisi kunci, ketahanan replay lintas siklus daya, atau ketahanan kanal samping.
-- Tidak ada klaim kriptografis penuh; tag 32 bit memberi peluang forgery sekitar 2 pangkat -32.
-- Tautan serial dan CDC adalah tahap berikutnya; angka FPGA menunggu sintesis Quartus.
+| Batasan | Dampak | Mitigasi atau rencana |
+| --- | --- | --- |
+| Tidak ada kerahasiaan *payload* | *Payload* dapat dibaca penyadap | Di luar cakupan; dapat ditambah dengan AEAD (mis. Ascon) |
+| Tag 32 bit | Peluang forgery sekitar 2⁻³² per percobaan | Cukup untuk tautan ringan; tag lebih panjang dengan *cipher* 64 bit |
+| Blok 32 bit (*batas birthday*) | Keamanan turun setelah sekitar 2¹⁶ blok per kunci | Rotasi kunci wajib, rekomendasi setiap 2¹² *frame* |
+| CBC-MAC hanya panjang tetap | Tidak aman untuk *frame* berpanjang variabel | Format dikunci tiga blok; ganti ke CMAC jika variabel |
+| *Counter* kembali ke 0 setelah reset | *Frame* lama dapat diterima lagi setelah *power cycle* | Kunci sesi baru setiap *boot* |
+| Provisi kunci | Inti tidak mengatur dari mana kunci berasal | Tanggung jawab *host* atau *secure element* |
+| Kanal samping dan *glitch* fisik | Tidak dianalisis | Properti formal hanya membuktikan logika, bukan ketahanan fisik |
+| *Front-end* dan CDC | Inti saat ini satu domain *clock* | Integrasi TT07 SerDes saat *bootcamp* |
+| Angka FPGA | Masih estimasi Yosys | Laporan Fitter Quartus saat *bootcamp* |
 
-### Lampiran H. Uji Hardware Board FPGA DE10-Nano
+### Lampiran H. Uji Hardware FPGA DE10-Nano
 
-- Papan: Terasic DE10-Nano, Cyclone V SoC (5CSEBA6U23I7), dengan Quartus Prime.
-- *Clock*: `CLOCK_50` 50 MHz secara langsung, satu *clock domain*.
-- Prosedur: sintesis (`quartus_sh --flow compile`), unggah *bitstream* (.sof/.rbf), dan pengujian *on-board real-time*.
-- Pemuatan kunci: set `SW[0]=1`, geser 64 bit kunci MSB-first melalui GPIO; kunci terkunci setelah 64 bit (`LEDR[5]` naik).
-- Pemuatan *frame*: set `SW[0]=0`, geser 128 bit (*counter* 32, payload 64, tag 32) melalui GPIO; inti memulai MAC setelah 128 bit.
-- SignalTap: `auth_ok`, `fresh_ok`, `done`, `host_full`, `fault`.
-- Uji *on-board*: *frame* bersih diterima (`host_full` naik), *frame* korup ditolak (`host_full` rendah, `fault` naik), replay tidak dikomit.
-- Laporan: Fitter (ALM/FF/M10K/DSP), Timing Analyzer (Fmax, WNS), dan PowerPlay.
-- Fasilitas FPGA/sandbox penyelenggara dipakai pada *bootcamp*.
+- **Papan:** Terasic DE10-Nano, Cyclone V SoC (5CSEBA6U23I7), Quartus Prime.
+- **Clock:** `CLOCK_50` (50 MHz) langsung, satu domain *clock*.
+- **Prosedur:** sintesis (`quartus_sh --flow compile`), unggah *bitstream* (.sof/.rbf), uji *on-board real-time*.
+- **Pemuatan kunci:** sekali setelah reset, dengan `SW[0]` tinggi, kunci 64 bit digeser MSB-*first* lewat GPIO. Kunci lalu terkunci sampai reset (`LEDR[5]` naik); *frame* diabaikan sampai kunci dimuat. Pada Tiny Tapeout, mode kunci memakai pin `ui_in[3]`.
+- **Pemuatan *frame*:** dengan `SW[0]` rendah, *frame* 128 bit (counter 32, payload 64, tag 32) digeser lewat GPIO; inti lalu menjalankan MAC.
+- **SignalTap:** `auth_ok`, `fresh_ok`, `done`, `host_full`, `fault`.
+- **Skenario uji:** *frame* bersih diterima (`host_full` naik); *frame* korup ditolak (`host_full` tetap rendah, `fault` naik); replay tidak dikomit; *frame* yang mencoba memuat kunci baru diabaikan.
+- **Laporan:** Fitter (ALM, FF, M10K, DSP), Timing Analyzer (Fmax, WNS), PowerPlay.
+- **Fasilitas:** FPGA/sandbox penyelenggara saat *bootcamp*.
