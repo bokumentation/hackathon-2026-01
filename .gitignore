@@ -49,3 +49,6 @@ incremental_db/
 /docs/
 
 /.opencode/
+
+# SymbiYosys work directories
+/synth/formal/*/

@@ -6,7 +6,7 @@ mode prove
 depth 40
 
 [engines]
-smtbmc
+smtbmc z3
 
 [script]
 read_verilog -sv -formal l2_integrity_verify.v
