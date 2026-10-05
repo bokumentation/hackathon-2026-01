@@ -1,18 +1,19 @@
 ---
 name: salaras-rx
-description: Project workflow and invariants for the SALARAS-RX hardware repository (Tiny Tapeout sky130 RTL, cocotb verification, SymbiYosys formal, simulation evidence, and the untracked proposal docs). Use when working in this repository on src/, test/, sim/, synth/, tools/, fpga/, the Makefile, README, or the proposal.
+description: Project workflow, design program, and invariants for this Tiny Tapeout hardware repository (sky130 RTL, cocotb verification, SymbiYosys formal, simulation evidence, and the untracked proposal docs). Use when working in this repository on src/, test/, sim/, synth/, tools/, fpga/, the Makefile, README, or the proposal.
 ---
 
-# SALARAS-RX project workflow
+# Project workflow
 
 Use this when changing anything in this repository.
 
-## What the design is
+## Design program
 
-- SALARAS-RX is a fail-closed ingress boundary for Manchester/RF serial links.
-- It sits between the decoder and the host register file and does not change the frame format.
-- Three layers: L1 framing and timing validity, L2 integrity verification, L3 atomic commit gatekeeper.
-- The target is Tiny Tapeout sky130 (1x2 tile confirmed) and the Terasic DE10-Nano (Cyclone V).
+- SALARAS-RX is the fail-closed Manchester/RF ingress boundary on `tt07-bep-decode`; it is the CWE-354 problem evidence and is kept as an appendix.
+- The committed successor is the authenticated, replay-resistant, fail-closed boundary (Tier A): SIMON-32/64 CBC-MAC plus a freshness counter, single clock.
+- Tier B (next): a purpose-built link layer on `TT_UM_SERDES` (`link_enc_8b10b`, `link_dec_10b8b`, `link_tx`, `link_rx`, `l1_link_framing`).
+- Tier C (future): two-clock operation using the vendored `cdc_fifo`, real hardening, FPGA.
+- Execution is in `PLAN-02.md`; vision and proposal framing are in `PLAN.md`.
 
 ## Repository map
 
@@ -32,21 +33,31 @@ Use this when changing anything in this repository.
 - `make formal` SymbiYosys proofs (needs `sby`).
 - `make test` unit cocotb suite.
 - `make sim` simulation evidence suites (baseline + boundary).
-- `./scripts/verify.sh` runs all gates and reports a pass/fail summary.
+- `.opencode/skill/salaras-rx/scripts/verify.sh` runs all gates and reports a pass/fail summary.
 
 ## Invariants to respect
 
-- Keep the core single clock at 20 kHz; the Tiny Tapeout `info.yaml` and OpenLane `CLOCK_PERIOD` must agree.
+- Keep the Tier A core single clock; introduce a second clock only through the vendored CDC FIFO (Tier C).
 - Keep RTL lint-clean and synthesizable; plain Verilog-2001 with `default_nettype none`.
+- Keep the 8b/10b tables verbatim; rewriting the framing, alignment, and serial datapath around them is allowed.
+- Do not rewrite the vendored CDC FIFO; wrap or parameterize it.
 - L3 is fail-closed: on any failure, hold `host_full` low and raise a sticky `fault` until acknowledged.
-- Do not add a large buffer or change the frame format.
+- Do not add a large buffer or change the frame format of a link we do not own.
 
 ## Field status (do not overclaim)
 
-- The 24-bit on-wire integrity field is affine over GF(2) but is not a standard CRC-24; the baseline author suspects an error-correcting code.
-- With the 7 available pairs the delta rank is only 5, so L2 is parameterized and real-frame detection is not claimed.
-- Report field work as pending; never claim a detection-rate number that was not measured.
-- The sky130 result is 1x2 (1x1 overflows at 105.57%): die 0.0363 mm^2, WNS 0.00, typical power 1.21 mW.
+- The SALARAS-RX 24-bit on-wire field is affine over GF(2) but is not a standard CRC-24; the baseline author suspects an error-correcting code.
+- With the 7 available pairs the delta rank is only 5, so the RF L2 is parameterized and real-frame detection is not claimed.
+- The RF sky130 result is 1x2 (1x1 overflows at 105.57%): die 0.0363 mm^2, WNS 0.00, typical power 1.21 mW. It belongs to the appendix and does not transfer to the MAC module set.
+
+## Must not claim
+
+- No cryptographic proof of security; a 32-bit tag gives about 2^-32 forgery probability.
+- No real-frame RF detection rate; the RF field is unsolved, so RF is problem evidence only.
+- No serial link or CDC result until Tier B or Tier C is built.
+- No key provisioning, persistent counter, or side-channel resistance.
+- No "works with any protocol"; say "reusable core demonstrated on the RF appendix plus one synthetic profile".
+- No target portability (ASIC plus FPGA) as a result until synthesis.
 
 ## Evidence and honesty
 

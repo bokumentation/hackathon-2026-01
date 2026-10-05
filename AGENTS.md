@@ -4,10 +4,19 @@ Always-on conventions for this repository.
 
 ## Project
 
-- This repository is the SALARAS-RX hardware design: a fail-closed ingress boundary for Manchester/RF serial links.
-- The RTL targets Tiny Tapeout sky130 (1x2 tile) and the Terasic DE10-Nano (Cyclone V).
-- The baseline decoder is vendored from `tt07-bep-decode` (`edge_detect`, `state_machine`, `data_validate`) and tracked as submodules under `baseline/`.
-- The on-wire integrity field is affine but is not a standard CRC-24, so L2 stays parameterized and no detection rate is claimed yet.
+- This repository is the SALARAS-RX hardware design plus the planned secure-link successor.
+- SALARAS-RX is a fail-closed ingress boundary for Manchester/RF serial links built on `tt07-bep-decode`; it is the CWE-354 problem evidence and is kept as an appendix.
+- The committed successor is the authenticated, replay-resistant, fail-closed ingress boundary (Tier A), a keyed MAC plus freshness counter, built toward a secure serial link on `TT_UM_SERDES` (Tier B) and a clock-domain crossing (Tier C).
+- The RTL targets Tiny Tapeout sky130 and the Terasic DE10-Nano (Cyclone V).
+- Baseline RTL is vendored and tracked as submodules under `baseline/`.
+
+## Design program
+
+- Tier A (committed): `simon32_64`, `l2_auth`, `l3_commit_gatekeeper`, integration, simulation evidence, and formal invariants. Single clock.
+- Tier B (next): the link layer, rewritten cleanly for the secure frame and for cocotb: `link_enc_8b10b`, `link_dec_10b8b`, `link_tx`, `link_rx`, `l1_link_framing`.
+- Tier C (future): two-clock operation using the vendored `cdc_fifo`, real hardening, and FPGA.
+- Headline: a reusable, fail-closed authenticated ingress boundary for serial/RF links.
+- Execution lives in `PLAN.md`; vision and proposal framing live in `VISION.md`.
 
 ## Layout
 
@@ -28,9 +37,10 @@ Always-on conventions for this repository.
 ## RTL conventions
 
 - Write plain Verilog-2001 style with `default_nettype none`, not vendor-specific constructs.
-- Keep a single clock domain at 20 kHz for the core.
+- Keep the Tier A core single clock; introduce a second clock only through the vendored CDC FIFO (Tier C).
 - Keep RTL lint-clean and synthesizable with Yosys and OpenLane.
-- Vendor the baseline modules verbatim; do not rewrite them unless asked.
+- Keep the 8b/10b tables as the seed; add running disparity (RD+/RD-) and K-characters, and rewrite the framing, alignment, and serial datapath around them.
+- Do not rewrite the vendored CDC FIFO; wrap or parameterize it.
 - Do not add comments to code unless the user asks.
 
 ## Verification gates
@@ -39,6 +49,15 @@ Always-on conventions for this repository.
 - Run `make sim` when touching the boundary, the capture path, or the tests.
 - Keep CI green (lint, synth, test, formal, sim), and never weaken or delete evidence to make a check pass.
 - Never claim a measured result that was not measured; label estimates as estimates.
+
+## Must not claim
+
+- No cryptographic proof of security; a 32-bit tag gives about 2^-32 forgery probability, and CBC-MAC with a fixed key is not authenticated encryption.
+- No real-frame RF detection rate; the RF integrity field is an unsolved error-correcting code, so RF stays as problem evidence only.
+- No serial link or CDC result until Tier B or Tier C is built.
+- No key provisioning, persistent replay counter across power cycles, or side-channel resistance.
+- No "works with any protocol"; say "reusable core demonstrated on the RF appendix plus one synthetic profile".
+- No target portability (ASIC plus FPGA) as a result until synthesis.
 
 ## Docs and writing
 
