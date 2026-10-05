@@ -33,6 +33,7 @@ Use this when changing anything in this repository.
 - `make formal` SymbiYosys proofs (needs `sby`).
 - `make test` unit cocotb suite.
 - `make simon` SIMON-32/64 block and CBC-MAC tests.
+- `make l2` L2 authentication and freshness tests.
 - `make sim` simulation evidence suites (baseline + boundary).
 - `.opencode/skill/salaras-rx/scripts/verify.sh` runs all gates and reports a pass/fail summary.
 

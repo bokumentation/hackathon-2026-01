@@ -30,6 +30,7 @@ help:
 	@echo "  make formal       run SymbiYosys formal properties"
 	@echo "  make test         run the cocotb testbench"
 	@echo "  make simon        run the SIMON-32/64 block and CBC-MAC tests"
+	@echo "  make l2           run the L2 authentication and freshness tests"
 	@echo "  make sim          run the simulation evidence suites"
 	@echo "  make gds          instructions for ASIC hardening"
 	@echo "  make fpga         instructions for the DE10-Nano build"
@@ -84,6 +85,10 @@ test:
 .PHONY: simon
 simon:
 	$(MAKE) -C $(TEST_DIR) -f Makefile.simon
+
+.PHONY: l2
+l2:
+	$(MAKE) -C $(TEST_DIR) -f Makefile.l2
 
 .PHONY: sim
 sim:

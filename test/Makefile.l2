@@ -1,0 +1,13 @@
+SIM           ?= icarus
+TOPLEVEL_LANG ?= verilog
+SRC_DIR        = $(CURDIR)/../src
+
+VERILOG_SOURCES += $(SRC_DIR)/simon32_64.v
+VERILOG_SOURCES += $(SRC_DIR)/l2_auth.v
+VERILOG_SOURCES += $(CURDIR)/tb_l2_auth.v
+COMPILE_ARGS    += -I$(SRC_DIR)
+
+TOPLEVEL = tb_l2_auth
+MODULE   = test_l2_auth
+
+include $(shell cocotb-config --makefiles)/Makefile.sim

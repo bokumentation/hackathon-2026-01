@@ -20,9 +20,27 @@ matches the published SIMON-32/64 vector (key `1918111009080100`, plaintext
 
 The measured 33 cycles equals 32 rounds plus one pipeline cycle. This is the
 dominant term in the Tier A latency budget; the commit adds 1 to 2 cycles and
-the host visibility adds 0 to 1. A full 96-bit CBC-MAC over counter plus payload
-is three blocks, so the MAC verify path is about 99 cycles plus overhead, to be
-measured in M2.
+the host visibility adds 0 to 1.
+
+## L2 - Authentication and freshness (Tier A, M2)
+
+`l2_auth` runs a CBC-MAC over counter plus payload (three blocks) and a strict
+freshness counter. Measured with `make l2`.
+
+| Case | Result |
+| --- | --- |
+| 20 clean frames (increasing counters) | all accepted, false reject 0 |
+| Forgery (payload modified, tag kept) | rejected |
+| Wrong key | rejected |
+| Replay (same counter) | authenticated but `fresh_ok=0`, not committed |
+| Stale counter | `fresh_ok=0` |
+| Fresh counter | accepted |
+| Single-bit flips (32 counter, 64 payload, 32 tag) | 128 of 128 rejected |
+| End-to-end MAC plus freshness latency | 107 clock cycles |
+
+The measured 107 cycles matches the estimate (three blocks at 33 cycles each
+plus FSM overhead). This is the measured Tier A latency for the authentication
+path; the commit and host visibility stages are added in M3.
 
 ## E1 - Baseline accepts corrupted frames (CWE-354)
 
