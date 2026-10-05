@@ -5,6 +5,7 @@
 [![synth](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/synth.yaml/badge.svg)](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/synth.yaml)
 [![test](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/test.yaml/badge.svg)](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/test.yaml)
 [![formal](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/formal.yaml/badge.svg)](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/formal.yaml)
+[![sim](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/sim.yaml/badge.svg)](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/sim.yaml)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
 ## Overview
@@ -34,8 +35,19 @@ frame (counter + payload + tag)
    host  (host_full, host_data, fault)
 ```
 
+![Authenticated ingress boundary architecture](assets/block-diagram-link.svg)
+
+![Link frame format and CBC-MAC chain](assets/frame-link.svg)
+
 The Manchester/RF predecessor is archived under `appendix/rf/` as the CWE-354
 problem evidence and is not the committed design.
+
+## Status and scope
+
+- **Committed (Tier A):** the authenticated, replay-resistant, fail-closed boundary, single clock, with simulation evidence, formal proofs, and a real sky130 2x2 signoff.
+- **Next (Tier B):** attach the boundary to a serial link on `TT_UM_SERDES` (8b/10b framing, word lock, control symbols).
+- **Future (Tier C):** a clock-domain crossing with the vendored `tt07_cdc_fifo`.
+- **Problem evidence (appendix):** the Manchester/RF baseline accepts corrupt frames; its integrity field is an unsolved error-correcting code, so no RF detection rate is claimed.
 
 ## How to use this repository
 
@@ -119,11 +131,23 @@ The DE10-Nano flow is documented in [`fpga/de10nano/README.md`](fpga/de10nano/RE
 
 ```
 .
+├── .editorconfig            Editor and line-ending defaults
+├── .gitattributes           Text/binary and linguist rules
 ├── .github/                 CI workflows, PR and issue templates
-├── appendix/rf/             Archived Manchester/RF design, FPGA, and replay
+├── AGENTS.md                Project rules
+├── CHANGELOG.md             Release history
+├── CONTRIBUTING.md          Contribution guide
+├── LICENSE                  Apache-2.0
+├── NOTICE                   Third-party attribution
+├── SECURITY.md              Security policy
+├── appendix/rf/             Archived Manchester/RF design
+│   ├── fpga/de10nano/       RF DE10-Nano project
+│   ├── replay/              ESP32 Manchester replay
+│   └── src/                 RF RTL
+├── assets/                  README figures
 ├── baseline/                Pinned Tiny Tapeout 07 submodules
 ├── docs/                    Proposal and supporting documents (untracked)
-├── fpga/                    DE10-Nano link project
+├── fpga/de10nano/           Link DE10-Nano project
 ├── gds/                     Generated ASIC output (not committed)
 ├── openlane/                OpenLane entry configuration
 ├── sim/                     RF simulation evidence harness and results
@@ -133,6 +157,7 @@ The DE10-Nano flow is documented in [`fpga/de10nano/README.md`](fpga/de10nano/RE
 ├── tools/                   Integrity-field analysis scripts
 ├── info.yaml                Tiny Tapeout project metadata
 ├── Makefile                 Build entry point
+├── opencode.json            opencode configuration
 └── requirements.txt         Python verification dependencies
 ```
 
