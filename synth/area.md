@@ -45,12 +45,37 @@ Quartus Fitter numbers replace these once the integrated design is synthesized.
 
 ## ASIC (sky130) estimate
 
-Technology-independent gate count is 1353 cells with 360 flip-flops. The
+Technology-independent gate count is 1352 cells with 352 flip-flops. The
 baseline `tt07-bep-decode` occupies a single 1x1 Tiny Tapeout tile; SALARAS-RX
 adds a 24-bit CRC LFSR, a comparator, timing and timeout counters, and a small
-commit register. The target is a 1x1 tile with a 1x2 fallback. Real area,
-timing, and power come from OpenLane through the Tiny Tapeout GDS action
-(Phase E).
+commit register.
+
+## Real sky130 signoff (OpenLane, Tiny Tapeout GDS action)
+
+Hardened through `.github/workflows/gds.yaml` (run `37273399910`).
+
+The 1x1 tile is too small for the integrated design: OpenLane placement reported
+`GPL-0301 Utilization 105.57% exceeds 100%`. The documented 1x2 fallback was
+used.
+
+| Metric | Value |
+| --- | --- |
+| Tile | 1x2 |
+| Die area | 161.0 x 225.76 um = 0.0363 mm^2 |
+| Core area | 158.24 x 223.04 um |
+| Synthesis cells | 1233 |
+| Placed cells | 1671 |
+| Magic DRC | 0 violations |
+| Setup WNS / TNS | 0.00 / 0.00 (timing met) |
+| Worst setup slack | +7.97 ns |
+| Worst hold slack | +0.13 ns |
+| Power, typical | 1.21 mW |
+| Power, fastest | 1.42 mW |
+| Power, slowest | 0.95 mW |
+| Runtime | 1 m 29 s |
+
+Power split at the typical corner: sequential 61%, clock 33%, combinational 6%.
+Gate-level simulation of the netlist passes the cocotb suite (3/3).
 
 ## Power considerations
 
