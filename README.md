@@ -120,10 +120,10 @@ The DE10-Nano flow is documented in [`fpga/de10nano/README.md`](fpga/de10nano/RE
 ```
 .
 ├── .github/                 CI workflows, PR and issue templates
-├── appendix/rf/             Archived Manchester/RF design (problem evidence)
+├── appendix/rf/             Archived Manchester/RF design, FPGA, and replay
 ├── baseline/                Pinned Tiny Tapeout 07 submodules
 ├── docs/                    Proposal and supporting documents (untracked)
-├── fpga/                    DE10-Nano project and ESP32 replay path
+├── fpga/                    DE10-Nano link project
 ├── gds/                     Generated ASIC output (not committed)
 ├── openlane/                OpenLane entry configuration
 ├── sim/                     RF simulation evidence harness and results

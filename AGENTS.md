@@ -21,12 +21,12 @@ Always-on conventions for this repository.
 ## Layout
 
 - `src/` committed link RTL, the Tiny Tapeout wrapper, and hardening config.
-- `appendix/rf/` archived Manchester/RF design and its Tiny Tapeout metadata.
+- `appendix/rf/` archived Manchester/RF design, its FPGA project, and the ESP32 replay.
 - `test/` cocotb suites (link tests plus the RF unit suite).
 - `sim/` simulation evidence harness and results.
 - `synth/` formal proofs and the area report.
 - `tools/` integrity-field analysis scripts.
-- `fpga/` DE10-Nano project and the ESP32 replay path.
+- `fpga/` DE10-Nano link project.
 - `docs/` proposal and supporting documents; it is intentionally untracked.
 
 ## Toolchain and commands

@@ -18,12 +18,12 @@ Use this when changing anything in this repository.
 ## Repository map
 
 - `src/` committed link RTL: `simon32_64`, `l2_auth`, `l3_commit_gatekeeper`, `salaras_auth_top`, `project.v`, plus the Tiny Tapeout config.
-- `appendix/rf/` archived Manchester/RF design and its Tiny Tapeout metadata.
+- `appendix/rf/` archived Manchester/RF design, its FPGA project, and the ESP32 replay.
 - `test/` cocotb suites (link tests plus the RF unit suite).
 - `sim/` simulation evidence harness and results (`make sim`), plus `RESULTS.md`.
 - `synth/` formal proofs (`synth/formal/*.sby`) and the area report (`synth/area.md`).
 - `tools/` integrity-field analysis (`crc_reveng.py`, `affine_field.py`).
-- `fpga/` DE10-Nano Quartus project and the ESP32 wired replay path.
+- `fpga/` DE10-Nano link project.
 - `baseline/` pinned Tiny Tapeout 07 submodules; `docs/` is untracked and stays local.
 
 ## Commands
