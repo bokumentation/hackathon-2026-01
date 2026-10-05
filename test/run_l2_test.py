@@ -4,7 +4,7 @@ warnings.filterwarnings("ignore")
 from pathlib import Path
 from cocotb.runner import get_runner
 
-ROOT = Path(__file__).parent
+ROOT = Path(__file__).parent.parent
 SRC  = ROOT / "src"
 TEST = ROOT / "test"
 
