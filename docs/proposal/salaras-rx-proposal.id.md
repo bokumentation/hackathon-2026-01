@@ -31,7 +31,7 @@ Hasil Terukur:
 - Verifikasi bit: 128 dari 128 *single-bit flip* ditolak.
 - Forgery, kunci salah, replay, dan *counter* basi ditolak; 20 *frame* bersih diterima (false reject 0).
 - Latensi ujung ke ujung 108 siklus *clock* (107 untuk MAC dan kesegaran, 1 untuk commit).
-- Lima properti formal lolos, membuktikan sifat *fail-closed*.
+- Lima properti formal lolos membuktikan sifat *fail-closed* (empat sifat inti ditambah satu properti FSM); satu properti integritas data tambahan (`auth_data_integrity`) berjalan sebagai verifikasi non-pemblokir.
 - Lampiran RF: *hardening* sky130 nyata pada tile 1x2, die 0,0363 mm persegi, WNS 0,00, daya tipikal 1,21 mW.
 
 Dampak:
@@ -124,7 +124,7 @@ Estimasi FPGA (Yosys, sebelum sintesis Quartus):
 | Komponen | Estimasi | Kapasitas DE10-Nano |
 | --- | --- | --- |
 | *Logic elements* / LUT | sekitar 360 LUT-setara | 41.910 ALM |
-| Register / flip-flop | 500 | 415.000 |
+| Register / flip-flop | 500 | 166.542 |
 | *Block RAM* (M10K) | 0 | 5.570 Kbit |
 | DSP | 0 | 112 |
 
@@ -177,19 +177,19 @@ Metrik Keberhasilan Target:
 - Kohnen, Z. "Decoding Manchester coded transmissions in a fully digital ASIC." Skripsi, 2024.
 - Kohnen, Z. dan Alvarado, A. "Manchester decoder of a home thermostat's wireless protocol." FSiC, 2025.
 - Beaulieu, R. et al. "The SIMON and SPECK Families of Lightweight Block Ciphers." IACR ePrint 2013/404.
-- Tiny Tapeout. https://tinytapeout.com/
-- MITRE. CWE-354, CWE-345, CWE-294, CWE-1264, CWE-1245, CWE-20.
+- Tiny Tapeout. "Tiny Tapeout - Make Your Own Chip." https://tinytapeout.com/, 2024.
+- MITRE. "Common Weakness Enumeration (CWE): CWE-354 (Improper Validation of Integrity Check Value), CWE-345 (Insufficient Verification of Data Authenticity), CWE-294 (Authentication Bypass by Capture-replay), CWE-1264 (Hardware Logic with Insecure De-Synchronization between Control and Data Channels), CWE-1245 (Improper Finite State Machines in Hardware Logic), CWE-20 (Improper Input Validation)." https://cwe.mitre.org/, 2024.
 - Terasic. "DE10-Nano - Cyclone V FPGA Guide."
 
 ## 5. Lampiran
 
 ### Lampiran A. Tim & Pembagian Peran
 
-| Nama | Keahlian | Peran |
-| --- | --- | --- |
-| Ibrahim Fauzi Rahman | RTL / Verilog | Perancang RTL, integrasi, sintesis |
-| Idris Syaifulloh | Verifikasi / Python | cocotb, *fault injection*, metrik |
-| Dr. Setia Jul Ismail, S.T., M.T. | Arsitektur / Metodologi | Pembimbing, validasi klaim |
+| Nama | NIM / NIP | Institusi | Program Studi | Keahlian | Peran |
+| --- | --- | --- | --- | --- | --- |
+| Ibrahim Fauzi Rahman | 1301213xxx | Universitas Telkom, Fakultas Teknik Elektro | S1 Teknik Elektro | RTL / Verilog | Perancang RTL, integrasi, sintesis |
+| Idris Syaifulloh | 1301210541 | Universitas Telkom, Fakultas Teknik Elektro | S1 Teknik Elektro | Verifikasi / Python | cocotb, *fault injection*, metrik |
+| Dr. Setia Jul Ismail, S.T., M.T. | NIP 197207xx | Universitas Telkom, Fakultas Teknik Elektro | - | Arsitektur / Metodologi | Pembimbing, validasi klaim |
 
 ### Lampiran B. Luaran & Demo
 
@@ -238,7 +238,8 @@ Metrik Keberhasilan Target:
 - Papan: Terasic DE10-Nano, Cyclone V SoC (5CSEBA6U23I7), dengan Quartus Prime.
 - *Clock*: `CLOCK_50` 50 MHz secara langsung, satu *clock domain*.
 - Prosedur: sintesis (`quartus_sh --flow compile`), unggah *bitstream* (.sof/.rbf), dan pengujian *on-board real-time*.
-- Pemuatan *frame*: geser 192 bit (kunci 64, counter 32, payload 64, tag 32) melalui GPIO; inti memuat kunci lalu memulai MAC.
+- Pemuatan kunci: set `SW[0]=1`, geser 64 bit kunci MSB-first melalui GPIO; kunci terkunci setelah 64 bit (`LEDR[5]` naik).
+- Pemuatan *frame*: set `SW[0]=0`, geser 128 bit (*counter* 32, payload 64, tag 32) melalui GPIO; inti memulai MAC setelah 128 bit.
 - SignalTap: `auth_ok`, `fresh_ok`, `done`, `host_full`, `fault`.
 - Uji *on-board*: *frame* bersih diterima (`host_full` naik), *frame* korup ditolak (`host_full` rendah, `fault` naik), replay tidak dikomit.
 - Laporan: Fitter (ALM/FF/M10K/DSP), Timing Analyzer (Fmax, WNS), dan PowerPlay.

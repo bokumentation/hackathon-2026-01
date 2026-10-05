@@ -75,6 +75,10 @@ ${rows}
 
 marked.setOptions({ gfm: true, breaks: false });
 
+function boldSubheadings(md) {
+  return md.replace(/^([A-Z][^\n*#|`]{2,60}:)\s*$/gm, (_, label) => `**${label}**`);
+}
+
 for (const doc of docs) {
   let md = readFileSync(join(dir, doc.in), "utf8");
   md = md.replace(/```mermaid[\s\S]*?```/g, `\n${figure}\n`);
@@ -84,6 +88,7 @@ for (const doc of docs) {
     /^##\s+(Identitas Tim|Team Identity)\s*\n[\s\S]*?(?=\n##\s)/m,
     ""
   );
+  md = boldSubheadings(md);
   const body = marked.parse(md);
 
   const html = `<!doctype html>

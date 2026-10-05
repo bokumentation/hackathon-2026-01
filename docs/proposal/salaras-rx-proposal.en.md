@@ -31,7 +31,7 @@ Measured results:
 - 128 of 128 single-bit flips rejected.
 - Forgery, wrong key, replay, and stale counter rejected; 20 clean frames accepted (false reject 0).
 - End-to-end latency 108 cycles (107 for MAC and freshness, 1 for commit).
-- Five formal properties pass, proving the fail-closed structure.
+- Five formal properties pass proving the fail-closed structure (four core properties plus one FSM property); one additional data-integrity property (`auth_data_integrity`) runs as a non-blocking check.
 - RF appendix: real sky130 hardening on a 1x2 tile, die 0.0363 mm^2, WNS 0.00, typical power 1.21 mW.
 
 Impact:
@@ -124,7 +124,7 @@ FPGA estimate (Yosys, before Quartus synthesis):
 | Resource | Estimate | DE10-Nano capacity |
 | --- | --- | --- |
 | Logic elements / LUT | about 360 LUT equivalent | 41,910 ALM |
-| Registers / flip-flops | 500 | 415,000 |
+| Registers / flip-flops | 500 | 166,542 |
 | Block RAM (M10K) | 0 | 5,570 Kbit |
 | DSP | 0 | 112 |
 
@@ -177,19 +177,19 @@ Success metrics:
 - Kohnen, Z. "Decoding Manchester coded transmissions in a fully digital ASIC." BSc Thesis, 2024.
 - Kohnen, Z. and Alvarado, A. "Manchester decoder of a home thermostat's wireless protocol." FSiC, 2025.
 - Beaulieu, R. et al. "The SIMON and SPECK Families of Lightweight Block Ciphers." IACR ePrint 2013/404.
-- Tiny Tapeout. https://tinytapeout.com/
-- MITRE. CWE-354, CWE-345, CWE-294, CWE-1264, CWE-1245, CWE-20.
+- Tiny Tapeout. "Tiny Tapeout - Make Your Own Chip." https://tinytapeout.com/, 2024.
+- MITRE. "Common Weakness Enumeration (CWE): CWE-354 (Improper Validation of Integrity Check Value), CWE-345 (Insufficient Verification of Data Authenticity), CWE-294 (Authentication Bypass by Capture-replay), CWE-1264 (Hardware Logic with Insecure De-Synchronization between Control and Data Channels), CWE-1245 (Improper Finite State Machines in Hardware Logic), CWE-20 (Improper Input Validation)." https://cwe.mitre.org/, 2024.
 - Terasic. "DE10-Nano - Cyclone V FPGA Guide."
 
 ## 5. Appendix
 
 ### Appendix A. Team & Roles
 
-| Name | Expertise | Role |
-| --- | --- | --- |
-| Ibrahim Fauzi Rahman | RTL / Verilog | RTL designer, integration, synthesis |
-| Idris Syaifulloh | Verification / Python | cocotb, fault injection, metrics |
-| Dr. Setia Jul Ismail, S.T., M.T. | Architecture / Methodology | Advisor, claim validation |
+| Name | NIM / NIP | Institution | Study Program | Expertise | Role |
+| --- | --- | --- | --- | --- | --- |
+| Ibrahim Fauzi Rahman | 1301213xxx | Universitas Telkom, Faculty of Electrical Engineering | S1 Electrical Engineering | RTL / Verilog | RTL designer, integration, synthesis |
+| Idris Syaifulloh | 1301210541 | Universitas Telkom, Faculty of Electrical Engineering | S1 Electrical Engineering | Verification / Python | cocotb, fault injection, metrics |
+| Dr. Setia Jul Ismail, S.T., M.T. | NIP 197207xx | Universitas Telkom, Faculty of Electrical Engineering | - | Architecture / Methodology | Advisor, claim validation |
 
 ### Appendix B. Outputs & Demo
 
@@ -238,7 +238,8 @@ The baseline `tt07-bep-decode` latches a corrupt payload and integrity field wit
 - Board: Terasic DE10-Nano, Cyclone V SoC (5CSEBA6U23I7), with Quartus Prime.
 - Clock: `CLOCK_50` at 50 MHz directly, one clock domain.
 - Procedure: synthesis (`quartus_sh --flow compile`), bitstream upload (.sof/.rbf), and real-time on-board testing.
-- Frame loading: shift 192 bits (key 64, counter 32, payload 64, tag 32) over GPIO; the core loads the key and starts the MAC.
+- Key loading: set `SW[0]=1`, shift 64-bit key MSB-first over GPIO; `LEDR[5]` goes high when the key is locked.
+- Frame loading: set `SW[0]=0`, shift 128 bits (counter 32, payload 64, tag 32) over GPIO; the core starts the MAC after 128 bits.
 - SignalTap: `auth_ok`, `fresh_ok`, `done`, `host_full`, `fault`.
 - On-board test: clean frame accepted (`host_full` high), corrupt frame rejected (`host_full` low, `fault` high), replay not committed.
 - Reports: Fitter (ALM/FF/M10K/DSP), Timing Analyzer (Fmax, WNS), and PowerPlay.

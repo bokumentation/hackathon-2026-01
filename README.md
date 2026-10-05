@@ -6,6 +6,7 @@
 [![test](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/test.yaml/badge.svg)](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/test.yaml)
 [![formal](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/formal.yaml/badge.svg)](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/formal.yaml)
 [![sim](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/sim.yaml/badge.svg)](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/sim.yaml)
+[![docs](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/docs.yaml/badge.svg)](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/docs.yaml)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
 ## Overview
@@ -139,6 +140,109 @@ bash docs/deck/build.sh
 
 The proposal source is [`docs/proposal/salaras-rx-proposal.id.md`](docs/proposal/salaras-rx-proposal.id.md) (Indonesian) and [`docs/proposal/salaras-rx-proposal.en.md`](docs/proposal/salaras-rx-proposal.en.md) (English).
 
+## Tutorial: Running the full verification flow
+
+This tutorial walks through every verification step from a clean clone to a
+passing formal proof. Each step shows the exact command and a one-line summary
+of what a successful run produces.
+
+### Step 1 - Clone and set up the environment
+
+```bash
+git clone --recurse-submodules git@github.com:bokumentation/hackathon-2026-01.git
+cd hackathon-2026-01
+make env
+source venv/bin/activate
+```
+
+Expected: the virtual environment is created and all Python dependencies from
+`requirements.txt` are installed with no errors.
+
+### Step 2 - RTL lint
+
+```bash
+make lint
+```
+
+Expected: Verilator exits with no warnings or errors on the committed RTL under
+`src/`. The final line is `Lint OK`.
+
+### Step 3 - Synthesis check
+
+```bash
+make synth-check
+```
+
+Expected: Yosys synthesizes `tt_um_bokumentation_auth_boundary` without
+undefined modules or unresolved references. The final line is `End of script.`
+with no fatal errors.
+
+### Step 4 - SIMON cipher tests
+
+```bash
+make simon
+```
+
+Expected: 2 tests pass covering 49 vectors (1 published SIMON-32/64 vector plus
+48 random vectors) and a 3-block CBC-MAC check. Output ends with
+`2 passed, 0 failed`.
+
+### Step 5 - L2 authentication tests
+
+```bash
+make l2
+```
+
+Expected: 4 tests pass. The suite exercises 20 clean frames (all accepted), a
+forgery, a wrong-key attempt, a replay, a stale counter, and 128 single-bit
+flips (32 counter bits, 64 payload bits, 32 tag bits). Every flip is rejected.
+Output ends with `4 passed, 0 failed`.
+
+### Step 6 - Integrated authentication tests
+
+```bash
+make auth
+```
+
+Expected: 6 tests pass covering clean commit (`host_full=1, fault=0`), forgery
+(`fault=1`), replay (`fault=1`), and sticky-fault hold. End-to-end latency
+measured at 108 cycles (107 for MAC plus freshness, 1 for commit). Output ends
+with `6 passed, 0 failed`.
+
+### Step 7 - Tiny Tapeout wrapper tests
+
+```bash
+make wrapper
+```
+
+Expected: 5 tests pass exercising the `tt_um_bokumentation_auth_boundary`
+wrapper pins: reset, a clean commit through the full pin interface, a forgery
+rejection, a replay rejection, and a sticky-fault clear. Output ends with
+`5 passed, 0 failed`.
+
+### Step 8 - Formal verification
+
+```bash
+make formal
+```
+
+Note: requires SymbiYosys from the OSS CAD Suite. Install with
+`pip install oss-cad-suite` or download the nightly from
+<https://github.com/YosysHQ/oss-cad-suite-build/releases>.
+
+Expected: 5 properties pass with bounded model checking to depth 20. The
+properties cover fail-closed guarantee, sticky fault, fault-ack clear, counter
+monotonicity, and no phantom accepts. Output ends with `5 passed`.
+
+### Step 9 - ASIC hardening
+
+ASIC hardening is not run locally. Trigger the
+[`gds.yaml`](.github/workflows/gds.yaml) workflow on GitHub Actions with a
+workflow dispatch event or push a `v*` tag. The action runs OpenLane on the
+Tiny Tapeout infrastructure and uploads GDS, LEF, and signoff reports as
+artifacts. The last passing run produced a 2x2 tile with 2354 cells, 0 DRC
+violations, and 1.87 mW typical power (see Results below).
+
 ## Repository layout
 
 ```
@@ -175,19 +279,34 @@ The proposal source is [`docs/proposal/salaras-rx-proposal.id.md`](docs/proposal
 
 ## Results
 
-- L2 and L3 simulation: 128 of 128 single-bit flips rejected, forgery, wrong
-  key, replay, and stale counter rejected, 20 clean frames accepted.
-- End-to-end latency: 108 cycles (107 for MAC and freshness, 1 for commit).
-- Integrity comparison: CRC 73 cycles (keyless), MAC 107 cycles, MAC plus
-  counter 108 cycles.
-- Formal: five properties pass, proving the fail-closed structure.
-- Link sky130 signoff: 2x2 tile, die 0.0756 mm^2, 2354 cells, 0 DRC, 0 LVS,
-  WNS 0.00, typical power 1.87 mW.
-- RF appendix: real sky130 hardening on a 1x2 tile, die 0.0363 mm^2, WNS 0.00,
-  typical power 1.21 mW.
+| Metric | Value | How to reproduce |
+| --- | --- | --- |
+| Bit-flip rejection | 128/128 | `make l2` |
+| False reject rate | 0% (20/20 clean frames) | `make l2` |
+| End-to-end latency | 108 cycles at 50 MHz = 2.16 us | `make auth` |
+| Commit latency | 1 cycle | `make auth` |
+| Forgery rejected | yes | `make l2`, `make auth` |
+| Replay rejected | yes | `make auth` |
+| Formal properties | 5 pass | `make formal` |
+| ASIC die area | 0.0756 mm2 (2x2 tile) | gds.yaml |
+| ASIC power | 1.87 mW typical | gds.yaml |
+| DRC violations | 0 | gds.yaml |
 
 Full detail is in [`sim/RESULTS.md`](sim/RESULTS.md) and
 [`synth/area.md`](synth/area.md).
+
+## Security
+
+Two vulnerabilities have been fixed on the Security branch: CWE-1264 (TOCTOU
+between authentication and commit) and key-path separation (preventing key
+material from flowing to the data output path).
+
+See [`SECURITY.md`](SECURITY.md) for the responsible-disclosure policy and
+contact details.
+
+The fixes are on the
+[`security`](https://github.com/bokumentation/hackathon-2026-01/tree/security)
+branch.
 
 ## Baselines
 
