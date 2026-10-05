@@ -53,5 +53,9 @@ incremental_db/
 # SymbiYosys work directories
 /synth/formal/*/
 
+# Simulation evidence output
+/sim/out/*
+!/sim/out/README.md
+
 # Synthesis area reports
 /synth/area/

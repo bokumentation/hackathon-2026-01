@@ -29,6 +29,7 @@ help:
 	@echo "  make area         estimate cell, FF, and Cyclone V resource usage"
 	@echo "  make formal       run SymbiYosys formal properties"
 	@echo "  make test         run the cocotb testbench"
+	@echo "  make sim          run the simulation evidence suites"
 	@echo "  make gds          instructions for ASIC hardening"
 	@echo "  make fpga         instructions for the DE10-Nano build"
 	@echo "  make clean        remove build outputs"
@@ -79,6 +80,11 @@ formal:
 test:
 	$(MAKE) -C $(TEST_DIR)
 
+.PHONY: sim
+sim:
+	$(MAKE) -C sim baseline
+	$(MAKE) -C sim boundary
+
 .PHONY: gds
 gds:
 	@echo "ASIC hardening runs through the Tiny Tapeout GDS GitHub Action."
@@ -94,3 +100,4 @@ clean:
 	rm -rf sim_build obj_dir runs db
 	rm -f *.vcd *.fst *.vvp
 	$(MAKE) -C $(TEST_DIR) clean 2>/dev/null || true
+	$(MAKE) -C sim clean 2>/dev/null || true

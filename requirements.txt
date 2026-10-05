@@ -1,2 +1,4 @@
 cocotb==2.1.0
 pytest==9.1.1
+matplotlib==3.11.2
+vcdvcd==2.6.0
