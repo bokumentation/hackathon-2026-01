@@ -37,7 +37,7 @@ are written to `synth/area/` (not tracked).
 | Resource | Estimate | DE10-Nano capacity |
 | --- | --- | --- |
 | Logic elements / LUT | about 508 LUT equivalent | 41,910 ALMs |
-| Registers / flip-flops | 360 | 415,000 |
+| Registers / flip-flops | 360 | 166,542 |
 | Block RAM (M10K) | 0 (no buffer) | 5,570 Kbits |
 | DSP blocks | 0 (LFSR-based CRC) | 112 DSP |
 

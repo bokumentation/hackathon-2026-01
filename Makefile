@@ -33,6 +33,7 @@ help:
 	@echo "  make l2           run the L2 authentication and freshness tests"
 	@echo "  make auth         run the integrated authentication and commit tests"
 	@echo "  make crc          measure the RF CRC streaming latency (comparison)"
+	@echo "  make wrapper      run the TT wrapper testbench (key separation and frame tests)"
 	@echo "  make sim          run the simulation evidence suites"
 	@echo "  make gds          instructions for ASIC hardening"
 	@echo "  make fpga         instructions for the DE10-Nano build"
@@ -99,6 +100,10 @@ auth:
 .PHONY: crc
 crc:
 	$(MAKE) -C $(TEST_DIR) -f Makefile.crc
+
+.PHONY: wrapper
+wrapper:
+	$(MAKE) -C $(TEST_DIR) -f Makefile.project
 
 .PHONY: sim
 sim:

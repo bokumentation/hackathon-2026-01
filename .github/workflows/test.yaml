@@ -35,3 +35,33 @@ jobs:
           name: test-waveforms
           path: test/*.vcd
           if-no-files-found: ignore
+
+  wrapper:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Icarus Verilog
+        run: sudo apt-get update && sudo apt-get install -y iverilog
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Python packages
+        run: pip install -r requirements.txt
+
+      - name: Run TT wrapper tests
+        run: make wrapper
+
+      - name: Upload waveforms
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wrapper-waveforms
+          path: test/project.vcd
+          if-no-files-found: ignore

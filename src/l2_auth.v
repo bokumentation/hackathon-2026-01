@@ -13,7 +13,9 @@ module l2_auth (
     output reg         fresh_ok,
     output reg         done,
     output reg  [31:0] tag_computed,
-    output reg  [15:0] latency
+    output reg  [15:0] latency,
+    output wire [31:0] counter_q,
+    output wire [63:0] payload_q
 );
     localparam S_IDLE  = 2'd0;
     localparam S_START = 2'd1;
@@ -118,6 +120,9 @@ module l2_auth (
             endcase
         end
     end
+
+    assign counter_q = cnt_lat;
+    assign payload_q = pay_lat;
 endmodule
 
 `default_nettype wire

@@ -11,11 +11,25 @@ Terasic DE10-Nano, Intel Cyclone V SoC `5CSEBA6U23I7`. Quartus Prime is required
 The core runs directly on `CLOCK_50` (50 MHz). One clock domain in the
 committed scope.
 
+## Key loading
+
+The key path is separate from the frame path and must be loaded once before any
+frame is accepted.
+Set `SW[0] = 1` (key_mode) and clock in the 64-bit key MSB first through
+`gpio_frame_bit` while `gpio_load_en` is high.
+After 64 bits the core pulses `key_load`, sets the `key_locked` latch, and
+returns to S_LOAD.
+The key remains locked until reset; a second attempt to load a key while
+`key_locked` is set has no effect.
+`LEDR[5]` indicates `key_locked`.
+
 ## Frame loading
 
-Shift the 192-bit frame MSB first through `gpio_frame_bit` while `gpio_load_en`
-is high: `key (64) + counter (32) + payload (64) + tag (32)`. After 192 bits the
-core loads the key, starts the MAC, and commits or faults.
+After the key is loaded, set `SW[0] = 0` (frame mode) and shift the 128-bit
+frame MSB first through `gpio_frame_bit` while `gpio_load_en` is high:
+`counter (32) + payload (64) + tag (32)`.
+After 128 bits the core starts the MAC, and commits or faults.
+Frames received before the key is loaded are ignored.
 
 ## Pinout
 
@@ -23,12 +37,14 @@ core loads the key, starts the MAC, and commits or faults.
 | --- | --- |
 | `CLOCK_50` | 50 MHz oscillator |
 | `KEY[0]` | Reset (active low) |
+| `SW[0]` | `key_mode`: 1 = load key, 0 = load frame |
 | `LEDR[0]` | `done` |
 | `LEDR[1]` | `host_full` |
 | `LEDR[2]` | `fault` |
 | `LEDR[3]` | `auth_ok` |
 | `LEDR[4]` | `fresh_ok` |
-| `gpio_frame_bit` | GPIO frame input |
+| `LEDR[5]` | `key_locked` |
+| `gpio_frame_bit` | GPIO frame/key input (shared, mode-selected) |
 | `gpio_load_en` | GPIO load strobe |
 | `gpio_fault_ack` | GPIO fault acknowledge |
 | `gpio_host_full` | GPIO status output |
@@ -50,12 +66,19 @@ Timing Analyzer, then update the proposal tables and `synth/area.md`.
 
 ## On-board test
 
-- Add a SignalTap instance on `auth_ok`, `fresh_ok`, `done`, `host_full`, and
-  `fault`.
-- Clean frame: `host_full` and `auth_ok` rise, `fault` stays low.
-- Tampered frame (flip a payload bit, keep the tag): commit is blocked, `fault`
-  rises, and it stays high until `gpio_fault_ack`.
-- Replay (same counter): authenticated but not committed, `fresh_ok` low.
+1. Assert `KEY[0]` low to reset; release.
+2. Set `SW[0] = 1`. Clock in the 64-bit key MSB first with `gpio_load_en` high.
+   `LEDR[5]` rises when `key_locked`.
+3. Set `SW[0] = 0`. Clock in a 128-bit authenticated frame
+   (counter + payload + tag, 128 bits total).
+4. After `gpio_done` rises: `LEDR[1]` (`host_full`) high and `LEDR[2]` (`fault`)
+   low for a clean frame.
+5. With `SW[0] = 0`, attempt to tamper with the payload (change a bit, keep tag):
+   `LEDR[2]` rises; it stays high until `gpio_fault_ack`.
+6. Replay (same counter): authenticated but not committed - `LEDR[4]`
+   (`fresh_ok`) low, `LEDR[2]` rises.
+7. With `SW[0] = 1` again after reset, confirm a second key-load attempt while
+   `LEDR[5]` is set has no effect.
 
 ## Reports to capture
 

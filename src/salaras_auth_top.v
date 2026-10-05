@@ -22,6 +22,8 @@ module salaras_auth_top (
     wire        l2_done;
     wire [31:0] tag_computed;
     wire [15:0] l2_latency;
+    wire [31:0] counter_q;
+    wire [63:0] payload_q;
 
     l2_auth u_l2 (
         .clk(clk),
@@ -36,7 +38,9 @@ module salaras_auth_top (
         .fresh_ok(freshness_ok),
         .done(l2_done),
         .tag_computed(tag_computed),
-        .latency(l2_latency)
+        .latency(l2_latency),
+        .counter_q(counter_q),
+        .payload_q(payload_q)
     );
 
     l3_commit_gatekeeper u_l3 (
@@ -45,7 +49,7 @@ module salaras_auth_top (
         .frame_done(l2_done),
         .framing_ok(verify_ok),
         .crc_ok(freshness_ok),
-        .frame_data({counter, payload}),
+        .frame_data({counter_q, payload_q}),
         .fault_ack(fault_ack),
         .host_full(host_full),
         .host_data_q(host_data_q),

@@ -17,13 +17,18 @@ module salaras_auth_de10nano (
     localparam S_START = 2'd2;
     localparam S_WAIT  = 2'd3;
 
-    reg [1:0]   st;
-    reg [191:0] sr;
-    reg [7:0]   bit_count;
-    reg         key_load_q;
-    reg         start_q;
+    wire key_mode = SW[0];
 
-    wire [63:0] key     = sr[191:128];
+    reg [1:0]  st;
+    reg [127:0] sr;
+    reg [6:0]  bit_count;
+    reg        key_load_q;
+    reg        start_q;
+
+    reg [63:0] key_sr;
+    reg [6:0]  key_bit_count;
+    reg        key_locked;
+
     wire [31:0] counter = sr[127:96];
     wire [63:0] payload = sr[95:32];
     wire [31:0] tag_in  = sr[31:0];
@@ -38,7 +43,7 @@ module salaras_auth_de10nano (
     salaras_auth_top core (
         .clk(CLOCK_50),
         .rst_n(KEY[0]),
-        .key(key),
+        .key(key_sr),
         .key_load(key_load_q),
         .counter(counter),
         .payload(payload),
@@ -55,40 +60,65 @@ module salaras_auth_de10nano (
 
     always @(posedge CLOCK_50 or negedge KEY[0]) begin
         if (!KEY[0]) begin
-            st         <= S_LOAD;
-            sr         <= 192'd0;
-            bit_count  <= 8'd0;
-            key_load_q <= 1'b0;
-            start_q    <= 1'b0;
+            st            <= S_LOAD;
+            sr            <= 128'd0;
+            bit_count     <= 7'd0;
+            key_load_q    <= 1'b0;
+            start_q       <= 1'b0;
+            key_sr        <= 64'd0;
+            key_bit_count <= 7'd0;
+            key_locked    <= 1'b0;
         end else begin
             key_load_q <= 1'b0;
             start_q    <= 1'b0;
 
             case (st)
                 S_LOAD: begin
-                    if (gpio_load_en) begin
-                        sr        <= {sr[190:0], gpio_frame_bit};
-                        bit_count <= bit_count + 8'd1;
-                        if (bit_count == 8'd191) begin
-                            st <= S_KEY;
+                    if (key_mode && !key_locked) begin
+                        if (gpio_load_en) begin
+                            key_sr        <= {key_sr[62:0], gpio_frame_bit};
+                            key_bit_count <= key_bit_count + 7'd1;
+                            if (key_bit_count == 7'd63) begin
+                                st            <= S_KEY;
+                                key_bit_count <= 7'd0;
+                            end
+                        end else begin
+                            key_bit_count <= 7'd0;
+                        end
+                        bit_count <= 7'd0;
+                    end else if (!key_mode && key_locked) begin
+                        if (gpio_load_en) begin
+                            sr        <= {sr[126:0], gpio_frame_bit};
+                            bit_count <= bit_count + 7'd1;
+                            if (bit_count == 7'd127) begin
+                                st        <= S_START;
+                                bit_count <= 7'd0;
+                            end
+                        end else begin
+                            bit_count <= 7'd0;
                         end
                     end else begin
-                        bit_count <= 8'd0;
+                        bit_count <= 7'd0;
                     end
                 end
+
                 S_KEY: begin
                     key_load_q <= 1'b1;
-                    st         <= S_START;
+                    key_locked <= 1'b1;
+                    st         <= S_LOAD;
                 end
+
                 S_START: begin
                     start_q <= 1'b1;
                     st      <= S_WAIT;
                 end
+
                 S_WAIT: begin
                     if (done) begin
                         st <= S_LOAD;
                     end
                 end
+
                 default: st <= S_LOAD;
             endcase
         end
@@ -99,13 +129,14 @@ module salaras_auth_de10nano (
     assign LEDR[2] = fault;
     assign LEDR[3] = auth_ok;
     assign LEDR[4] = fresh_ok;
-    assign LEDR[9:5] = 5'b0;
+    assign LEDR[5] = key_locked;
+    assign LEDR[9:6] = 4'b0;
 
     assign gpio_host_full = host_full;
     assign gpio_fault     = fault;
     assign gpio_done      = done;
 
-    wire _unused = &{1'b0, SW, host_data_q};
+    wire _unused = &{1'b0, SW[9:1], host_data_q};
 endmodule
 
 `default_nettype wire
