@@ -1,0 +1,14 @@
+SIM           ?= icarus
+TOPLEVEL_LANG ?= verilog
+
+REPO     := $(CURDIR)/..
+BASELINE := $(REPO)/baseline/tt07-bep-decode/src
+
+VERILOG_SOURCES += $(BASELINE)/project.v
+VERILOG_SOURCES += $(CURDIR)/tb_baseline_top.v
+COMPILE_ARGS    += -I$(BASELINE)
+
+TOPLEVEL = tb_baseline_top
+MODULE   = collect_pairs
+
+include $(shell cocotb-config --makefiles)/Makefile.sim

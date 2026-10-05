@@ -35,6 +35,13 @@ Figure: `out/boundary_commit_reject.png` and `out/boundary_timeout.png`.
 
 ## Not yet covered
 
-End-to-end detection rate on real captures requires the confirmed CRC-24
-parameters (Phase S2). Until then, `crc_ok` is driven directly and no
+End-to-end detection rate on real captures requires the confirmed integrity
+field parameters (Phase S2). Until then, `crc_ok` is driven directly and no
 detection-rate number is claimed.
+
+## Integrity field status
+
+The field is affine over GF(2) (a one-bit payload flip gives a constant tail
+delta), but no standard CRC-24 matched. The exhaustive search is in
+`tools/crc_reveng.py`; see `tools/README.md`. L2 stays parameterized and the
+proposal documents the affine-reconstruction fallback.
