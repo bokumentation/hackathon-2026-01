@@ -59,7 +59,8 @@ path; the commit and host visibility stages are added in M3.
 
 The Tier A end-to-end latency is 108 cycles: 107 for MAC plus freshness, plus 1
 for the commit. The RF appendix boundary commit was also 1 cycle, so the shared
-gate adds the same single cycle.
+gate adds the same single cycle. Figure: `out/auth_commit.png` shows a clean
+accept and a rejected frame side by side.
 
 ## E1 - Baseline accepts corrupted frames (CWE-354)
 
