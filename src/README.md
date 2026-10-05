@@ -8,7 +8,9 @@ RTL for SALARAS-RX.
 | --- | --- |
 | `salaras_rx_defs.svh` | Shared protocol constants and CRC parameters |
 | `sync2.v` | Two-flop synchronizer for the asynchronous `digital_in` input |
-| `manchester_rx.v` | Edge detect and Manchester decode front-end |
+| `edge_detect.v` | Baseline edge detect (vendored from tt07-bep-decode) |
+| `state_machine.v` | Baseline Manchester decode front-end (vendored) |
+| `data_validate.v` | Baseline header validation (vendored) |
 | `frame_capture.v` | Header validation, payload capture, bit indexing |
 | `l1_framing_validator.v` | L1: half-period timing window, timeout, framing validity |
 | `l2_integrity_verify.v` | L2: streaming CRC-24 verification of the integrity field |
@@ -24,8 +26,10 @@ RTL for SALARAS-RX.
 tt_um_bokumentation_salaras_rx   (project.v)
 └── salaras_rx_top
     ├── sync2
-    ├── manchester_rx
+    ├── edge_detect
+    ├── state_machine
     ├── frame_capture
+    │   └── data_validate
     ├── l1_framing_validator
     ├── l2_integrity_verify
     └── l3_commit_gatekeeper

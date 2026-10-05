@@ -13,7 +13,9 @@ project:
 
   source_files:
     - "sync2.v"
-    - "manchester_rx.v"
+    - "edge_detect.v"
+    - "state_machine.v"
+    - "data_validate.v"
     - "frame_capture.v"
     - "l1_framing_validator.v"
     - "l2_integrity_verify.v"

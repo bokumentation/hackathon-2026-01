@@ -4,8 +4,8 @@ Preliminary, technology-independent estimate of the SALARAS-RX top
 (`tt_um_bokumentation_salaras_rx`). Reproduce with `make area`; raw Yosys logs
 are written to `synth/area/` (not tracked).
 
-- Revision: `4a80751`
-- RTL: current `src/` (pre baseline-integration)
+- Revision: `main` (Phase B integration)
+- RTL: `src/` with the baseline front-end (`edge_detect`, `state_machine`, `data_validate`) integrated
 - Tool: Yosys 0.52
 
 ## Method
@@ -19,25 +19,24 @@ are written to `synth/area/` (not tracked).
 
 | Metric | Value |
 | --- | --- |
-| Cells | 1353 |
-| Registers (DFF) | 360 |
-| Combinational cells | 993 |
+| Cells | 1352 |
+| Registers (DFF) | 352 |
+| Combinational cells | 1000 |
 
 ## Cyclone V ALM mapping (proxy)
 
 | Resource | Value |
 | --- | --- |
-| Mapped cells | 918 |
+| Mapped cells | 923 |
 | Registers (MISTRAL_FF) | 360 |
-| LUTs (ALUT2/3/4/5/6) | 417 |
+| LUTs (ALUT2/3/4/5/6) | 508 |
 | Arithmetic LUTs (ALUT_ARITH) | 88 |
-| LUT equivalent | 505 |
 
 ## Cyclone V resource table (preliminary, for the proposal)
 
 | Resource | Estimate | DE10-Nano capacity |
 | --- | --- | --- |
-| Logic elements / LUT | about 505 LUT equivalent | 41,910 ALMs |
+| Logic elements / LUT | about 508 LUT equivalent | 41,910 ALMs |
 | Registers / flip-flops | 360 | 415,000 |
 | Block RAM (M10K) | 0 (no buffer) | 5,570 Kbits |
 | DSP blocks | 0 (LFSR-based CRC) | 112 DSP |

@@ -26,10 +26,17 @@ module frame_capture (
     wire [15:0] type_2   = header_sr[47:32];
     wire [31:0] constant = header_sr[31:0];
 
-    assign header_ok = (preamble == `SRX_PREAMBLE) &&
-                       (type_1   == `SRX_TYPE_WORD) &&
-                       (type_2   == `SRX_TYPE_WORD) &&
-                       (constant == `SRX_CONSTANT_WORD);
+    wire [3:0] validations;
+
+    assign header_ok = &validations;
+
+    data_validate u_validate (
+        .preamble(preamble),
+        .type_1(type_1),
+        .type_2(type_2),
+        .constant(constant),
+        .validations(validations)
+    );
 
     assign payload_valid = serial_clock & in_payload & ~done_flag;
     assign payload_bit   = serial_data;

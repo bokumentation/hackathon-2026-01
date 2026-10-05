@@ -29,16 +29,23 @@ module salaras_rx_top (
     wire pos_edge;
     wire neg_edge;
 
-    manchester_rx u_rx (
-        .clk(clk),
-        .rst_n(rst_n),
-        .enable(enable),
+    edge_detect u_edge (
         .digital_in(din_s),
-        .manchester_clock(man_clock),
-        .manchester_data(man_data),
-        .transmission_begin(tx_begin),
+        .clock(clk),
+        .reset_n(rst_n),
         .pos_edge(pos_edge),
         .neg_edge(neg_edge)
+    );
+
+    state_machine u_state (
+        .clock(clk),
+        .enable(enable),
+        .reset_n(rst_n),
+        .pos_edge(pos_edge),
+        .neg_edge(neg_edge),
+        .manchester_clock(man_clock),
+        .manchester_data(man_data),
+        .transmission_begin(tx_begin)
     );
 
     wire framing_ok;
