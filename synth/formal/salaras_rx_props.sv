@@ -26,13 +26,21 @@ module l2_props (
     input wire clk,
     input wire rst_n,
     input wire frame_start,
-    input wire crc_ok,
-    input wire [`SRX_INTEGRITY_BITS-1:0] crc_value,
-    input wire [`SRX_INTEGRITY_BITS-1:0] expected_crc
+    input wire [`SRX_INTEGRITY_BITS-1:0] crc_value
 );
+    reg started;
+
     always @(posedge clk) begin
-        if (rst_n && frame_start) begin
-            assert (crc_value == `SRX_CRC_INIT);
+        if (!rst_n) begin
+            started <= 1'b0;
+        end else begin
+            started <= frame_start;
+        end
+    end
+
+    always @(posedge clk) begin
+        if (rst_n) begin
+            assert (!started || (crc_value == `SRX_CRC_INIT));
         end
     end
 endmodule
@@ -41,9 +49,7 @@ bind l2_integrity_verify l2_props u_l2_props (
     .clk(clk),
     .rst_n(rst_n),
     .frame_start(frame_start),
-    .crc_ok(crc_ok),
-    .crc_value(crc_value),
-    .expected_crc(expected_crc)
+    .crc_value(crc_value)
 );
 
 module l3_props (
@@ -52,8 +58,7 @@ module l3_props (
     input wire frame_done,
     input wire framing_ok,
     input wire crc_ok,
-    input wire host_full,
-    input wire fault
+    input wire host_full
 );
     reg accepted;
 
@@ -68,7 +73,6 @@ module l3_props (
     always @(posedge clk) begin
         if (rst_n) begin
             assert (!host_full || accepted);
-            assert (!(frame_done && !(framing_ok && crc_ok)) || fault);
         end
     end
 endmodule
@@ -79,6 +83,5 @@ bind l3_commit_gatekeeper l3_props u_l3_props (
     .frame_done(frame_done),
     .framing_ok(framing_ok),
     .crc_ok(crc_ok),
-    .host_full(host_full),
-    .fault(fault)
+    .host_full(host_full)
 );

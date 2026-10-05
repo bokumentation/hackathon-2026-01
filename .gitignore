@@ -18,6 +18,7 @@ node_modules/
 
 # Simulation artifacts
 sim_build/
+results.xml
 *.vcd
 *.fst
 *.vvp

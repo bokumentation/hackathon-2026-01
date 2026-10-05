@@ -19,7 +19,7 @@ async def reset(dut, cycles=10):
 
 
 async def start_clock(dut):
-    cocotb.start_soon(Clock(dut.clk, CLK_PERIOD_NS, units="ns").start())
+    cocotb.start_soon(Clock(dut.clk, CLK_PERIOD_NS, unit="ns").start())
 
 
 @cocotb.test()
