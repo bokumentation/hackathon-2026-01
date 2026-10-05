@@ -6,14 +6,14 @@ RTL for SALARAS-RX.
 
 | File | Role |
 | --- | --- |
-| `salaras_rx_defs.svh` | Shared protocol constants and CRC parameters |
+| `salaras_rx_defs.svh` | Shared protocol constants and L2 parameters |
 | `sync2.v` | Two-flop synchronizer for the asynchronous `digital_in` input |
 | `edge_detect.v` | Baseline edge detect (vendored from tt07-bep-decode) |
 | `state_machine.v` | Baseline Manchester decode front-end (vendored) |
 | `data_validate.v` | Baseline header validation (vendored) |
 | `frame_capture.v` | Header validation, payload capture, bit indexing |
 | `l1_framing_validator.v` | L1: half-period timing window, timeout, framing validity |
-| `l2_integrity_verify.v` | L2: streaming CRC-24 verification of the integrity field |
+| `l2_integrity_verify.v` | L2: streaming LFSR verification of the integrity field |
 | `l3_commit_gatekeeper.v` | L3: atomic commit, sticky fault, fail-closed host interface |
 | `salaras_rx_top.v` | Core integration of the three layers |
 | `project.v` | Tiny Tapeout wrapper (`tt_um_bokumentation_salaras_rx`) |
@@ -43,6 +43,6 @@ make synth-check
 make formal
 ```
 
-The integrity field parameters in `salaras_rx_defs.svh` are the current working
-hypothesis (CRC-24/OPENPGP) and are confirmed against the baseline captures as
-part of the L2 risk milestone.
+The integrity field is affine over GF(2) but does not match a standard CRC-24,
+so the parameters in `salaras_rx_defs.svh` are placeholders until the field is
+reconstructed (see `tools/README.md`).

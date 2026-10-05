@@ -50,6 +50,8 @@ git submodule update --init --recursive
 | --- | --- |
 | RTL in `src/` | `make lint`, `make synth-check` |
 | Verification in `test/` | `make test` |
+| Simulation evidence in `sim/` | `make sim` |
+| Resource estimate | `make area` |
 | Formal properties in `synth/formal/` | `make formal` |
 | FPGA in `fpga/` | Review against the DE10-Nano flow |
 

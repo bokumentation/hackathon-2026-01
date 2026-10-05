@@ -4,6 +4,7 @@
 [![synth](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/synth.yaml/badge.svg)](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/synth.yaml)
 [![test](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/test.yaml/badge.svg)](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/test.yaml)
 [![formal](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/formal.yaml/badge.svg)](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/formal.yaml)
+[![sim](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/sim.yaml/badge.svg)](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/sim.yaml)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
 ## Overview
@@ -16,22 +17,25 @@ As a result, corrupt or fault-injected payloads can appear valid to the host.
 The boundary closes that gap.
 
 ```
-digital_in --> sync2 --> manchester_rx --> frame_capture
-                                               |
-                    +--------------------------+--------------------------+
-                    |                          |                          |
-              l1_framing_validator       l2_integrity_verify       (payload bits)
-                    |                          |
-                    +------------+-------------+
-                                 |
-                        l3_commit_gatekeeper
-                                 |
-                    host_data / host_full / fault
+digital_in --> sync2 --> edge_detect --> state_machine --> frame_capture
+                                                              |
+                    +-----------------------------------------+---------------+
+                    |                                         |               |
+              l1_framing_validator                    l2_integrity_verify    |
+                    |                                         |               |
+                    +-------------------+---------------------+               |
+                                        |                                     |
+                               l3_commit_gatekeeper <-------------------------+
+                                        |
+                              host_data / host_full / fault
 ```
 
 - **L1, framing and FSM validation:** half-period timing window, timeout counter, and recovery from unexpected transitions.
-- **L2, integrity verification:** streaming CRC-24 LFSR compared against the field carried by the frame.
+- **L2, integrity verification:** streaming LFSR compared against the field carried by the frame.
 - **L3, atomic commit gatekeeper:** commits data and control together only for a valid frame, otherwise holds `full` low and raises a sticky `fault`.
+
+The baseline `edge_detect`, `state_machine`, and `data_validate` modules are used verbatim.
+The integrity field is affine over GF(2) but does not match a standard CRC-24 (see [`tools/README.md`](tools/README.md)); L2 is therefore parameterized pending field reconstruction.
 
 ## How to use this repository
 
@@ -79,8 +83,10 @@ All tasks run through the top-level Makefile.
 | `make env` | Create the Python virtual environment |
 | `make lint` | Lint the RTL with Verilator |
 | `make synth-check` | Check synthesizability with Yosys |
+| `make area` | Estimate cell, FF, and Cyclone V resource usage |
 | `make formal` | Run the SymbiYosys formal properties |
 | `make test` | Run the cocotb testbench |
+| `make sim` | Run the simulation evidence suites |
 | `make gds` | Instructions for ASIC hardening |
 | `make fpga` | Instructions for the DE10-Nano build |
 | `make clean` | Remove build outputs |
@@ -116,9 +122,11 @@ The wired replay path is documented in [`fpga/replay/README.md`](fpga/replay/REA
 │   └── replay/              Wired replay path (proposal path S2)
 ├── gds/                     Generated ASIC output (not committed)
 ├── openlane/                OpenLane entry configuration
+├── sim/                     Simulation evidence harness (cocotb + Icarus)
 ├── src/                     RTL design
-├── synth/                   Yosys and SymbiYosys configuration
+├── synth/                   Yosys, SymbiYosys, and the area report
 ├── test/                    cocotb testbench and vectors
+├── tools/                   Analysis scripts (integrity field reverse-engineering)
 ├── info.yaml                Tiny Tapeout project metadata
 ├── Makefile                 Build entry point
 ├── requirements.txt         Python verification dependencies
@@ -142,8 +150,16 @@ All three are Apache-2.0. See [`NOTICE`](NOTICE) for attribution.
 
 ## Targets
 
-- **ASIC:** Tiny Tapeout 07 flow, SkyWater sky130, target 1x1 tile with a 1x2 fallback.
+- **ASIC:** Tiny Tapeout 07 flow, SkyWater sky130 130nm via OpenLane.
 - **FPGA:** Terasic DE10-Nano, Intel Cyclone V SoC.
+
+## Results
+
+- **sky130 hardening** (Tiny Tapeout GDS action, 1x2 tile): die 0.0363 mm^2 (161.0 x 225.76 um), 1233 synthesis cells, 0 Magic DRC violations, timing met (WNS 0.00, setup slack +7.97 ns), typical power 1.21 mW. Gate-level simulation passes.
+- The **1x1 tile overflows** at 105.57% placement utilization, so the documented 1x2 fallback is used.
+- **Layout viewer:** https://bokumentation.github.io/hackathon-2026-01/
+- **Simulation evidence:** the baseline latches a corrupted payload and a corrupted integrity field with `full=1` (CWE-354), while the boundary is fail-closed (reject, sticky fault, 1-cycle commit). See [`sim/RESULTS.md`](sim/RESULTS.md).
+- **Integrity field:** affine over GF(2) with no matching standard CRC-24, so L2 is parameterized pending field reconstruction.
 
 ## Contributing
 

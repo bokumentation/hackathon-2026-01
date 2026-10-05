@@ -21,7 +21,9 @@ suggested fix. We aim to acknowledge reports within a few days.
 ## Design security notes
 
 SALARAS-RX is a fail-closed hardware boundary: a frame is committed only when
-its embedded integrity field verifies. The threat model and mitigations are
-maintained in the local design documentation. The intended scope is a digital
-RTL proof of concept. It is not a certified secure element and has not been
-evaluated against physical or side-channel attacks at this stage.
+its embedded integrity field verifies. The integrity field parameters are still
+under investigation, so L2 is parameterized and does not yet accept real frames.
+The threat model and mitigations are maintained in the local design
+documentation. The intended scope is a digital RTL proof of concept. It is not a
+certified secure element and has not been evaluated against physical or
+side-channel attacks at this stage.
