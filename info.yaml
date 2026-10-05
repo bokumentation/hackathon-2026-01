@@ -7,7 +7,7 @@ project:
   language:     "Verilog"
   clock_hz:     50_000_000
 
-  tiles: "1x2"
+  tiles: "2x2"
 
   top_module:  "tt_um_bokumentation_auth_boundary"
 
