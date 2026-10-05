@@ -3,6 +3,7 @@ SHELL := /bin/bash
 RTL_DIR    := src
 TEST_DIR   := test
 FORMAL_DIR := synth/formal
+AREA_DIR   := synth/area
 VENV       := venv
 PYTHON     := $(VENV)/bin/python
 PIP        := $(VENV)/bin/pip
@@ -25,6 +26,7 @@ help:
 	@echo "  make env          create the Python virtual environment"
 	@echo "  make lint         lint RTL with Verilator"
 	@echo "  make synth-check  check synthesizability with Yosys"
+	@echo "  make area         estimate cell, FF, and Cyclone V resource usage"
 	@echo "  make formal       run SymbiYosys formal properties"
 	@echo "  make test         run the cocotb testbench"
 	@echo "  make gds          instructions for ASIC hardening"
@@ -50,6 +52,17 @@ lint:
 synth-check:
 	$(YOSYS) -q -p "read_verilog -sv -I$(RTL_DIR) $(RTL_SRCS); \
 		hierarchy -top $(TOP); proc; opt; check; stat"
+
+.PHONY: area
+area:
+	@mkdir -p $(AREA_DIR)
+	@echo "Generic synthesis (technology independent)"
+	$(YOSYS) -Q -p "read_verilog -sv -I$(RTL_DIR) $(RTL_SRCS); \
+		hierarchy -top $(TOP); synth; flatten; opt_clean; stat" | tee $(AREA_DIR)/generic.log
+	@echo "Cyclone V ALM mapping (Intel/Altera proxy)"
+	$(YOSYS) -Q -p "read_verilog -sv -I$(RTL_DIR) $(RTL_SRCS); \
+		hierarchy -top $(TOP); synth_intel_alm -family cyclonev; flatten; opt_clean; stat" | tee $(AREA_DIR)/cyclonev.log
+	@echo "Area reports written to $(AREA_DIR)/"
 
 .PHONY: formal
 formal:

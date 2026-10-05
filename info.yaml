@@ -5,7 +5,7 @@ project:
   discord:      ""
   description:  "Hardware-enforced fail-closed integrity boundary for Manchester/RF serial links"
   language:     "Verilog"
-  clock_hz:     50_000_000
+  clock_hz:     20_000
 
   tiles: "1x1"
 

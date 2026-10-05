@@ -52,3 +52,6 @@ incremental_db/
 
 # SymbiYosys work directories
 /synth/formal/*/
+
+# Synthesis area reports
+/synth/area/
