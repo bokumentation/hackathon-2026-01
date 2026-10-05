@@ -1,0 +1,9 @@
+[submodule "baseline/tt07-bep-decode"]
+	path = baseline/tt07-bep-decode
+	url = https://github.com/DusterTheFirst/tt07-bep-decode.git
+[submodule "baseline/TT_UM_SERDES"]
+	path = baseline/TT_UM_SERDES
+	url = https://github.com/Santeep/TT_UM_SERDES.git
+[submodule "baseline/tt07_cdc_fifo"]
+	path = baseline/tt07_cdc_fifo
+	url = https://github.com/Pa1mantri/tt07_cdc_fifo

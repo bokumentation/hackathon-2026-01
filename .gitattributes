@@ -1,0 +1,50 @@
+# Normalize all text to LF in the repository.
+* text=auto eol=lf
+
+# RTL and hardware description sources
+*.v    text eol=lf
+*.vh   text eol=lf
+*.sv   text eol=lf
+*.svh  text eol=lf
+*.vhd  text eol=lf
+*.tcl  text eol=lf
+*.sdc  text eol=lf
+*.ys   text eol=lf
+*.sby  text eol=lf
+
+# Scripts and config
+Makefile    text eol=lf
+*.mk        text eol=lf
+*.sh        text eol=lf
+*.py        text eol=lf
+*.yaml      text eol=lf
+*.yml       text eol=lf
+*.json      text eol=lf
+*.toml      text eol=lf
+.editorconfig text eol=lf
+.gitignore  text eol=lf
+.gitattributes text eol=lf
+
+# Binary artifacts
+*.pdf   binary
+*.gds   binary
+*.gdsii binary
+*.oas   binary
+*.def   binary
+*.mag   binary
+*.maglef binary
+*.spef  binary
+*.lef   binary
+*.lib   binary
+*.db    binary
+*.so    binary
+*.rbf   binary
+*.sof   binary
+*.pptx  binary
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.svg   text
+
+# Keep upstream baseline diffs out of language stats
+baseline/** linguist-vendored

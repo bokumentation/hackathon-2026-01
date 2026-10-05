@@ -1,0 +1,35 @@
+SALARAS-RX
+Copyright 2026 The contributors
+
+This product includes third-party source code, pinned as git submodules under
+baseline/. The original copyright notices and license texts are retained in each
+submodule.
+
+------------------------------------------------------------------------------
+tt07-bep-decode
+  Path:    baseline/tt07-bep-decode
+  Source:  https://github.com/DusterTheFirst/tt07-bep-decode
+  Author:  Zachary Kohnen
+  License: Apache License 2.0
+  Note:    Reference Manchester/433MHz decoder used as the SALARAS-RX ingress
+           baseline. The integrity field (tail_1..3) it receives is verified by
+           SALARAS-RX layer L2.
+
+TT_UM_SERDES
+  Path:    baseline/TT_UM_SERDES
+  Source:  https://github.com/Santeep/TT_UM_SERDES
+  Author:  Mahaa Santeep G, Shylashree N, RV College of Engineering
+  License: Apache License 2.0
+  Note:    Serial/parallel transport reference.
+
+tt07_cdc_fifo
+  Path:    baseline/tt07_cdc_fifo
+  Source:  https://github.com/Pa1mantri/tt07_cdc_fifo
+  Author:  Pavan Mantri
+  License: Apache License 2.0
+  Note:    Clock domain crossing reference.
+
+------------------------------------------------------------------------------
+
+Tiny Tapeout templates and tooling are provided by the Tiny Tapeout project
+(https://tinytapeout.com) and are used under their respective licenses.

@@ -1,0 +1,21 @@
+name: synth
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  yosys:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Yosys
+        run: sudo apt-get update && sudo apt-get install -y yosys
+
+      - name: Synthesizability check
+        run: make synth-check

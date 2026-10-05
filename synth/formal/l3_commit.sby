@@ -1,0 +1,29 @@
+[tasks]
+prove
+
+[options]
+mode prove
+depth 60
+
+[engines]
+smtbmc
+
+[script]
+read_verilog -sv -formal -Isrc src/sync2.v
+read_verilog -sv -formal -Isrc src/manchester_rx.v
+read_verilog -sv -formal -Isrc src/frame_capture.v
+read_verilog -sv -formal -Isrc src/l1_framing_validator.v
+read_verilog -sv -formal -Isrc src/l2_integrity_verify.v
+read_verilog -sv -formal -Isrc src/l3_commit_gatekeeper.v
+read_verilog -formal -Isrc synth/formal/salaras_rx_props.sv
+prep -top l3_commit_gatekeeper
+
+[files]
+src/sync2.v
+src/manchester_rx.v
+src/frame_capture.v
+src/l1_framing_validator.v
+src/l2_integrity_verify.v
+src/l3_commit_gatekeeper.v
+src/salaras_rx_defs.svh
+synth/formal/salaras_rx_props.sv

@@ -1,0 +1,50 @@
+# Python
+/venv
+/env
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+
+# Editor / agent tooling
+/.vscode
+/.clinerules
+/.opencode/node_modules/
+/.lavish/
+
+# Node build dependencies for docs
+node_modules/
+
+# Simulation artifacts
+sim_build/
+*.vcd
+*.fst
+*.vvp
+*.lxt2
+*.wlf
+
+# ASIC hardening outputs
+/runs/
+/db/
+/gds/*.gds
+/gds/*.gdsii
+/gds/*.def
+/gds/*.lef
+/gds/*.spef
+!/gds/readme.md
+
+# FPGA / Quartus outputs
+output_files/
+incremental_db/
+*.summary
+*.rpt
+*.qws
+*.qpf.bak
+*.sof
+*.rbf
+
+# Local documentation (not tracked)
+/docs/
+
+/.opencode/
