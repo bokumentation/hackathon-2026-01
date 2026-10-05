@@ -48,8 +48,6 @@ incremental_db/
 # Local documentation (not tracked)
 /docs/
 
-/.opencode/
-
 # SymbiYosys work directories
 /synth/formal/*/
 

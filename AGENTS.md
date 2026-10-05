@@ -2,6 +2,51 @@
 
 Always-on conventions for this repository.
 
+## Project
+
+- This repository is the SALARAS-RX hardware design: a fail-closed ingress boundary for Manchester/RF serial links.
+- The RTL targets Tiny Tapeout sky130 (1x2 tile) and the Terasic DE10-Nano (Cyclone V).
+- The baseline decoder is vendored from `tt07-bep-decode` (`edge_detect`, `state_machine`, `data_validate`) and tracked as submodules under `baseline/`.
+- The on-wire integrity field is affine but is not a standard CRC-24, so L2 stays parameterized and no detection rate is claimed yet.
+
+## Layout
+
+- `src/` RTL, the Tiny Tapeout wrapper, and hardening config.
+- `test/` unit cocotb suite.
+- `sim/` simulation evidence harness and results.
+- `synth/` formal proofs and the area report.
+- `tools/` integrity-field analysis scripts.
+- `fpga/` DE10-Nano project and the ESP32 replay path.
+- `docs/` proposal and supporting documents; it is intentionally untracked.
+
+## Toolchain and commands
+
+- Use the top-level Makefile: `make lint`, `make synth-check`, `make area`, `make formal`, `make test`, `make sim`.
+- `make lint` uses Verilator; `make synth-check` and `make area` use Yosys; `make formal` uses SymbiYosys; `make test` and `make sim` use cocotb with Icarus.
+- `make gds` documents the Tiny Tapeout GDS action; the generated GDS is not committed.
+
+## RTL conventions
+
+- Write plain Verilog-2001 style with `default_nettype none`, not vendor-specific constructs.
+- Keep a single clock domain at 20 kHz for the core.
+- Keep RTL lint-clean and synthesizable with Yosys and OpenLane.
+- Vendor the baseline modules verbatim; do not rewrite them unless asked.
+- Do not add comments to code unless the user asks.
+
+## Verification gates
+
+- Run `make lint` and `make synth-check` before every commit.
+- Run `make sim` when touching the boundary, the capture path, or the tests.
+- Keep CI green (lint, synth, test, formal, sim), and never weaken or delete evidence to make a check pass.
+- Never claim a measured result that was not measured; label estimates as estimates.
+
+## Docs and writing
+
+- Build the proposal with `bash docs/proposal/build.sh`.
+- Use the `penulisan` skill for Indonesian documents.
+- Do not commit `docs/`; it stays local.
+- Put each full sentence on its own line when writing long Markdown.
+
 ## Code style
 
 - Do not add comments to code unless the user asks.
@@ -13,7 +58,6 @@ Always-on conventions for this repository.
 - Never use the em dash "—". Use a plain hyphen "-" instead.
 - When writing commit messages, never auto-add an agent name as co-author.
 - Never manually modify CHANGELOG.md or any file marked as auto-generated.
-- When writing or substantially editing long Markdown files, put each full sentence on its own line; preserve normal Markdown structure.
 - When making technical decisions, do not weight development cost heavily.
   Prefer quality, simplicity, robustness, scalability, and long-term maintainability.
 - When fixing bugs, first reproduce the bug end-to-end as closely as an end user would, so the fix addresses the real problem.
