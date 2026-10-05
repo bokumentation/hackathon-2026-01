@@ -45,8 +45,8 @@ incremental_db/
 *.sof
 *.rbf
 
-# Local documentation (not tracked)
-/docs/
+# Documentation build output (markdown and PDF are canonical)
+docs/**/*.html
 
 # SymbiYosys work directories
 /synth/formal/*/

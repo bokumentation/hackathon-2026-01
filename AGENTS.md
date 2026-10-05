@@ -27,7 +27,7 @@ Always-on conventions for this repository.
 - `synth/` formal proofs and the area report.
 - `tools/` integrity-field analysis scripts.
 - `fpga/` DE10-Nano link project.
-- `docs/` proposal and supporting documents; it is intentionally untracked.
+- `docs/` proposal and supporting documents; tracked.
 
 ## Toolchain and commands
 
@@ -65,7 +65,7 @@ Always-on conventions for this repository.
 
 - Build the proposal with `bash docs/proposal/build.sh`.
 - Use the `penulisan` skill for Indonesian documents.
-- Do not commit `docs/`; it stays local.
+- `docs/` is tracked; generated HTML is not. Keep Markdown and PDF as canonical.
 - Put each full sentence on its own line when writing long Markdown.
 
 ## Code style

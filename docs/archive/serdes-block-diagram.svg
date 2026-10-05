@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" width="1200" height="420" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1f2937"/>
+    </marker>
+    <marker id="af" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#b91c1c"/>
+    </marker>
+    <marker id="al" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#166534"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1200" height="420" fill="#ffffff"/>
+
+  <!-- boundary grouping -->
+  <rect x="305" y="44" width="400" height="116" rx="12" ry="12" fill="#fff7ed" stroke="#c2410c" stroke-width="2" stroke-dasharray="7 5"/>
+  <text x="505" y="34" text-anchor="middle" font-size="15" font-weight="700" fill="#c2410c">SALARAS-SERDES boundary</text>
+
+  <!-- RX row -->
+  <text x="20" y="24" font-size="13" font-weight="700" fill="#374151">Sisi terima (deserializer)</text>
+  <g fill="#eef2ff" stroke="#3730a3" stroke-width="1.6">
+    <rect x="20"  y="70" width="110" height="64" rx="9"/>
+    <rect x="150" y="70" width="135" height="64" rx="9"/>
+    <rect x="740" y="70" width="150" height="64" rx="9"/>
+  </g>
+  <g fill="#ffedd5" stroke="#c2410c" stroke-width="1.6">
+    <rect x="315" y="70" width="115" height="64" rx="9"/>
+    <rect x="448" y="70" width="115" height="64" rx="9"/>
+    <rect x="581" y="70" width="115" height="64" rx="9"/>
+  </g>
+
+  <g text-anchor="middle" fill="#111827">
+    <text x="75"  y="97" font-size="12.5" font-weight="700">ser_in</text>
+    <text x="75"  y="114" font-size="10" fill="#374151">serial in</text>
+
+    <text x="217" y="97" font-size="12.5" font-weight="700">SIPO 10b</text>
+    <text x="217" y="114" font-size="10" fill="#374151">serial to parallel</text>
+
+    <text x="372" y="90" font-size="12.5" font-weight="700">L1</text>
+    <text x="372" y="107" font-size="9.5" fill="#7c2d12">framing &amp; lock</text>
+    <text x="372" y="120" font-size="9.5" fill="#7c2d12">K-code, timeout</text>
+
+    <text x="505" y="90" font-size="12.5" font-weight="700">L2</text>
+    <text x="505" y="107" font-size="9.5" fill="#7c2d12">CRC verify</text>
+    <text x="505" y="120" font-size="9.5" fill="#7c2d12">LFSR-24</text>
+
+    <text x="638" y="90" font-size="12.5" font-weight="700">L3</text>
+    <text x="638" y="107" font-size="9.5" fill="#7c2d12">atomic commit</text>
+    <text x="638" y="120" font-size="9.5" fill="#7c2d12">fail-closed</text>
+
+    <text x="815" y="97" font-size="12.5" font-weight="700">data_out[7:0]</text>
+    <text x="815" y="114" font-size="10" fill="#374151">data to host</text>
+  </g>
+
+  <!-- host status box -->
+  <rect x="740" y="176" width="150" height="54" rx="9" fill="#fee2e2" stroke="#b91c1c" stroke-width="1.5"/>
+  <text x="815" y="198" text-anchor="middle" font-size="12" font-weight="700" fill="#7f1d1d">valid, lock, fault</text>
+  <text x="815" y="215" text-anchor="middle" font-size="9.5" fill="#7f1d1d">to host / interrupt</text>
+  <g stroke="#b91c1c" stroke-width="1.6" marker-end="url(#af)" fill="none">
+    <path d="M638,134 L638,203 L738,203"/>
+  </g>
+
+  <!-- RX arrows -->
+  <g stroke="#1f2937" stroke-width="1.8" marker-end="url(#a)" fill="none">
+    <line x1="130" y1="102" x2="148" y2="102"/>
+    <line x1="285" y1="102" x2="313" y2="102"/>
+    <line x1="430" y1="102" x2="446" y2="102"/>
+    <line x1="563" y1="102" x2="579" y2="102"/>
+    <line x1="696" y1="102" x2="738" y2="102"/>
+  </g>
+
+  <!-- TX row -->
+  <text x="20" y="264" font-size="13" font-weight="700" fill="#374151">Sisi kirim (serializer)</text>
+  <g fill="#eef2ff" stroke="#3730a3" stroke-width="1.6">
+    <rect x="20"  y="310" width="110" height="64" rx="9"/>
+    <rect x="320" y="310" width="130" height="64" rx="9"/>
+    <rect x="490" y="310" width="110" height="64" rx="9"/>
+  </g>
+  <g fill="#dcfce7" stroke="#166534" stroke-width="1.6">
+    <rect x="150" y="310" width="150" height="64" rx="9"/>
+  </g>
+
+  <g text-anchor="middle" fill="#111827">
+    <text x="75"  y="337" font-size="12.5" font-weight="700">data_in[7:0]</text>
+    <text x="75"  y="354" font-size="10" fill="#374151">parallel in</text>
+
+    <text x="225" y="337" font-size="12.5" font-weight="700">CRC append</text>
+    <text x="225" y="354" font-size="9.5" fill="#166534">compute &amp; insert</text>
+
+    <text x="385" y="337" font-size="12.5" font-weight="700">PISO 10b</text>
+    <text x="385" y="354" font-size="10" fill="#374151">parallel to serial</text>
+
+    <text x="545" y="337" font-size="12.5" font-weight="700">ser_out</text>
+    <text x="545" y="354" font-size="10" fill="#374151">serial out</text>
+  </g>
+
+  <g stroke="#1f2937" stroke-width="1.8" marker-end="url(#a)" fill="none">
+    <line x1="130" y1="342" x2="148" y2="342"/>
+    <line x1="300" y1="342" x2="318" y2="342"/>
+    <line x1="450" y1="342" x2="488" y2="342"/>
+  </g>
+
+  <!-- loopback -->
+  <g stroke="#166534" stroke-width="1.8" stroke-dasharray="6 5" marker-end="url(#al)" fill="none">
+    <path d="M600,342 L660,342 L660,400 L75,400 L75,134"/>
+  </g>
+  <text x="360" y="394" text-anchor="middle" font-size="10.5" fill="#166534">loopback on-chip (uji mandiri)</text>
+</svg>

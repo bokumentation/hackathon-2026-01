@@ -1,6 +1,6 @@
 ---
 name: salaras-rx
-description: Project workflow, design program, and invariants for this Tiny Tapeout hardware repository (sky130 RTL, cocotb verification, SymbiYosys formal, simulation evidence, and the untracked proposal docs). Use when working in this repository on src/, test/, sim/, synth/, tools/, fpga/, the Makefile, README, or the proposal.
+description: Project workflow, design program, and invariants for this Tiny Tapeout hardware repository (sky130 RTL, cocotb verification, SymbiYosys formal, simulation evidence, and the tracked proposal docs). Use when working in this repository on src/, test/, sim/, synth/, tools/, fpga/, the Makefile, README, or the proposal.
 ---
 
 # Project workflow
@@ -24,7 +24,7 @@ Use this when changing anything in this repository.
 - `synth/` formal proofs (`synth/formal/*.sby`) and the area report (`synth/area.md`).
 - `tools/` integrity-field analysis (`crc_reveng.py`, `affine_field.py`).
 - `fpga/` DE10-Nano link project.
-- `baseline/` pinned Tiny Tapeout 07 submodules; `docs/` is untracked and stays local.
+- `baseline/` pinned Tiny Tapeout 07 submodules; `docs/` is tracked (generated HTML is ignored).
 
 ## Commands
 
@@ -74,4 +74,4 @@ Use this when changing anything in this repository.
 
 - Build the proposal with `bash docs/proposal/build.sh`.
 - Use the `penulisan` skill for Indonesian text.
-- Do not commit `docs/`; it is intentionally local.
+- `docs/` is tracked; generated HTML is ignored.

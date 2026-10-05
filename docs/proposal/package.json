@@ -1,0 +1,13 @@
+{
+  "name": "salaras-rx-proposal",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Build the SALARAS-RX proposal HTML/PDF from the canonical markdown sources.",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "dependencies": {
+    "marked": "18.0.14"
+  }
+}

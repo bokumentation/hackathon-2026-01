@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" width="1200" height="420" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1f2937"/>
+    </marker>
+    <marker id="arrowd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#b91c1c"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1200" height="420" fill="#ffffff"/>
+
+  <!-- boundary grouping -->
+  <rect x="485" y="40" width="320" height="120" rx="12" ry="12" fill="#fff7ed" stroke="#c2410c" stroke-width="2" stroke-dasharray="7 5"/>
+  <text x="645" y="30" text-anchor="middle" font-size="15" font-weight="700" fill="#c2410c">SALARAS-RX boundary</text>
+
+  <!-- boxes -->
+  <g fill="#eef2ff" stroke="#3730a3" stroke-width="1.6">
+    <rect x="20"  y="70" width="120" height="60" rx="9"/>
+    <rect x="170" y="70" width="120" height="60" rx="9"/>
+    <rect x="320" y="70" width="140" height="60" rx="9"/>
+  </g>
+  <g fill="#ffedd5" stroke="#c2410c" stroke-width="1.6">
+    <rect x="500" y="70" width="90" height="60" rx="9"/>
+    <rect x="600" y="70" width="90" height="60" rx="9"/>
+    <rect x="700" y="70" width="90" height="60" rx="9"/>
+  </g>
+  <g fill="#dcfce7" stroke="#166534" stroke-width="1.6">
+    <rect x="830" y="70" width="160" height="60" rx="9"/>
+  </g>
+  <g fill="#e5e7eb" stroke="#374151" stroke-width="1.6">
+    <rect x="1020" y="70" width="150" height="60" rx="9"/>
+  </g>
+
+  <!-- box labels -->
+  <g text-anchor="middle" fill="#111827">
+    <text x="80"  y="96" font-size="12.5" font-weight="700">digital_in</text>
+    <text x="80"  y="113" font-size="10.5" fill="#374151">RF Manchester</text>
+
+    <text x="230" y="96" font-size="12.5" font-weight="700">edge_detect</text>
+    <text x="230" y="113" font-size="10.5" fill="#374151">pos/neg edges</text>
+
+    <text x="390" y="96" font-size="12.5" font-weight="700">state_machine</text>
+    <text x="390" y="113" font-size="10.5" fill="#374151">Manchester decode</text>
+
+    <text x="545" y="90" font-size="12.5" font-weight="700">L1</text>
+    <text x="545" y="108" font-size="10" fill="#7c2d12">framing &amp;</text>
+    <text x="545" y="121" font-size="10" fill="#7c2d12">FSM valid.</text>
+
+    <text x="645" y="90" font-size="12.5" font-weight="700">L2</text>
+    <text x="645" y="108" font-size="10" fill="#7c2d12">integrity</text>
+    <text x="645" y="121" font-size="10" fill="#7c2d12">verify (CRC)</text>
+
+    <text x="745" y="90" font-size="12.5" font-weight="700">L3</text>
+    <text x="745" y="108" font-size="10" fill="#7c2d12">atomic</text>
+    <text x="745" y="121" font-size="10" fill="#7c2d12">commit</text>
+
+    <text x="910" y="90" font-size="12.5" font-weight="700">Register &amp; Host I/F</text>
+    <text x="910" y="108" font-size="10" fill="#166534">shift reg 97-bit +</text>
+    <text x="910" y="121" font-size="10" fill="#166534">regs + address mux</text>
+
+    <text x="1095" y="90" font-size="12.5" font-weight="700">uo_out[7:0]</text>
+    <text x="1095" y="108" font-size="10" fill="#374151">data to host</text>
+  </g>
+
+  <!-- data path arrows -->
+  <g stroke="#1f2937" stroke-width="1.8" marker-end="url(#arrow)" fill="none">
+    <line x1="140" y1="100" x2="168" y2="100"/>
+    <line x1="290" y1="100" x2="318" y2="100"/>
+    <line x1="460" y1="100" x2="498" y2="100"/>
+    <line x1="590" y1="100" x2="598" y2="100"/>
+    <line x1="690" y1="100" x2="698" y2="100"/>
+    <line x1="790" y1="100" x2="828" y2="100"/>
+    <line x1="990" y1="100" x2="1018" y2="100"/>
+  </g>
+
+  <!-- full handshake label -->
+  <text x="885" y="55" text-anchor="middle" font-size="10.5" fill="#166534">full (commit)</text>
+
+  <!-- fault path -->
+  <g stroke="#b91c1c" stroke-width="1.8" marker-end="url(#arrowd)" fill="none">
+    <path d="M745,130 L745,250 L838,250"/>
+  </g>
+  <rect x="840" y="225" width="180" height="50" rx="9" fill="#fee2e2" stroke="#b91c1c" stroke-width="1.6"/>
+  <text x="930" y="246" text-anchor="middle" font-size="12" font-weight="700" fill="#7f1d1d">fault flag (sticky)</text>
+  <text x="930" y="263" text-anchor="middle" font-size="10" fill="#7f1d1d">uio_out: full, fault, diag</text>
+  <text x="755" y="205" font-size="10.5" fill="#b91c1c">verification failed</text>
+
+  <!-- baseline note -->
+  <text x="20" y="360" font-size="11.5" fill="#374151">Decoder front-end: edge_detect + state_machine (baseline tt07-bep-decode)</text>
+  <text x="20" y="380" font-size="11.5" fill="#374151">SALARAS-RX boundary verifies framing + integrity, then commits only valid frames (fail-closed)</text>
+</svg>

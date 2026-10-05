@@ -127,6 +127,18 @@ The configuration lives in [`src/config.tcl`](src/config.tcl),
 
 The DE10-Nano flow is documented in [`fpga/de10nano/README.md`](fpga/de10nano/README.md).
 
+### Documentation
+
+The proposal and supporting documents are in [`docs/`](docs/).
+Build the proposal and deck PDFs with:
+
+```bash
+bash docs/proposal/build.sh
+bash docs/deck/build.sh
+```
+
+The proposal source is [`docs/proposal/salaras-rx-proposal.id.md`](docs/proposal/salaras-rx-proposal.id.md) (Indonesian) and [`docs/proposal/salaras-rx-proposal.en.md`](docs/proposal/salaras-rx-proposal.en.md) (English).
+
 ## Repository layout
 
 ```
@@ -146,7 +158,7 @@ The DE10-Nano flow is documented in [`fpga/de10nano/README.md`](fpga/de10nano/RE
 │   └── src/                 RF RTL
 ├── assets/                  README figures
 ├── baseline/                Pinned Tiny Tapeout 07 submodules
-├── docs/                    Proposal and supporting documents (untracked)
+├── docs/                    Proposal, design, deck, judging, competition
 ├── fpga/de10nano/           Link DE10-Nano project
 ├── gds/                     Generated ASIC output (not committed)
 ├── openlane/                OpenLane entry configuration

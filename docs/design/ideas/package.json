@@ -1,0 +1,13 @@
+{
+  "name": "salaras-rx-ideas",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Build the combined SALARAS-RX ideas PDF.",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "dependencies": {
+    "marked": "18.0.14"
+  }
+}
