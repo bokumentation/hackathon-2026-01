@@ -31,6 +31,7 @@ help:
 	@echo "  make test         run the cocotb testbench"
 	@echo "  make simon        run the SIMON-32/64 block and CBC-MAC tests"
 	@echo "  make l2           run the L2 authentication and freshness tests"
+	@echo "  make auth         run the integrated authentication and commit tests"
 	@echo "  make sim          run the simulation evidence suites"
 	@echo "  make gds          instructions for ASIC hardening"
 	@echo "  make fpga         instructions for the DE10-Nano build"
@@ -89,6 +90,10 @@ simon:
 .PHONY: l2
 l2:
 	$(MAKE) -C $(TEST_DIR) -f Makefile.l2
+
+.PHONY: auth
+auth:
+	$(MAKE) -C $(TEST_DIR) -f Makefile.auth
 
 .PHONY: sim
 sim:

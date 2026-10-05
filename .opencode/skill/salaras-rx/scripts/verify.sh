@@ -32,6 +32,7 @@ fi
 run test make test
 run simon make simon
 run l2 make l2
+run auth make auth
 run sim make sim
 
 if [ "$fail" -eq 0 ]; then

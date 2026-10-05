@@ -42,6 +42,25 @@ The measured 107 cycles matches the estimate (three blocks at 33 cycles each
 plus FSM overhead). This is the measured Tier A latency for the authentication
 path; the commit and host visibility stages are added in M3.
 
+## L3 - Integrated authentication and commit (Tier A, M3)
+
+`salaras_auth_top` wires L2 into the shared `l3_commit_gatekeeper`. Measured with
+`make auth`.
+
+| Case | Result |
+| --- | --- |
+| Clean commit | `host_full=1`, `fault=0`, committed `{counter, payload}` matches |
+| Forgery | `host_full=0`, `fault=1` |
+| Replay | authenticated but `fresh_ok=0`, `host_full=0`, `fault=1` |
+| Sticky fault | holds until `fault_ack` |
+| Commit latency | 1 cycle |
+| End-to-end latency (start to `host_full`) | 108 cycles |
+| Two profiles | the same commit core is used for a synthetic CRC profile and the MAC profile |
+
+The Tier A end-to-end latency is 108 cycles: 107 for MAC plus freshness, plus 1
+for the commit. The RF appendix boundary commit was also 1 cycle, so the shared
+gate adds the same single cycle.
+
 ## E1 - Baseline accepts corrupted frames (CWE-354)
 
 Stimulus drives the baseline `tt07-bep-decode` `serial_decode` at its serial

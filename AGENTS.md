@@ -30,8 +30,8 @@ Always-on conventions for this repository.
 
 ## Toolchain and commands
 
-- Use the top-level Makefile: `make lint`, `make synth-check`, `make area`, `make formal`, `make test`, `make simon`, `make l2`, `make sim`.
-- `make lint` uses Verilator; `make synth-check` and `make area` use Yosys; `make formal` uses SymbiYosys; `make test`, `make simon`, `make l2`, and `make sim` use cocotb with Icarus.
+- Use the top-level Makefile: `make lint`, `make synth-check`, `make area`, `make formal`, `make test`, `make simon`, `make l2`, `make auth`, `make sim`.
+- `make lint` uses Verilator; `make synth-check` and `make area` use Yosys; `make formal` uses SymbiYosys; `make test`, `make simon`, `make l2`, `make auth`, and `make sim` use cocotb with Icarus.
 - `make gds` documents the Tiny Tapeout GDS action; the generated GDS is not committed.
 
 ## RTL conventions
