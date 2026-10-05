@@ -1,48 +1,80 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 300" font-family="Helvetica, Arial, sans-serif">
-  <rect x="0" y="0" width="820" height="300" fill="#ffffff"/>
-  <text x="20" y="28" font-size="15" font-weight="700" fill="#111827">Authenticated ingress boundary (Tier A, single clock)</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 340" font-family="Helvetica, Arial, sans-serif">
+  <rect x="0" y="0" width="940" height="340" fill="#ffffff"/>
+  <text x="20" y="28" font-size="15" font-weight="700" fill="#111827">SALARAS — authenticated ingress boundary (Tier A, single clock)</text>
+
+  <!-- trust boundary label -->
+  <text x="200" y="56" font-size="11" fill="#94a3b8" text-anchor="middle">untrusted</text>
+  <line x1="200" y1="62" x2="200" y2="280" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="800" y="56" font-size="11" fill="#94a3b8" text-anchor="middle">trusted</text>
+  <line x1="800" y1="62" x2="800" y2="280" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 3"/>
 
   <!-- frame in -->
-  <rect x="20" y="70" width="140" height="70" rx="6" fill="#e0f2fe" stroke="#0369a1" stroke-width="1.5"/>
-  <text x="90" y="100" font-size="12" text-anchor="middle" fill="#0c4a6e">frame in</text>
-  <text x="90" y="118" font-size="11" text-anchor="middle" fill="#0c4a6e">counter + payload</text>
-  <text x="90" y="132" font-size="11" text-anchor="middle" fill="#0c4a6e">+ tag</text>
+  <rect x="20" y="90" width="120" height="80" rx="6" fill="#e0f2fe" stroke="#0369a1" stroke-width="1.5"/>
+  <text x="80" y="124" font-size="12" text-anchor="middle" fill="#0c4a6e">frame in</text>
+  <text x="80" y="141" font-size="11" text-anchor="middle" fill="#0c4a6e">counter + payload</text>
+  <text x="80" y="155" font-size="11" text-anchor="middle" fill="#0c4a6e">+ tag (128 bit)</text>
+
+  <!-- L1 -->
+  <rect x="210" y="70" width="165" height="110" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="292" y="95" font-size="13" font-weight="700" text-anchor="middle" fill="#14532d">L1</text>
+  <text x="292" y="113" font-size="11" text-anchor="middle" fill="#14532d">l1_serial_loader</text>
+  <text x="292" y="130" font-size="11" text-anchor="middle" fill="#14532d">shift-in FSM</text>
+  <text x="292" y="147" font-size="11" text-anchor="middle" fill="#14532d">key write-once</text>
+  <text x="292" y="163" font-size="11" text-anchor="middle" fill="#14532d">key_locked flag</text>
 
   <!-- L2 -->
-  <rect x="220" y="60" width="220" height="90" rx="6" fill="#eef2ff" stroke="#4338ca" stroke-width="1.5"/>
-  <text x="330" y="86" font-size="13" font-weight="700" text-anchor="middle" fill="#312e81">L2 auth</text>
-  <text x="330" y="106" font-size="11" text-anchor="middle" fill="#312e81">SIMON-32/64 CBC-MAC</text>
-  <text x="330" y="122" font-size="11" text-anchor="middle" fill="#312e81">counter freshness</text>
-  <text x="330" y="140" font-size="11" text-anchor="middle" fill="#312e81">auth_ok, fresh_ok</text>
+  <rect x="440" y="70" width="185" height="110" rx="6" fill="#eef2ff" stroke="#4338ca" stroke-width="1.5"/>
+  <text x="532" y="95" font-size="13" font-weight="700" text-anchor="middle" fill="#312e81">L2</text>
+  <text x="532" y="113" font-size="11" text-anchor="middle" fill="#312e81">l2_auth</text>
+  <text x="532" y="130" font-size="11" text-anchor="middle" fill="#312e81">SIMON-32/64 CBC-MAC</text>
+  <text x="532" y="147" font-size="11" text-anchor="middle" fill="#312e81">counter freshness</text>
+  <text x="532" y="163" font-size="11" text-anchor="middle" fill="#312e81">auth_ok, fresh_ok</text>
 
   <!-- L3 -->
-  <rect x="500" y="60" width="180" height="90" rx="6" fill="#fef9c3" stroke="#a16207" stroke-width="1.5"/>
-  <text x="590" y="86" font-size="13" font-weight="700" text-anchor="middle" fill="#713f12">L3 commit</text>
-  <text x="590" y="106" font-size="11" text-anchor="middle" fill="#713f12">atomic, fail-closed</text>
-  <text x="590" y="122" font-size="11" text-anchor="middle" fill="#713f12">host_full, fault</text>
+  <rect x="692" y="70" width="165" height="110" rx="6" fill="#fef9c3" stroke="#a16207" stroke-width="1.5"/>
+  <text x="774" y="95" font-size="13" font-weight="700" text-anchor="middle" fill="#713f12">L3</text>
+  <text x="774" y="113" font-size="11" text-anchor="middle" fill="#713f12">l3_commit_gatekeeper</text>
+  <text x="774" y="130" font-size="11" text-anchor="middle" fill="#713f12">atomic, fail-closed</text>
+  <text x="774" y="147" font-size="11" text-anchor="middle" fill="#713f12">host_full only on pass</text>
+  <text x="774" y="163" font-size="11" text-anchor="middle" fill="#713f12">fault sticky</text>
 
   <!-- host -->
-  <rect x="710" y="70" width="90" height="70" rx="6" fill="#f1f5f9" stroke="#64748b" stroke-width="1.5"/>
-  <text x="755" y="110" font-size="12" text-anchor="middle" fill="#334155">host</text>
+  <rect x="870" y="90" width="55" height="80" rx="6" fill="#f1f5f9" stroke="#64748b" stroke-width="1.5"/>
+  <text x="897" y="134" font-size="12" text-anchor="middle" fill="#334155">host</text>
 
-  <!-- arrows -->
-  <line x1="160" y1="105" x2="220" y2="105" stroke="#334155" stroke-width="1.6" marker-end="url(#a)"/>
-  <line x1="440" y1="105" x2="500" y2="105" stroke="#334155" stroke-width="1.6" marker-end="url(#a)"/>
-  <line x1="680" y1="105" x2="710" y2="105" stroke="#334155" stroke-width="1.6" marker-end="url(#a)"/>
+  <!-- arrows horizontal -->
+  <line x1="140" y1="130" x2="210" y2="130" stroke="#334155" stroke-width="1.6" marker-end="url(#a)"/>
+  <line x1="375" y1="130" x2="440" y2="130" stroke="#334155" stroke-width="1.6" marker-end="url(#a)"/>
+  <line x1="625" y1="130" x2="692" y2="130" stroke="#334155" stroke-width="1.6" marker-end="url(#a)"/>
+  <line x1="857" y1="130" x2="870" y2="130" stroke="#334155" stroke-width="1.6" marker-end="url(#a)"/>
 
-  <!-- key -->
-  <rect x="220" y="190" width="160" height="44" rx="6" fill="#fee2e2" stroke="#b91c1c" stroke-width="1.5"/>
-  <text x="300" y="217" font-size="12" text-anchor="middle" fill="#7f1d1d">key (64, host-loaded)</text>
-  <line x1="300" y1="190" x2="300" y2="150" stroke="#b91c1c" stroke-width="1.4" marker-end="url(#a)"/>
+  <!-- arrow labels on links -->
+  <text x="393" y="123" font-size="10" fill="#64748b">start</text>
+  <text x="630" y="123" font-size="10" fill="#64748b">auth_ok</text>
+  <text x="630" y="138" font-size="10" fill="#64748b">fresh_ok</text>
 
-  <!-- fault -->
-  <text x="500" y="200" font-size="11" fill="#b91c1c">fault sticky until acknowledged</text>
+  <!-- key path (from host, comes from bottom) -->
+  <rect x="440" y="230" width="165" height="44" rx="6" fill="#fee2e2" stroke="#b91c1c" stroke-width="1.5"/>
+  <text x="522" y="251" font-size="12" text-anchor="middle" fill="#7f1d1d">key (64 bit)</text>
+  <text x="522" y="266" font-size="11" text-anchor="middle" fill="#7f1d1d">host-loaded, trusted</text>
+  <!-- key arrow up to L2 -->
+  <line x1="522" y1="230" x2="522" y2="180" stroke="#b91c1c" stroke-width="1.4" marker-end="url(#ar)"/>
+  <!-- key also goes to L1 (key_load pulse) -->
+  <line x1="440" y1="252" x2="292" y2="252" stroke="#b91c1c" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="292" y1="252" x2="292" y2="180" stroke="#b91c1c" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#ar)"/>
+
+  <!-- fault path label -->
+  <text x="774" y="210" font-size="10" fill="#b91c1c" text-anchor="middle">fault — sticky until</text>
+  <text x="774" y="222" font-size="10" fill="#b91c1c" text-anchor="middle">host acknowledges</text>
 
   <defs>
     <marker id="a" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
       <path d="M0,0 L7,3 L0,6 z" fill="#334155"/>
     </marker>
+    <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L7,3 L0,6 z" fill="#b91c1c"/>
+    </marker>
   </defs>
 
-  <text x="20" y="275" font-size="11" fill="#64748b">No buffer, no block RAM. host_full is asserted only when auth_ok and fresh_ok are both high at frame end.</text>
+  <text x="20" y="310" font-size="11" fill="#64748b">No block RAM. host_full asserts only when auth_ok and fresh_ok are both high at frame end. Key never crosses the untrusted link.</text>
 </svg>
