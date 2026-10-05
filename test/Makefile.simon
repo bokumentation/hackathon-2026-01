@@ -1,0 +1,12 @@
+SIM           ?= icarus
+TOPLEVEL_LANG ?= verilog
+SRC_DIR        = $(CURDIR)/../src
+
+VERILOG_SOURCES += $(SRC_DIR)/simon32_64.v
+VERILOG_SOURCES += $(CURDIR)/tb_simon.v
+COMPILE_ARGS    += -I$(SRC_DIR)
+
+TOPLEVEL = tb_simon
+MODULE   = test_simon
+
+include $(shell cocotb-config --makefiles)/Makefile.sim

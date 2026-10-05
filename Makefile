@@ -29,6 +29,7 @@ help:
 	@echo "  make area         estimate cell, FF, and Cyclone V resource usage"
 	@echo "  make formal       run SymbiYosys formal properties"
 	@echo "  make test         run the cocotb testbench"
+	@echo "  make simon        run the SIMON-32/64 block and CBC-MAC tests"
 	@echo "  make sim          run the simulation evidence suites"
 	@echo "  make gds          instructions for ASIC hardening"
 	@echo "  make fpga         instructions for the DE10-Nano build"
@@ -79,6 +80,10 @@ formal:
 .PHONY: test
 test:
 	$(MAKE) -C $(TEST_DIR)
+
+.PHONY: simon
+simon:
+	$(MAKE) -C $(TEST_DIR) -f Makefile.simon
 
 .PHONY: sim
 sim:

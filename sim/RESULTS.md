@@ -1,7 +1,28 @@
 # Simulation evidence
 
-Tier 1 evidence, reproducible with `make -C sim` and `make -C sim boundary`.
-Values are captured from the cocotb runs and the waveform figures in `out/`.
+Tier 1 evidence, reproducible with `make -C sim`, `make -C sim boundary`, and
+`make simon`. Values are captured from the cocotb runs and the waveform figures
+in `out/`.
+
+## L1 - SIMON-32/64 MAC latency (Tier A, M1)
+
+SIMON-32/64 is implemented as a serialized block cipher, one round per cycle,
+and validated against an independent Python reference (`test/simon_ref.py`) that
+matches the published SIMON-32/64 vector (key `1918111009080100`, plaintext
+`65656877`, ciphertext `C69BE9BB`).
+
+| Metric | Value |
+| --- | --- |
+| Block vectors validated | 49 (1 published plus 48 random) |
+| Rounds per block | 32 |
+| Block latency (start to done) | 33 clock cycles |
+| CBC-MAC | matches the reference over 3 blocks |
+
+The measured 33 cycles equals 32 rounds plus one pipeline cycle. This is the
+dominant term in the Tier A latency budget; the commit adds 1 to 2 cycles and
+the host visibility adds 0 to 1. A full 96-bit CBC-MAC over counter plus payload
+is three blocks, so the MAC verify path is about 99 cycles plus overhead, to be
+measured in M2.
 
 ## E1 - Baseline accepts corrupted frames (CWE-354)
 

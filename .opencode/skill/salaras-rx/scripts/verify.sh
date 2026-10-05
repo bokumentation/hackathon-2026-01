@@ -30,6 +30,7 @@ else
 fi
 
 run test make test
+run simon make simon
 run sim make sim
 
 if [ "$fail" -eq 0 ]; then
