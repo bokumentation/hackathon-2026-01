@@ -30,6 +30,7 @@ Use this when changing anything in this repository.
 - `make lint` Verilator RTL lint.
 - `make synth-check` Yosys synthesizability check.
 - `make area` Yosys cell/FF estimate and a Cyclone V ALM proxy.
+- `make area-link` the same estimate for the Tier A link top.
 - `make formal` SymbiYosys proofs (needs `sby`).
 - `make test` unit cocotb suite.
 - `make simon` SIMON-32/64 block and CBC-MAC tests.

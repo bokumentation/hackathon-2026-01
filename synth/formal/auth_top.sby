@@ -1,0 +1,26 @@
+[tasks]
+prove
+
+[options]
+mode prove
+depth 40
+
+[engines]
+smtbmc z3
+
+[script]
+read_verilog -sv -formal simon32_64.v
+read_verilog -sv -formal l2_auth.v
+read_verilog -sv -formal l3_commit_gatekeeper.v
+read_verilog -sv -formal salaras_auth_top.v
+read_verilog -sv -formal auth_formal.sv
+prep -top auth_formal
+flatten
+
+[files]
+src/simon32_64.v
+src/l2_auth.v
+src/l3_commit_gatekeeper.v
+src/salaras_auth_top.v
+src/salaras_rx_defs.svh
+synth/formal/auth_formal.sv

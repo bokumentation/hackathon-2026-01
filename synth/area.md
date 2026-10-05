@@ -43,6 +43,26 @@ are written to `synth/area/` (not tracked).
 
 Quartus Fitter numbers replace these once the integrated design is synthesized.
 
+## Tier A link estimate (salaras_auth_top)
+
+The committed successor is the authenticated boundary (`simon32_64`, `l2_auth`,
+`l3_commit_gatekeeper`, `salaras_auth_top`). Reproduce with `make area-link`.
+
+| Resource | Value |
+| --- | --- |
+| Generic cells | 1280 |
+| Generic flip-flops | 500 |
+| Cyclone V mapped cells | 1162 |
+| Cyclone V flip-flops | 500 |
+| Cyclone V LUTs (ALUT) | 360 |
+| Arithmetic LUTs (ALUT_ARITH) | 88 |
+| Block RAM (M10K) | 0 |
+| DSP blocks | 0 |
+
+This is a pre-integration estimate: it does not yet include the Tier B link
+layer or the Tier C CDC FIFO, and no sky130 hardening has been run for this
+module set.
+
 ## ASIC (sky130) estimate
 
 Technology-independent gate count is 1352 cells with 352 flip-flops. The

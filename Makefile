@@ -9,7 +9,9 @@ PYTHON     := $(VENV)/bin/python
 PIP        := $(VENV)/bin/pip
 
 TOP        := tt_um_bokumentation_salaras_rx
+LINK_TOP   := salaras_auth_top
 RTL_SRCS   := $(sort $(wildcard $(RTL_DIR)/*.v) $(wildcard $(RTL_DIR)/*.sv))
+LINK_SRCS  := $(RTL_DIR)/simon32_64.v $(RTL_DIR)/l2_auth.v $(RTL_DIR)/l3_commit_gatekeeper.v $(RTL_DIR)/salaras_auth_top.v
 SBY_FILES  := $(wildcard $(FORMAL_DIR)/*.sby)
 
 VERILATOR  := verilator
@@ -27,6 +29,7 @@ help:
 	@echo "  make lint         lint RTL with Verilator"
 	@echo "  make synth-check  check synthesizability with Yosys"
 	@echo "  make area         estimate cell, FF, and Cyclone V resource usage"
+	@echo "  make area-link    estimate resource usage for the Tier A link top"
 	@echo "  make formal       run SymbiYosys formal properties"
 	@echo "  make test         run the cocotb testbench"
 	@echo "  make simon        run the SIMON-32/64 block and CBC-MAC tests"
@@ -67,6 +70,17 @@ area:
 	$(YOSYS) -Q -p "read_verilog -sv -I$(RTL_DIR) $(RTL_SRCS); \
 		hierarchy -top $(TOP); synth_intel_alm -family cyclonev; flatten; opt_clean; stat" | tee $(AREA_DIR)/cyclonev.log
 	@echo "Area reports written to $(AREA_DIR)/"
+
+.PHONY: area-link
+area-link:
+	@mkdir -p $(AREA_DIR)
+	@echo "Generic synthesis, link top (technology independent)"
+	$(YOSYS) -Q -p "read_verilog -sv -I$(RTL_DIR) $(LINK_SRCS); \
+		hierarchy -top $(LINK_TOP); synth; flatten; opt_clean; stat" | tee $(AREA_DIR)/link_generic.log
+	@echo "Cyclone V ALM mapping, link top (Intel/Altera proxy)"
+	$(YOSYS) -Q -p "read_verilog -sv -I$(RTL_DIR) $(LINK_SRCS); \
+		hierarchy -top $(LINK_TOP); synth_intel_alm -family cyclonev; flatten; opt_clean; stat" | tee $(AREA_DIR)/link_cyclonev.log
+	@echo "Link area reports written to $(AREA_DIR)/"
 
 .PHONY: formal
 formal:
