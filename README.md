@@ -55,7 +55,7 @@ untrusted link
            host
 ```
 
-![Authenticated ingress boundary architecture](assets/block-diagram-link.svg)
+![Authenticated ingress boundary architecture](assets/block-diagram.svg)
 
 ![Link frame format and CBC-MAC chain](assets/frame-link.svg)
 

@@ -94,7 +94,7 @@ SALARAS adalah satu inti digital satu *clock* yang duduk di antara *front-end* t
 
 ### 3.1 Arsitektur Sistem
 
-<figure class="proto"><img src="assets/block-diagram-link.svg" alt="Arsitektur boundary autentikasi"><figcaption>Gambar 2. Arsitektur SALARAS: batas kepercayaan, tiga lapis, jalur kunci terpisah. Semua yang datang dari tautan dianggap tak tepercaya; kunci masuk dari host lewat jalur terpisah, dan hanya L3 yang boleh melepas data ke host.</figcaption></figure>
+<figure class="proto"><img src="assets/block-diagram.svg" alt="Arsitektur boundary autentikasi"><figcaption>Gambar 2. Arsitektur SALARAS: batas kepercayaan, tiga lapis, jalur kunci terpisah. Semua yang datang dari tautan dianggap tak tepercaya; kunci masuk dari host lewat jalur terpisah, dan hanya L3 yang boleh melepas data ke host.</figcaption></figure>
 
 <figure class="proto"><img src="assets/frame-link.svg" alt="Format frame tautan"><figcaption>Gambar: format frame tautan (128 bit) dan rantai CBC-MAC.</figcaption></figure>
 

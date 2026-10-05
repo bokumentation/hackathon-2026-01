@@ -94,7 +94,7 @@ SALARAS is a single-clock digital core sitting between an untrusted front-end an
 
 ### 3.1 System Architecture
 
-<figure class="proto"><img src="assets/block-diagram-link.svg" alt="Authenticated boundary architecture"><figcaption>Figure 2. SALARAS architecture: trust boundary, three layers, separate key path. Everything from the link is untrusted; the key arrives from the host via a separate path, and only L3 may release data to the host.</figcaption></figure>
+<figure class="proto"><img src="assets/block-diagram.svg" alt="Authenticated boundary architecture"><figcaption>Figure 2. SALARAS architecture: trust boundary, three layers, separate key path. Everything from the link is untrusted; the key arrives from the host via a separate path, and only L3 may release data to the host.</figcaption></figure>
 
 <figure class="proto"><img src="assets/frame-link.svg" alt="Link frame format"><figcaption>Figure: link frame format (128 bits) and the CBC-MAC chain.</figcaption></figure>
 
