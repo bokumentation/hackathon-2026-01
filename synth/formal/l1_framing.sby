@@ -9,21 +9,11 @@ depth 40
 smtbmc
 
 [script]
-read_verilog -sv -formal sync2.v
-read_verilog -sv -formal manchester_rx.v
-read_verilog -sv -formal frame_capture.v
 read_verilog -sv -formal l1_framing_validator.v
-read_verilog -sv -formal l2_integrity_verify.v
-read_verilog -sv -formal l3_commit_gatekeeper.v
-read_verilog -sv -formal salaras_rx_props.sv
-prep -top l1_framing_validator
+read_verilog -sv -formal l1_formal.sv
+prep -top l1_formal
+flatten
 
 [files]
-src/sync2.v
-src/manchester_rx.v
-src/frame_capture.v
 src/l1_framing_validator.v
-src/l2_integrity_verify.v
-src/l3_commit_gatekeeper.v
-src/salaras_rx_defs.svh
-synth/formal/salaras_rx_props.sv
+synth/formal/l1_formal.sv
