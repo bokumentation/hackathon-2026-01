@@ -15,6 +15,6 @@ prep -top l1_formal
 flatten
 
 [files]
-src/l1_framing_validator.v
-src/salaras_rx_defs.svh
+appendix/rf/src/l1_framing_validator.v
+appendix/rf/src/salaras_rx_defs.svh
 synth/formal/l1_formal.sv

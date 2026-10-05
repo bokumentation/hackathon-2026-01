@@ -15,6 +15,6 @@ prep -top l2_formal
 flatten
 
 [files]
-src/l2_integrity_verify.v
-src/salaras_rx_defs.svh
+appendix/rf/src/l2_integrity_verify.v
+appendix/rf/src/salaras_rx_defs.svh
 synth/formal/l2_formal.sv

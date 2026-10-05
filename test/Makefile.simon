@@ -1,5 +1,6 @@
 SIM           ?= icarus
 TOPLEVEL_LANG ?= verilog
+SIM_BUILD      = sim_build/simon
 SRC_DIR        = $(CURDIR)/../src
 
 VERILOG_SOURCES += $(SRC_DIR)/simon32_64.v

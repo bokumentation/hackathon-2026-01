@@ -3,7 +3,7 @@ TOPLEVEL_LANG ?= verilog
 
 REPO     := $(CURDIR)/..
 BASELINE := $(REPO)/baseline/tt07-bep-decode/src
-RTL      := $(REPO)/src
+RTL      := $(REPO)/appendix/rf/src
 
 VERILOG_SOURCES += $(BASELINE)/serial_decode.v
 VERILOG_SOURCES += $(RTL)/sync2.v

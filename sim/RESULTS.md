@@ -62,6 +62,20 @@ for the commit. The RF appendix boundary commit was also 1 cycle, so the shared
 gate adds the same single cycle. Figure: `out/auth_commit.png` shows a clean
 accept and a rejected frame side by side.
 
+## Comparison: CRC vs MAC vs MAC+counter
+
+Measured with `make crc` (RF CRC path) and `make l2` / `make auth` (link path).
+
+| Property | CRC (keyless) | MAC (keyed) | MAC + counter |
+| --- | --- | --- | --- |
+| Latency | 73 cycles (72-bit streaming) | 107 cycles | 107 cycles (108 end to end) |
+| Random error detection | yes | yes | yes |
+| Forgery resistance | no, linear and recomputable | yes | yes |
+| Replay resistance | no | no | yes |
+| Extra state | none | none | 32-bit counter |
+
+This is why the committed design uses MAC plus counter rather than a keyless CRC.
+
 ## E1 - Baseline accepts corrupted frames (CWE-354)
 
 Stimulus drives the baseline `tt07-bep-decode` `serial_decode` at its serial

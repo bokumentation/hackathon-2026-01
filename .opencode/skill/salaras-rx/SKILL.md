@@ -17,8 +17,9 @@ Use this when changing anything in this repository.
 
 ## Repository map
 
-- `src/` RTL: `sync2`, vendored `edge_detect`/`state_machine`/`data_validate`, `frame_capture`, `l1_framing_validator`, `l2_integrity_verify`, `l3_commit_gatekeeper`, `salaras_rx_top`, `project.v`.
-- `test/` unit cocotb suite (`make test`).
+- `src/` committed link RTL: `simon32_64`, `l2_auth`, `l3_commit_gatekeeper`, `salaras_auth_top`, `project.v`, plus the Tiny Tapeout config.
+- `appendix/rf/` archived Manchester/RF design and its Tiny Tapeout metadata.
+- `test/` cocotb suites (link tests plus the RF unit suite).
 - `sim/` simulation evidence harness and results (`make sim`), plus `RESULTS.md`.
 - `synth/` formal proofs (`synth/formal/*.sby`) and the area report (`synth/area.md`).
 - `tools/` integrity-field analysis (`crc_reveng.py`, `affine_field.py`).
@@ -30,13 +31,13 @@ Use this when changing anything in this repository.
 - `make lint` Verilator RTL lint.
 - `make synth-check` Yosys synthesizability check.
 - `make area` Yosys cell/FF estimate and a Cyclone V ALM proxy.
-- `make area-link` the same estimate for the Tier A link top.
 - `make formal` SymbiYosys proofs (needs `sby`).
-- `make test` unit cocotb suite.
+- `make test` RF appendix unit cocotb suite.
 - `make simon` SIMON-32/64 block and CBC-MAC tests.
 - `make l2` L2 authentication and freshness tests.
 - `make auth` integrated authentication and commit tests.
-- `make sim` simulation evidence suites (baseline + boundary).
+- `make crc` RF CRC streaming latency (comparison).
+- `make sim` RF appendix simulation evidence suites (baseline + boundary).
 - `.opencode/skill/salaras-rx/scripts/verify.sh` runs all gates and reports a pass/fail summary.
 
 ## Invariants to respect

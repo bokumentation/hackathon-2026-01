@@ -5,14 +5,16 @@ set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
 set_global_assignment -name NUM_PARALLEL_PROCESSORS 4
 
 set_global_assignment -name VERILOG_FILE salaras_rx_de10nano.v
-set_global_assignment -name VERILOG_FILE ../../src/sync2.v
-set_global_assignment -name VERILOG_FILE ../../src/manchester_rx.v
-set_global_assignment -name VERILOG_FILE ../../src/frame_capture.v
-set_global_assignment -name VERILOG_FILE ../../src/l1_framing_validator.v
-set_global_assignment -name VERILOG_FILE ../../src/l2_integrity_verify.v
-set_global_assignment -name VERILOG_FILE ../../src/l3_commit_gatekeeper.v
-set_global_assignment -name VERILOG_FILE ../../src/salaras_rx_top.v
-set_global_assignment -name SEARCH_PATH ../../src
+set_global_assignment -name VERILOG_FILE ../../appendix/rf/src/sync2.v
+set_global_assignment -name VERILOG_FILE ../../appendix/rf/src/edge_detect.v
+set_global_assignment -name VERILOG_FILE ../../appendix/rf/src/state_machine.v
+set_global_assignment -name VERILOG_FILE ../../appendix/rf/src/data_validate.v
+set_global_assignment -name VERILOG_FILE ../../appendix/rf/src/frame_capture.v
+set_global_assignment -name VERILOG_FILE ../../appendix/rf/src/l1_framing_validator.v
+set_global_assignment -name VERILOG_FILE ../../appendix/rf/src/l2_integrity_verify.v
+set_global_assignment -name VERILOG_FILE ../../appendix/rf/src/l3_commit_gatekeeper.v
+set_global_assignment -name VERILOG_FILE ../../appendix/rf/src/salaras_rx_top.v
+set_global_assignment -name SEARCH_PATH ../../appendix/rf/src
 set_global_assignment -name SDC_FILE salaras_rx_de10nano.sdc
 
 set_location_assignment PIN_V11 -to CLOCK_50
