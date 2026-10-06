@@ -1,4 +1,5 @@
 import pptxgen from "pptxgenjs";
+import { join } from "node:path";
 
 const ACCENT = "C2410C";
 const INK = "111827";
@@ -12,13 +13,13 @@ const pptx = new pptxgen();
 pptx.layout = "LAYOUT_16x9";
 pptx.author = "dinotice";
 pptx.company = "Universitas Telkom";
-pptx.title = "SALARAS-RX - PERURI Chip Hackathon 2026";
+pptx.title = "SALARAS - PERURI Chip Hackathon 2026";
 
 const TOTAL = 14;
 let pageNo = 0;
 
 function footer(slide) {
-  slide.addText("SALARAS-RX  |  PERURI Chip Hackathon 2026  |  dinotice", {
+  slide.addText("SALARAS  |  PERURI Chip Hackathon 2026  |  dinotice", {
     x: 0.55, y: 5.2, w: 7.5, h: 0.3, fontSize: 8.5, color: GRAY, fontFace: "Arial",
   });
   slide.addText(`${pageNo} / ${TOTAL}`, {
@@ -73,7 +74,7 @@ function table(rows, opts = {}) {
   s.addText("PERURI CHIP HACKATHON 2026", {
     x: 0.7, y: 0.85, w: 8.6, h: 0.4, fontSize: 14, bold: true, color: ACCENT, charSpacing: 2, fontFace: "Arial",
   });
-  s.addText("SALARAS-RX", {
+  s.addText("SALARAS", {
     x: 0.7, y: 1.35, w: 8.6, h: 1.1, fontSize: 54, bold: true, color: INK, fontFace: "Arial",
   });
   s.addText("A Hardware-Enforced Secure Ingress Barrier for Manchester/RF Serial Links", {
@@ -89,7 +90,7 @@ function table(rows, opts = {}) {
     { x: 0.72, y: 3.4, w: 7.6, h: 1.4, fontFace: "Arial" }
   );
   s.addNotes(
-    "Perkenalan singkat: tim dinotice dari Universitas Telkom. SALARAS-RX adalah boundary verifikasi integritas berbasis hardware untuk jalur ingress Manchester/RF. Area fokus 04, Secure Communication."
+    "Perkenalan singkat: tim dinotice dari Universitas Telkom. SALARAS adalah boundary verifikasi integritas berbasis hardware untuk jalur ingress Manchester/RF. Area fokus 04, Secure Communication."
   );
 }
 
@@ -153,8 +154,8 @@ function table(rows, opts = {}) {
 /* ---------------- 5. Solution overview ---------------- */
 {
   const s = contentSlide(
-    "Solusi: SALARAS-RX Boundary",
-    "SALARAS-RX disisipkan antara decoder Manchester dan register host. Tiga layer: L1 framing/FSM, L2 integrity verify, L3 atomic commit. Fail-closed, tanpa mengubah format frame."
+    "Solusi: SALARAS Boundary",
+    "SALARAS disisipkan antara decoder Manchester dan register host. Tiga layer: L1 framing/FSM, L2 integrity verify, L3 atomic commit. Fail-closed, tanpa mengubah format frame."
   );
   s.addText("Boundary verifikasi integritas fail-closed: L1 (framing & FSM), L2 (integritas), L3 (atomic commit).", {
     x: 0.7, y: 1.15, w: 8.6, h: 0.5, fontSize: 14, color: INK, fontFace: "Arial",
@@ -227,7 +228,7 @@ function table(rows, opts = {}) {
   );
   s.addTable(
     table([
-      ["CWE", "Kelemahan", "Mitigasi SALARAS-RX"],
+      ["CWE", "Kelemahan", "Mitigasi SALARAS"],
       ["CWE-354", "Integritas tidak divalidasi", "L2 verifikasi sebelum commit"],
       ["CWE-1245", "FSM rapuh", "L1 recovery branch + timeout + konsistensi transisi"],
       ["CWE-1264", "Desinkronisasi kontrol/data", "L3 atomic commit + fail-closed"],
@@ -302,7 +303,7 @@ function table(rows, opts = {}) {
     table([
       ["Aspek", "Hasil"],
       ["Vulnerabilitas baseline", "Payload dan field integritas korup tetap di-latch (full=1, CWE-354)"],
-      ["Boundary SALARAS-RX", "Fail-closed: menolak, fault lengket, commit 1 siklus"],
+      ["Boundary SALARAS", "Fail-closed: menolak, fault lengket, commit 1 siklus"],
       ["Hardening sky130", "Tile 1x2 (1x1 melampaui 105.57%), 0.0363 mm^2, 0 DRC"],
       ["Timing & daya", "WNS 0.00 ns; daya tipikal 1.21 mW"],
       ["Gate-level", "Simulasi netlist lolos (3/3)"],
@@ -345,7 +346,7 @@ function table(rows, opts = {}) {
   s.addTable(
     table([
       ["Nama", "Peran"],
-      ["Ibrahim Fauzi Rahman", "RTL Designer: desain L1-L3 (SALARAS-RX) + integrasi baseline"],
+      ["Ibrahim Fauzi Rahman", "RTL Designer: desain L1-L3 (SALARAS) + integrasi baseline"],
       ["Idris Syaifulloh", "Verification: cocotb, fault injection, metrik"],
       ["Dr. Setia Jul Ismail, S.T., M.T.", "Pembimbing: review arsitektur dan metodologi verifikasi"],
     ]),
@@ -360,5 +361,8 @@ function table(rows, opts = {}) {
   });
 }
 
-await pptx.writeFile({ fileName: "salaras-rx-deck.pptx" });
-console.log(`wrote salaras-rx-deck.pptx (${pageNo} slides)`);
+const outDir = process.env.DECK_OUT_DIR || ".";
+const base = process.env.DECK_BASE || "salaras-deck";
+const outPath = join(outDir, `${base}.pptx`);
+await pptx.writeFile({ fileName: outPath });
+console.log(`wrote ${outPath} (${pageNo} slides)`);

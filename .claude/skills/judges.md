@@ -1,15 +1,15 @@
 ---
 name: judges
-description: Simulate the PERURI Chip Hackathon 2026 jury panel scoring the SALARAS-RX proposal. Run when asked to simulate judges, get jury scores, predict panel scores, or identify weaknesses to fix before submission.
+description: Simulate the PERURI Chip Hackathon 2026 jury panel scoring the SALARAS proposal. Run when asked to simulate judges, get jury scores, predict panel scores, or identify weaknesses to fix before submission.
 ---
 
-Simulate a full jury panel evaluation of the SALARAS-RX proposal for the PERURI Chip Hackathon 2026.
+Simulate a full jury panel evaluation of the SALARAS proposal for the PERURI Chip Hackathon 2026.
 Follow all steps in order and produce the full output in one response.
 
 ## Step 1 - Read source documents
 
 Before scoring, read these three files:
-1. `docs/proposal/salaras-rx-proposal.id.md` - the main proposal
+1. `docs/proposal/proposal-salaras.id.md` - the main proposal
 2. `sim/RESULTS.md` - simulation evidence: SIMON vectors, auth matrix, latency, bit-flip rejection
 3. `synth/area.md` - synthesis evidence: Yosys estimates, sky130 signoff 2x2, DRC 0, LVS 0, timing met
 
@@ -77,7 +77,7 @@ Compute the panel average (mean of 5 weighted totals).
 ## Step 5 - Top 3 questions per judge
 
 For each judge, list the 3 critical questions they would ask in a Q&A:
-- Questions must be specific to SALARAS-RX, not generic
+- Questions must be specific to SALARAS, not generic
 - Questions should probe the actual weaknesses identified in Step 3
 - Provide a suggested answer for each question based on what the proposal and evidence can support
 

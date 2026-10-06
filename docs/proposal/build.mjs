@@ -1,18 +1,29 @@
-import { readFileSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { dirname, join, isAbsolute } from "node:path";
 import { fileURLToPath } from "node:url";
 import { marked } from "marked";
 
 const dir = dirname(fileURLToPath(import.meta.url));
 
+const ts = process.env.PROPOSAL_TS;
+if (!ts) {
+  console.error("PROPOSAL_TS is required (set by build.sh)");
+  process.exit(1);
+}
+
+const htmlDir = process.env.PROPOSAL_HTML_DIR || dir;
+mkdirSync(htmlDir, { recursive: true });
+
+const base = `PROPOSAL-SALARAS-${ts}`;
+
 const figure =
-  '<figure><img src="assets/block-diagram.svg" alt="SALARAS-RX system block diagram">' +
-  "<figcaption>SALARAS-RX system block diagram</figcaption></figure>";
+  '<figure><img src="assets/block-diagram.svg" alt="SALARAS system block diagram">' +
+  "<figcaption>SALARAS system block diagram</figcaption></figure>";
 
 const docs = [
   {
-    in: "salaras-rx-proposal.id.md",
-    out: "salaras-rx-proposal.id.html",
+    in: "proposal-salaras.id.md",
+    out: `${base}.id.html`,
     lang: "id",
     title: "Authenticated Fail-Closed Ingress Boundary - Proposal PERURI Chip Hackathon 2026",
     cover: {
@@ -27,14 +38,14 @@ const docs = [
         ["Ketua", "Ibrahim Fauzi Rahman"],
         ["Anggota", "Idris Syaifulloh"],
         ["Dosen Pembimbing", "Dr. Setia Juli Irzal Ismail, S.T., M.T."],
-        ["Berkas", "docs/proposal/salaras-rx-proposal.id.md"],
+        ["Berkas", "docs/proposal/proposal-salaras.id.md"],
       ],
       footer: "Proposal peserta - kurasi tahap pertama",
     },
   },
   {
-    in: "salaras-rx-proposal.en.md",
-    out: "salaras-rx-proposal.en.html",
+    in: "proposal-salaras.en.md",
+    out: `${base}.en.html`,
     lang: "en",
     title: "Authenticated Fail-Closed Ingress Boundary - PERURI Chip Hackathon 2026 Proposal",
     cover: {
@@ -49,7 +60,7 @@ const docs = [
         ["Lead", "Ibrahim Fauzi Rahman"],
         ["Member", "Idris Syaifulloh"],
         ["Advisor", "Dr. Setia Juli Irzal Ismail, S.T., M.T."],
-        ["Source", "docs/proposal/salaras-rx-proposal.en.md"],
+        ["Source", "docs/proposal/proposal-salaras.en.md"],
       ],
       footer: "Participant proposal - first curation stage",
     },
@@ -108,6 +119,7 @@ ${body}
 </html>
 `;
 
-  writeFileSync(join(dir, doc.out), html);
-  console.log(`wrote ${doc.out}`);
+  const outPath = isAbsolute(doc.out) ? doc.out : join(htmlDir, doc.out);
+  writeFileSync(outPath, html);
+  console.log(`wrote ${outPath}`);
 }

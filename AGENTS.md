@@ -4,8 +4,8 @@ Always-on conventions for this repository.
 
 ## Project
 
-- This repository is the SALARAS-RX hardware design plus the planned secure-link successor.
-- SALARAS-RX is a fail-closed ingress boundary for Manchester/RF serial links built on `tt07-bep-decode`; it is the CWE-354 problem evidence and is kept as an appendix.
+- This repository is the SALARAS hardware design plus the planned secure-link successor.
+- SALARAS is a fail-closed ingress boundary for Manchester/RF serial links built on `tt07-bep-decode`; it is the CWE-354 problem evidence and is kept as an appendix.
 - The committed successor is the authenticated, replay-resistant, fail-closed ingress boundary (Tier A), a keyed MAC plus freshness counter, built toward a secure serial link on `TT_UM_SERDES` (Tier B) and a clock-domain crossing (Tier C).
 - The RTL targets Tiny Tapeout sky130 and the Terasic DE10-Nano (Cyclone V).
 - Baseline RTL is vendored and tracked as submodules under `baseline/`.
@@ -63,7 +63,7 @@ Always-on conventions for this repository.
 
 ## Docs and writing
 
-- Build the proposal with `bash docs/proposal/build.sh`.
+- Build the proposal with `make docs` (which calls `docs/proposal/build.sh`).
 - Use the `penulisan` skill for Indonesian documents.
 - `docs/` is tracked; generated HTML is not. Keep Markdown and PDF as canonical.
 - Put each full sentence on its own line when writing long Markdown.

@@ -1,6 +1,6 @@
 # Trade Study
 
-Design alternatives considered and decisions made for the SALARAS-RX authenticated ingress boundary.
+Design alternatives considered and decisions made for the SALARAS authenticated ingress boundary.
 Each study presents a decision table followed by the chosen alternative and its rationale.
 
 ---
@@ -89,7 +89,7 @@ The tile size affects die area, tile cost, placement density, and signoff comple
 | --- | --- | --- | --- | --- | --- | --- |
 | 1x1 tile | ~80.5 x 225.76 um | - | 105.57% (overflow) | - | - | FAIL - GPL-0301 placement overflow |
 | 1x2 tile (RF appendix) | 161.0 x 225.76 um = 0.0363 mm^2 | 1671 placed | Measured fit | WNS +7.97 ns | 0 violations | PASS (RF appendix, 1x2) |
-| 2x2 tile (chosen, link) | 334.88 x 225.76 um = 0.0756 mm^2 | 2354 synthesis | Fit with margin | WNS +10.79 ns | 0 violations | PASS - SALARAS-RX link boundary |
+| 2x2 tile (chosen, link) | 334.88 x 225.76 um = 0.0756 mm^2 | 2354 synthesis | Fit with margin | WNS +10.79 ns | 0 violations | PASS - SALARAS link boundary |
 | FPGA-only (no ASIC) | N/A - Cyclone V | 360 ALUTs, 500 FFs | ~0.9% of DE10-Nano | Timing met (proxy) | N/A | Not a GDS deliverable |
 
 **Decision:** 2x2 tile for the committed link design (`tt_um_bokumentation_auth_boundary`).

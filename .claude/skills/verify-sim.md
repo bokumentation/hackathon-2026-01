@@ -1,9 +1,9 @@
 ---
 name: verify-sim
-description: Verify RTL code correctness and simulation results for the SALARAS-RX authenticated ingress boundary. Run when asked to verify code, check simulation results, validate a change, or confirm no regressions.
+description: Verify RTL code correctness and simulation results for the SALARAS authenticated ingress boundary. Run when asked to verify code, check simulation results, validate a change, or confirm no regressions.
 ---
 
-Verify the SALARAS-RX authenticated ingress boundary.
+Verify the SALARAS authenticated ingress boundary.
 Never claim a result that was not actually measured - check real test output before reporting.
 
 ## Step 1 - RTL static checks

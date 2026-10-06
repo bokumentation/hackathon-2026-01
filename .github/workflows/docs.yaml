@@ -6,52 +6,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-docs:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-
-      - name: Install npm dependencies
-        working-directory: docs/proposal
-        run: npm ci
-
-      - name: Generate HTML from Markdown
-        working-directory: docs/proposal
-        run: node build.mjs
-
-      - name: Install Chromium
-        run: sudo apt-get update && sudo apt-get install -y chromium-browser
-
-      - name: Print PDF (ID)
-        working-directory: docs/proposal
-        run: |
-          chromium-browser --headless=new --disable-gpu --no-pdf-header-footer \
-            --virtual-time-budget=8000 \
-            --print-to-pdf="salaras-rx-proposal.id.pdf" \
-            "file://$PWD/salaras-rx-proposal.id.html"
-
-      - name: Print PDF (EN)
-        working-directory: docs/proposal
-        run: |
-          chromium-browser --headless=new --disable-gpu --no-pdf-header-footer \
-            --virtual-time-budget=8000 \
-            --print-to-pdf="salaras-rx-proposal.en.pdf" \
-            "file://$PWD/salaras-rx-proposal.en.html"
-
-      - name: Upload proposal PDFs
-        uses: actions/upload-artifact@v4
-        with:
-          name: proposal-pdf
-          path: |
-            docs/proposal/salaras-rx-proposal.id.pdf
-            docs/proposal/salaras-rx-proposal.en.pdf
-
   check-bold-headings:
     runs-on: ubuntu-latest
     continue-on-error: true
@@ -62,23 +16,23 @@ jobs:
       - name: Check subheadings are bold in ID proposal
         run: |
           for pattern in "Masalah yang Diangkat" "Solusi" "Arsitektur" "Chip yang Dirancang" "Target Pengguna" "Hasil Terukur" "Dampak" "Latar Belakang"; do
-            if grep -qP "^\*\*${pattern}" docs/proposal/salaras-rx-proposal.id.md; then
+            if grep -qP "^\*\*${pattern}" docs/proposal/proposal-salaras.id.md; then
               echo "OK (bold): $pattern"
-            elif grep -qP "^${pattern}" docs/proposal/salaras-rx-proposal.id.md; then
-              echo "WARN: '$pattern' appears as plain text (not bold **) in salaras-rx-proposal.id.md"
+            elif grep -qP "^${pattern}" docs/proposal/proposal-salaras.id.md; then
+              echo "WARN: '$pattern' appears as plain text (not bold **) in proposal-salaras.id.md"
             else
-              echo "INFO: '$pattern' not found in salaras-rx-proposal.id.md"
+              echo "INFO: '$pattern' not found in proposal-salaras.id.md"
             fi
           done
 
       - name: Check subheadings are bold in EN proposal
         run: |
           for pattern in "Problem" "Solution" "Architecture" "Chip Design" "Target" "Results" "Impact" "Background"; do
-            if grep -qP "^\*\*${pattern}" docs/proposal/salaras-rx-proposal.en.md; then
+            if grep -qP "^\*\*${pattern}" docs/proposal/proposal-salaras.en.md; then
               echo "OK (bold): $pattern"
-            elif grep -qP "^${pattern}" docs/proposal/salaras-rx-proposal.en.md; then
-              echo "WARN: '$pattern' appears as plain text (not bold **) in salaras-rx-proposal.en.md"
+            elif grep -qP "^${pattern}" docs/proposal/proposal-salaras.en.md; then
+              echo "WARN: '$pattern' appears as plain text (not bold **) in proposal-salaras.en.md"
             else
-              echo "INFO: '$pattern' not found in salaras-rx-proposal.en.md"
+              echo "INFO: '$pattern' not found in proposal-salaras.en.md"
             fi
           done

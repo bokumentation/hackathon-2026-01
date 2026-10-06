@@ -1,30 +1,80 @@
 #!/usr/bin/env bash
-# Build the proposal PDFs from the canonical markdown sources.
-# Requires: node/npm and google-chrome (or chromium).
+# Build the proposal HTML and PDF into the repository output folder.
+#
+# The timestamp in the file name comes from the mtime of the Markdown sources:
+#   - if the sources are unchanged, the existing timestamped PDF is kept and the
+#     build is skipped;
+#   - if a source is edited, a new timestamp is stamped and older outputs are
+#     removed, so only the latest proposal is kept.
+#
+# Usage: docs/proposal/build.sh [--force]
+#   --force  rebuild even when the sources look unchanged.
 set -euo pipefail
-cd "$(dirname "$0")"
 
-if [ ! -d node_modules/marked ]; then
+DIR="$(cd "$(dirname "$0")" && pwd)"
+ROOT="$(cd "$DIR/../.." && pwd)"
+OUT_HTML="$ROOT/output/html"
+OUT_PDF="$ROOT/output/pdf"
+
+SRC_ID="$DIR/proposal-salaras.id.md"
+SRC_EN="$DIR/proposal-salaras.en.md"
+for f in "$SRC_ID" "$SRC_EN"; do
+  [ -f "$f" ] || { echo "ERROR: missing $f" >&2; exit 1; }
+done
+
+newest() {
+  local m=0 t
+  for f in "$@"; do
+    t="$(stat -c %Y "$f")"
+    [ "$t" -gt "$m" ] && m="$t"
+  done
+  echo "$m"
+}
+
+SRC_MTIME="$(newest "$SRC_ID" "$SRC_EN" "$DIR/build.mjs" "$DIR/proposal.css")"
+TS="$(date -d "@$SRC_MTIME" +%Y%m%d-%H%M)"
+BASE="PROPOSAL-SALARAS-$TS"
+
+FORCE=""
+[ "${1:-}" = "--force" ] && FORCE=1
+
+if [ -z "$FORCE" ] \
+   && [ -f "$OUT_PDF/$BASE.id.pdf" ] && [ -f "$OUT_PDF/$BASE.en.pdf" ] \
+   && [ "$(stat -c %Y "$OUT_PDF/$BASE.id.pdf")" -ge "$SRC_MTIME" ]; then
+  echo "proposal up to date ($TS)"
+  exit 0
+fi
+
+if [ ! -d "$DIR/node_modules/marked" ]; then
   echo "Installing build dependencies (marked)..."
-  if [ -f package-lock.json ]; then
-    npm ci --silent
+  if [ -f "$DIR/package-lock.json" ]; then
+    (cd "$DIR" && npm ci --silent)
   else
-    npm install --silent
+    (cd "$DIR" && npm install --silent)
   fi
 fi
 
-node build.mjs
-
 CHROME="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser || true)"
 if [ -z "$CHROME" ]; then
-  echo "ERROR: google-chrome/chromium not found; HTML files were generated." >&2
+  echo "ERROR: google-chrome/chromium not found" >&2
   exit 1
 fi
 
-for NAME in salaras-rx-proposal.id salaras-rx-proposal.en; do
+mkdir -p "$OUT_HTML" "$OUT_PDF"
+cp -r "$DIR/assets" "$OUT_HTML/assets"
+cp "$DIR/proposal.css" "$OUT_HTML/proposal.css"
+
+PROPOSAL_TS="$TS" PROPOSAL_HTML_DIR="$OUT_HTML" node "$DIR/build.mjs"
+
+for L in id en; do
   "$CHROME" --headless=new --disable-gpu --no-pdf-header-footer \
     --virtual-time-budget=8000 \
-    --print-to-pdf="$NAME.pdf" \
-    "file://$PWD/$NAME.html" >/dev/null 2>&1
-  echo "built $NAME.pdf"
+    --print-to-pdf="$OUT_PDF/$BASE.$L.pdf" \
+    "file://$OUT_HTML/$BASE.$L.html" >/dev/null 2>&1
+  echo "built $OUT_PDF/$BASE.$L.pdf"
 done
+
+# keep only the latest proposal build
+find "$OUT_PDF" -maxdepth 1 -name 'PROPOSAL-SALARAS-*.pdf' ! -name "$BASE.*" -delete
+find "$OUT_HTML" -maxdepth 1 -name 'PROPOSAL-SALARAS-*.html' ! -name "$BASE.*" -delete
+echo "proposal version $TS"

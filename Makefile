@@ -20,10 +20,11 @@ SBY        := sby
 
 .PHONY: help
 help:
-	@echo "SALARAS-RX build targets"
+	@echo "SALARAS build targets"
 	@echo ""
 	@echo "  make submodules   initialize and update baseline submodules"
 	@echo "  make env          create the Python virtual environment"
+	@echo "  make doctor       check for the required host tools"
 	@echo "  make lint         lint RTL with Verilator"
 	@echo "  make synth-check  check synthesizability with Yosys"
 	@echo "  make area         estimate cell, FF, and Cyclone V resource usage"
@@ -35,6 +36,9 @@ help:
 	@echo "  make crc          measure the RF CRC streaming latency (comparison)"
 	@echo "  make wrapper      run the TT wrapper testbench (key separation and frame tests)"
 	@echo "  make sim          run the simulation evidence suites"
+	@echo "  make docs         build the proposal into output/ (incremental)"
+	@echo "  make docs-force   rebuild the proposal even if unchanged"
+	@echo "  make docs-all     build the proposal and the deck into output/"
 	@echo "  make gds          instructions for ASIC hardening"
 	@echo "  make fpga         instructions for the DE10-Nano build"
 	@echo "  make clean        remove build outputs"
@@ -48,6 +52,18 @@ env:
 	python3 -m venv $(VENV)
 	$(PIP) install --upgrade pip
 	$(PIP) install -r requirements.txt
+
+.PHONY: doctor
+doctor:
+	@echo "Checking repository tools"
+	@for t in git make python3 verilator yosys iverilog; do \
+		if command -v $$t >/dev/null 2>&1; then echo "  ok      $$t"; else echo "  MISSING $$t"; fi; \
+	done
+	@for t in sby node npm chromium chromium-browser google-chrome inkscape soffice; do \
+		if command -v $$t >/dev/null 2>&1; then echo "  ok      $$t"; else echo "  missing $$t (optional)"; fi; \
+	done
+	@if [ -d $(VENV) ]; then echo "  ok      venv"; else echo "  MISSING venv (run make env)"; fi
+	@if [ -d baseline/tt07-bep-decode/src ]; then echo "  ok      baseline submodules"; else echo "  MISSING baseline submodules (run make submodules)"; fi
 
 .PHONY: lint
 lint:
@@ -81,6 +97,9 @@ formal:
 		$(SBY) -f $$f || exit 1; \
 	done
 
+COCOTB_TARGETS := test simon l2 auth crc wrapper sim
+$(COCOTB_TARGETS): export PATH := $(CURDIR)/$(VENV)/bin:$(PATH)
+
 .PHONY: test
 test:
 	$(MAKE) -C $(TEST_DIR)
@@ -110,6 +129,18 @@ sim:
 	$(MAKE) -C sim baseline
 	$(MAKE) -C sim boundary
 
+.PHONY: docs
+docs:
+	bash docs/proposal/build.sh
+
+.PHONY: docs-force
+docs-force:
+	bash docs/proposal/build.sh --force
+
+.PHONY: docs-all
+docs-all:
+	bash docs/build.sh all
+
 .PHONY: gds
 gds:
 	@echo "ASIC hardening runs through the Tiny Tapeout GDS GitHub Action."
@@ -122,7 +153,8 @@ fpga:
 
 .PHONY: clean
 clean:
-	rm -rf sim_build obj_dir runs db
-	rm -f *.vcd *.fst *.vvp
+	rm -rf sim_build obj_dir runs db output
+	rm -rf fpga/de10nano/db fpga/de10nano/incremental_db fpga/de10nano/output_files
+	rm -f *.vcd *.fst *.vvp fpga/de10nano/c5_pin_model_dump.txt
 	$(MAKE) -C $(TEST_DIR) clean 2>/dev/null || true
 	$(MAKE) -C sim clean 2>/dev/null || true

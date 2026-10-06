@@ -1,6 +1,6 @@
 # Synthesis area estimate
 
-Preliminary, technology-independent estimate of the SALARAS-RX top
+Preliminary, technology-independent estimate of the SALARAS top
 (`tt_um_bokumentation_salaras_rx`). Reproduce with `make area`; raw Yosys logs
 are written to `synth/area/` (not tracked).
 
@@ -46,7 +46,7 @@ Quartus Fitter numbers replace these once the integrated design is synthesized.
 ## Tier A link estimate (salaras_auth_top)
 
 The committed successor is the authenticated boundary (`simon32_64`, `l2_auth`,
-`l3_commit_gatekeeper`, `salaras_auth_top`). Reproduce with `make area-link`.
+`l3_commit_gatekeeper`, `salaras_auth_top`). Reproduce with `make area`.
 
 | Resource | Value |
 | --- | --- |
@@ -85,7 +85,7 @@ density 0.6 and 0.8), so a 2x2 tile is used.
 ## ASIC (sky130) estimate
 
 Technology-independent gate count is 1352 cells with 352 flip-flops. The
-baseline `tt07-bep-decode` occupies a single 1x1 Tiny Tapeout tile; SALARAS-RX
+baseline `tt07-bep-decode` occupies a single 1x1 Tiny Tapeout tile; SALARAS
 adds a 24-bit CRC LFSR, a comparator, timing and timeout counters, and a small
 commit register.
 

@@ -5,6 +5,7 @@ set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
 set_global_assignment -name NUM_PARALLEL_PROCESSORS 4
 
 set_global_assignment -name VERILOG_FILE salaras_auth_de10nano.v
+set_global_assignment -name VERILOG_FILE ../../src/l1_serial_loader.v
 set_global_assignment -name VERILOG_FILE ../../src/simon32_64.v
 set_global_assignment -name VERILOG_FILE ../../src/l2_auth.v
 set_global_assignment -name VERILOG_FILE ../../src/l3_commit_gatekeeper.v
@@ -16,31 +17,41 @@ set_location_assignment PIN_V11 -to CLOCK_50
 set_location_assignment PIN_AH17 -to KEY[0]
 set_location_assignment PIN_AH16 -to KEY[1]
 
-set_location_assignment PIN_AB30 -to SW[0]
-set_location_assignment PIN_AB28 -to SW[1]
-set_location_assignment PIN_AC30 -to SW[2]
-set_location_assignment PIN_AC28 -to SW[3]
-set_location_assignment PIN_AD30 -to SW[4]
-set_location_assignment PIN_AD29 -to SW[5]
-set_location_assignment PIN_AE29 -to SW[6]
-set_location_assignment PIN_AE28 -to SW[7]
-set_location_assignment PIN_AF29 -to SW[8]
-set_location_assignment PIN_AF28 -to SW[9]
+set_location_assignment PIN_Y24 -to SW[0]
+set_location_assignment PIN_W24 -to SW[1]
+set_location_assignment PIN_W21 -to SW[2]
+set_location_assignment PIN_W20 -to SW[3]
 
-set_location_assignment PIN_V16 -to LEDR[0]
-set_location_assignment PIN_W16 -to LEDR[1]
-set_location_assignment PIN_V17 -to LEDR[2]
-set_location_assignment PIN_V18 -to LEDR[3]
-set_location_assignment PIN_W17 -to LEDR[4]
-set_location_assignment PIN_W18 -to LEDR[5]
-set_location_assignment PIN_V19 -to LEDR[6]
-set_location_assignment PIN_W19 -to LEDR[7]
-set_location_assignment PIN_Y19 -to LEDR[8]
-set_location_assignment PIN_Y20 -to LEDR[9]
+set_location_assignment PIN_W15 -to LEDR[0]
+set_location_assignment PIN_AA24 -to LEDR[1]
+set_location_assignment PIN_V16 -to LEDR[2]
+set_location_assignment PIN_V15 -to LEDR[3]
+set_location_assignment PIN_AF26 -to LEDR[4]
+set_location_assignment PIN_AE26 -to LEDR[5]
+set_location_assignment PIN_Y16 -to LEDR[6]
+set_location_assignment PIN_AA23 -to LEDR[7]
 
-set_location_assignment PIN_AC22 -to gpio_frame_bit
-set_location_assignment PIN_Y21 -to gpio_load_en
-set_location_assignment PIN_AC23 -to gpio_fault_ack
-set_location_assignment PIN_W21 -to gpio_host_full
-set_location_assignment PIN_AB23 -to gpio_fault
-set_location_assignment PIN_AA20 -to gpio_done
+set_location_assignment PIN_V12 -to gpio_frame_bit
+set_location_assignment PIN_E8 -to gpio_load_en
+set_location_assignment PIN_W12 -to gpio_fault_ack
+set_location_assignment PIN_D11 -to gpio_host_full
+set_location_assignment PIN_D8 -to gpio_fault
+set_location_assignment PIN_AH13 -to gpio_done
+
+set_global_assignment -name LAST_QUARTUS_VERSION "25.1std.0 Lite Edition"
+
+# ---- SignalTap (prepared, disabled) -----------------------------------------
+# The SignalTap file is created in the Quartus GUI and is not committed (*.stp is
+# ignored). Create it with: sample clock CLOCK_50, sample depth 2048, position
+# pre-trigger, and taps on host_full, fault, auth_ok, fresh_ok, done, key_locked.
+# Trigger on host_full rising edge (accept case) or fault rising edge (reject
+# case). The tapped wires carry (* preserve, noprune *) in the wrapper so they
+# survive synthesis and appear in Node Finder.
+# After saving the .stp, regenerate the SLD wiring and recompile:
+#   quartus_stp salaras_auth_de10nano --stp_file salaras_auth_de10nano.stp --enable
+#   quartus_sh --flow compile salaras_auth_de10nano
+# Uncomment the three assignments below only after salaras_auth_de10nano.stp
+# exists, otherwise a fresh clone build fails.
+# set_global_assignment -name ENABLE_SIGNALTAP ON
+# set_global_assignment -name USE_SIGNALTAP_FILE salaras_auth_de10nano.stp
+# set_global_assignment -name SIGNALTAP_FILE salaras_auth_de10nano.stp

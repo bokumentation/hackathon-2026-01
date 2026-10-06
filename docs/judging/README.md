@@ -1,10 +1,10 @@
 # Judging documentation
 
-Evaluation and jury-simulation documents for the PERURI Chip Hackathon 2026.
+Evaluation and jury-preparation documents for the PERURI Chip Hackathon 2026.
 
 | Document | Contents |
 | --- | --- |
-| [`proposal-verification.md`](proposal-verification.md) | Eight-check audit of the proposal against competition guidelines — structure, claims, references, technical numbers, rubric self-score, honesty, formatting, and English parity |
+| [`submission-verification.md`](submission-verification.md) | Audit of the current submission against competition guidelines - structure, claims, references, technical consistency, and formatting |
 | [`judge-qna.md`](judge-qna.md) | Anticipated Q&A from each judge persona with suggested answers |
-| [`analisis-kelayakan.md`](analisis-kelayakan.md) | Feasibility analysis: area, power, latency, and BOM |
-| [`simulasi-juri-salaras-serdes.md`](simulasi-juri-salaras-serdes.md) | Archived jury simulation from the previous SALARAS-SERDES (CRC) proposal (score 77.53/100) |
+| [`analisis-kelayakan.id.md`](analisis-kelayakan.id.md) | Feasibility analysis: area, power, latency, and BOM |
+| [`prior-art-analysis.id.md`](prior-art-analysis.id.md) | Prior-art and positioning analysis for the novelty claim |

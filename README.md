@@ -1,4 +1,4 @@
-# SALARAS-RX — Authenticated Fail-Closed Ingress Boundary
+# SALARAS — Authenticated Fail-Closed Ingress Boundary
 
 **PERURI Chip Hackathon 2026 · Area 04 Secure Communication**
 Tim *dinotice* · Universitas Telkom
@@ -20,7 +20,7 @@ A small, reusable hardware IP block that closes the gap between receiving a seri
 
 The problem is measured on a real baseline: the Tiny Tapeout 07 Manchester decoder `tt07-bep-decode` receives a 24-bit integrity field and never checks it, so a corrupt or fault-injected frame still appears valid to the host (CWE-354). The integrity field itself is an undocumented error-correcting code — unsolved.
 
-SALARAS-RX fixes this with three composable layers:
+SALARAS fixes this with three composable layers:
 
 | Layer | Module | What it does | CWE closed |
 | --- | --- | --- | --- |
@@ -108,12 +108,16 @@ Full evidence: [`sim/RESULTS.md`](sim/RESULTS.md) · [`synth/area.md`](synth/are
 ├── baseline/             Pinned Tiny Tapeout 07 submodules
 ├── docs/
 │   ├── proposal/         Competition proposal (ID + EN) and PDF build
-│   ├── design/           Architecture, threat model, trade study, FMEA
-│   ├── judging/          Proposal audit, judge QnA, feasibility analysis
+│   ├── design/           Architecture, threat model, trade study, FMEA, Quartus plan/report, SignalTap
+│   ├── setup/            Host setup and repository workflow (Debian 13)
+│   ├── judging/          Submission audit, judge QnA, feasibility, prior-art analysis
 │   ├── competition/      PERURI Chip Hackathon handbook and rules
-│   ├── deck/             Presentation deck
-│   └── archive/          Earlier drafts
+│   ├── references/       Third-party papers (Markdown; original PDFs not tracked)
+│   ├── datasheet/        Board and device datasheet notes
+│   ├── submission/       Submission checklist and deliverables
+│   └── deck/             Presentation deck sources (builds into output/)
 ├── assets/               SVG figures referenced in README and proposal
+├── output/               Generated PDF export (not committed)
 ├── gds/                  Generated ASIC output (not committed; see gds.yaml)
 ├── openlane/             OpenLane entry configuration
 ├── tools/                Integrity-field analysis scripts
@@ -220,13 +224,19 @@ Key-load / frame-load protocol uses `SW[0]`: set high to shift the 64-bit key MS
 
 ## Proposal
 
-- Indonesian: [`docs/proposal/salaras-rx-proposal.id.md`](docs/proposal/salaras-rx-proposal.id.md)
-- English: [`docs/proposal/salaras-rx-proposal.en.md`](docs/proposal/salaras-rx-proposal.en.md)
+- Indonesian: [`docs/proposal/proposal-salaras.id.md`](docs/proposal/proposal-salaras.id.md)
+- English: [`docs/proposal/proposal-salaras.en.md`](docs/proposal/proposal-salaras.en.md)
 
-Build HTML and PDF:
+Build the proposal HTML and PDF from the repository root:
 
 ```bash
-cd docs/proposal && npm ci && node build.mjs
+make docs
+```
+
+To build every documentation set (proposal, deck, judging, ideas):
+
+```bash
+make docs-all
 ```
 
 ---

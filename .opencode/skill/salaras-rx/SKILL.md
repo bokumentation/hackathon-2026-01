@@ -9,7 +9,7 @@ Use this when changing anything in this repository.
 
 ## Design program
 
-- SALARAS-RX is the fail-closed Manchester/RF ingress boundary on `tt07-bep-decode`; it is the CWE-354 problem evidence and is kept as an appendix.
+- SALARAS is the fail-closed Manchester/RF ingress boundary on `tt07-bep-decode`; it is the CWE-354 problem evidence and is kept as an appendix.
 - The committed successor is the authenticated, replay-resistant, fail-closed boundary (Tier A): SIMON-32/64 CBC-MAC plus a freshness counter, single clock.
 - Tier B (next): a purpose-built link layer on `TT_UM_SERDES` (`link_enc_8b10b`, `link_dec_10b8b`, `link_tx`, `link_rx`, `l1_link_framing`).
 - Tier C (future): two-clock operation using the vendored `cdc_fifo`, real hardening, FPGA.
@@ -51,7 +51,7 @@ Use this when changing anything in this repository.
 
 ## Field status (do not overclaim)
 
-- The SALARAS-RX 24-bit on-wire field is affine over GF(2) but is not a standard CRC-24; the baseline author suspects an error-correcting code.
+- The SALARAS 24-bit on-wire field is affine over GF(2) but is not a standard CRC-24; the baseline author suspects an error-correcting code.
 - With the 7 available pairs the delta rank is only 5, so the RF L2 is parameterized and real-frame detection is not claimed.
 - The RF sky130 result is 1x2 (1x1 overflows at 105.57%): die 0.0363 mm^2, WNS 0.00, typical power 1.21 mW. It belongs to the appendix and does not transfer to the MAC module set.
 
@@ -72,6 +72,6 @@ Use this when changing anything in this repository.
 
 ## Docs
 
-- Build the proposal with `bash docs/proposal/build.sh`.
+- Build the proposal with `make docs` (which calls `docs/proposal/build.sh`).
 - Use the `penulisan` skill for Indonesian text.
 - `docs/` is tracked; generated HTML is ignored.

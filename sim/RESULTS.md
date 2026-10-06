@@ -90,7 +90,7 @@ interface with a 192-bit frame.
 The baseline has no error output and never checks the integrity field, so both
 corrupted frames are latched as valid. Figure: `out/baseline_vulnerability.png`.
 
-## E2 - SALARAS-RX fail-closed boundary
+## E2 - SALARAS fail-closed boundary
 
 Stimulus drives L1 (timing/timeout) and L3 (atomic commit) directly, with
 `crc_ok` standing in for L2.

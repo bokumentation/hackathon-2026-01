@@ -1,5 +1,5 @@
 ---
-description: Run the full verification gate suite (lint, synth, area, formal, test, sim) for SALARAS-RX and report a pass/fail summary.
+description: Run the full verification gate suite (lint, synth, area, formal, test, sim) for SALARAS and report a pass/fail summary.
 agent: build
 ---
 

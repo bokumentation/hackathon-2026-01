@@ -3,11 +3,11 @@
 module salaras_auth_de10nano (
     input  wire       CLOCK_50,
     input  wire [1:0] KEY,
-    input  wire [9:0] SW,
+    input  wire [3:0] SW,
     input  wire       gpio_frame_bit,
     input  wire       gpio_load_en,
     input  wire       gpio_fault_ack,
-    output wire [9:0] LEDR,
+    output wire [7:0] LEDR,
     output wire       gpio_host_full,
     output wire       gpio_fault,
     output wire       gpio_done
@@ -20,14 +20,14 @@ module salaras_auth_de10nano (
     wire [63:0] payload_out;
     wire [31:0] tag_out;
     wire        start;
-    wire        key_locked;
+    (* preserve, noprune *) wire key_locked;
 
-    wire        host_full;
+    (* preserve, noprune *) wire        host_full;
     wire [95:0] host_data_q;
-    wire        fault;
-    wire        auth_ok;
-    wire        fresh_ok;
-    wire        done;
+    (* preserve, noprune *) wire        fault;
+    (* preserve, noprune *) wire        auth_ok;
+    (* preserve, noprune *) wire        fresh_ok;
+    (* preserve, noprune *) wire        done;
 
     l1_serial_loader u_l1 (
         .clk        (CLOCK_50),
@@ -69,13 +69,13 @@ module salaras_auth_de10nano (
     assign LEDR[3] = auth_ok;
     assign LEDR[4] = fresh_ok;
     assign LEDR[5] = key_locked;
-    assign LEDR[9:6] = 4'b0;
+    assign LEDR[7:6] = 2'b0;
 
     assign gpio_host_full = host_full;
     assign gpio_fault     = fault;
     assign gpio_done      = done;
 
-    wire _unused = &{1'b0, SW[9:1], host_data_q};
+    wire _unused = &{1'b0, SW[3:1], host_data_q};
 endmodule
 
 `default_nettype wire

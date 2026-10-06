@@ -1,6 +1,6 @@
 # Architecture
 
-SALARAS-RX is a hardware-enforced, fail-closed ingress boundary for Manchester/RF serial links.
+SALARAS is a hardware-enforced, fail-closed ingress boundary for Manchester/RF serial links.
 It sits between a Manchester decoder and the host register file without changing the frame format.
 
 ## Data flow

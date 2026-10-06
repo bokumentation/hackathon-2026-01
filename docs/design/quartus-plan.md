@@ -4,15 +4,20 @@ Goal: replace the Yosys proxy numbers with real Quartus fitter and timing
 reports for the authenticated boundary on the DE10-Nano (Cyclone V SoC,
 5CSEBA6U23I7).
 
+The measured results are recorded in [`../quartus-report.md`](../quartus-report.md).
+
 ## Board wrapper
 
 The board project lives in `fpga/de10nano/`:
 
-- `salaras_auth_de10nano.v` instantiates `salaras_auth_top` with the serial frame
-  loader (192 bits shifted over GPIO), LEDs, and GPIO status.
+- `salaras_auth_de10nano.v` instantiates `l1_serial_loader` and `salaras_auth_top`;
+  the 64-bit key and the 128-bit frame (counter + payload + tag) are shifted over
+  GPIO, with `SW[0]` selecting key mode or frame mode.
 - `salaras_auth_de10nano.sdc` constrains `CLOCK_50` at 20 ns and marks the reset
   and GPIO inputs as false paths.
-- `salaras_auth_de10nano.qsf` lists the sources and pin assignments.
+- `salaras_auth_de10nano.qsf` lists the sources and pin assignments, using the
+  official Terasic DE10-Nano pin map (8 LEDs, 4 switches).
+- `salaras_auth_de10nano.qpf` is the Quartus project file.
 - `Makefile` runs `quartus_sh --flow compile` and `quartus_pgm`.
 
 The archived RF board project is at `appendix/rf/fpga/de10nano/`.

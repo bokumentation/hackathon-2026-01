@@ -1,7 +1,7 @@
-# Contributing to SALARAS-RX
+# Contributing to SALARAS
 
 Thanks for your interest. This repository contains the hardware design and
-research artifacts for SALARAS-RX.
+research artifacts for SALARAS.
 
 ## Ground rules
 

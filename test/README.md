@@ -1,6 +1,6 @@
 # test/
 
-cocotb verification suites for SALARAS-RX.
+cocotb verification suites for SALARAS.
 
 ## Running with make (Linux / CI)
 

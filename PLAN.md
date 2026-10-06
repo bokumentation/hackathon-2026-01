@@ -18,7 +18,7 @@ Committed scope (Tier A):
   and bit flips rejected; clean frames accepted.
 - A fail-closed atomic commit with a sticky fault and a measured latency.
 - Machine-checked invariants for the commit path.
-- The RF work (SALARAS-RX) retained as the CWE-354 problem appendix.
+- The RF work (SALARAS) retained as the CWE-354 problem appendix.
 
 Tier A is single clock and does not require the SerDes link or the CDC crossing.
 Those are Tier B and Tier C, described at the end.
