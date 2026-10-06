@@ -1,17 +1,17 @@
 set_global_assignment -name FAMILY "Cyclone V"
 set_global_assignment -name DEVICE 5CSEBA6U23I7
-set_global_assignment -name TOP_LEVEL_ENTITY salaras_auth_de10nano
+set_global_assignment -name TOP_LEVEL_ENTITY de10nano_top
 set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
 set_global_assignment -name NUM_PARALLEL_PROCESSORS 4
 
-set_global_assignment -name VERILOG_FILE salaras_auth_de10nano.v
+set_global_assignment -name VERILOG_FILE de10nano_top.v
 set_global_assignment -name VERILOG_FILE ../../src/l1_serial_loader.v
 set_global_assignment -name VERILOG_FILE ../../src/simon32_64.v
 set_global_assignment -name VERILOG_FILE ../../src/l2_auth.v
 set_global_assignment -name VERILOG_FILE ../../src/l3_commit_gatekeeper.v
-set_global_assignment -name VERILOG_FILE ../../src/salaras_auth_top.v
+set_global_assignment -name VERILOG_FILE ../../src/boundary_top.v
 set_global_assignment -name SEARCH_PATH ../../src
-set_global_assignment -name SDC_FILE salaras_auth_de10nano.sdc
+set_global_assignment -name SDC_FILE de10nano_top.sdc
 
 set_location_assignment PIN_V11 -to CLOCK_50
 set_location_assignment PIN_AH17 -to KEY[0]
@@ -48,10 +48,10 @@ set_global_assignment -name LAST_QUARTUS_VERSION "25.1std.0 Lite Edition"
 # case). The tapped wires carry (* preserve, noprune *) in the wrapper so they
 # survive synthesis and appear in Node Finder.
 # After saving the .stp, regenerate the SLD wiring and recompile:
-#   quartus_stp salaras_auth_de10nano --stp_file salaras_auth_de10nano.stp --enable
-#   quartus_sh --flow compile salaras_auth_de10nano
-# Uncomment the three assignments below only after salaras_auth_de10nano.stp
+#   quartus_stp de10nano_top --stp_file de10nano_top.stp --enable
+#   quartus_sh --flow compile de10nano_top
+# Uncomment the three assignments below only after de10nano_top.stp
 # exists, otherwise a fresh clone build fails.
 # set_global_assignment -name ENABLE_SIGNALTAP ON
-# set_global_assignment -name USE_SIGNALTAP_FILE salaras_auth_de10nano.stp
-# set_global_assignment -name SIGNALTAP_FILE salaras_auth_de10nano.stp
+# set_global_assignment -name USE_SIGNALTAP_FILE de10nano_top.stp
+# set_global_assignment -name SIGNALTAP_FILE de10nano_top.stp

@@ -51,7 +51,7 @@ Frames received before the key is loaded are ignored.
 | `gpio_fault` | GPIO status output |
 | `gpio_done` | GPIO status output |
 
-Verify every pin location in `salaras_auth_de10nano.qsf` against the DE10-Nano
+Verify every pin location in `de10nano_top.qsf` against the DE10-Nano
 user manual or Quartus Pin Planner before programming.
 
 ## Build

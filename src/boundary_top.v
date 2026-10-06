@@ -1,6 +1,6 @@
 `default_nettype none
 
-module salaras_auth_top (
+module boundary_top (
     input  wire        clk,
     input  wire        rst_n,
     input  wire [63:0] key,

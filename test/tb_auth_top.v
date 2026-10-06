@@ -29,7 +29,7 @@ module tb_auth_top ();
     wire        fresh_ok;
     wire        done;
 
-    salaras_auth_top dut (
+    boundary_top dut (
         .clk(clk),
         .rst_n(rst_n),
         .key(key),

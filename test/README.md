@@ -1,6 +1,6 @@
 # test/
 
-cocotb verification suites for SALARAS.
+cocotb verification suites for TRI-ARGA.
 
 ## Running with make (Linux / CI)
 
@@ -45,8 +45,8 @@ Each script uses the `cocotb.runner` API with Icarus Verilog directly.
 | --- | --- |
 | `test_simon.py` | SIMON-32/64 block cipher correctness |
 | `test_l2_auth.py` | L2 CBC-MAC authentication and freshness |
-| `test_auth_top.py` | Integrated `salaras_auth_top` (L2 + L3 commit) |
-| `test_project.py` | `tt_um_bokumentation_auth_boundary` wrapper |
+| `test_auth_top.py` | Integrated `boundary_top` (L2 + L3 commit) |
+| `test_project.py` | `tt_um_auth_boundary` wrapper |
 | `simon_ref.py` | Pure-Python SIMON-32/64 reference implementation |
 | `tb_simon.v` | Icarus Verilog testbench for SIMON |
 | `tb_l2_auth.v` | Icarus Verilog testbench for L2 |
@@ -67,4 +67,4 @@ Expected results from `sim/RESULTS.md`:
 | simon | 2/2 | 33 cycles/block |
 | l2 | 4/4 | 107 cycles (MAC + freshness) |
 | auth | 6/6 | 108 cycles end-to-end |
-| wrapper | 5/5 | — |
+| wrapper | 5/5 | - |

@@ -30,6 +30,15 @@ module l1_link_formal (
         .key_locked (key_locked)
     );
 
+    reg [2:0] rst_cnt = 3'd0;
+
+    always @(posedge clk) begin
+        if (rst_cnt != 3'd4) begin
+            rst_cnt <= rst_cnt + 3'd1;
+            assume (!rst_n);
+        end
+    end
+
     // P1: key_load and start are mutually exclusive (never assert together)
     always @(posedge clk) begin
         if (rst_n)
@@ -42,12 +51,12 @@ module l1_link_formal (
             assert (!start || key_locked);
     end
 
-    // P3: key_load can only assert while key was not already locked
-    // (key_locked latches on the cycle AFTER key_load, so at the moment
-    //  key_load fires, key_locked_r is still 0)
+    // P3: key_load can only assert if the key was not already locked
+    // (key_load and key_locked rise on the same cycle after S_KEY, so the
+    //  check uses the previous-cycle key_locked to reject a second key load)
     always @(posedge clk) begin
         if (rst_n)
-            assert (!key_load || !key_locked);
+            assert (!key_load || !$past(key_locked));
     end
 
     // P4: once key_locked is set it stays set (no second key load)

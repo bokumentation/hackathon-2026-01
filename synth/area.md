@@ -1,7 +1,7 @@
 # Synthesis area estimate
 
-Preliminary, technology-independent estimate of the SALARAS top
-(`tt_um_bokumentation_salaras_rx`). Reproduce with `make area`; raw Yosys logs
+Preliminary, technology-independent estimate of the TRI-ARGA top
+(`tt_um_auth_boundary`). Reproduce with `make area`; raw Yosys logs
 are written to `synth/area/` (not tracked).
 
 - Revision: `main` (Phase B integration)
@@ -43,10 +43,10 @@ are written to `synth/area/` (not tracked).
 
 Quartus Fitter numbers replace these once the integrated design is synthesized.
 
-## Tier A link estimate (salaras_auth_top)
+## Tier A link estimate (boundary_top)
 
 The committed successor is the authenticated boundary (`simon32_64`, `l2_auth`,
-`l3_commit_gatekeeper`, `salaras_auth_top`). Reproduce with `make area`.
+`l3_commit_gatekeeper`, `boundary_top`). Reproduce with `make area`.
 
 | Resource | Value |
 | --- | --- |
@@ -65,7 +65,7 @@ layer or the Tier C CDC FIFO.
 ### Real sky130 signoff (link, 2x2)
 
 Hardened through `.github/workflows/gds.yaml` on the link
-(`tt_um_bokumentation_auth_boundary`). The 1x2 tile does not fit (GPL-0302 at
+(`tt_um_auth_boundary`). The 1x2 tile does not fit (GPL-0302 at
 density 0.6 and 0.8), so a 2x2 tile is used.
 
 | Metric | Value |
@@ -85,7 +85,7 @@ density 0.6 and 0.8), so a 2x2 tile is used.
 ## ASIC (sky130) estimate
 
 Technology-independent gate count is 1352 cells with 352 flip-flops. The
-baseline `tt07-bep-decode` occupies a single 1x1 Tiny Tapeout tile; SALARAS
+baseline `tt07-bep-decode` occupies a single 1x1 Tiny Tapeout tile; TRI-ARGA
 adds a 24-bit CRC LFSR, a comparator, timing and timeout counters, and a small
 commit register.
 

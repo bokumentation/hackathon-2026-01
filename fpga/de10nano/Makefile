@@ -1,6 +1,6 @@
 QUARTUS_SH ?= quartus_sh
 QUARTUS_PGM ?= quartus_pgm
-PROJECT = salaras_auth_de10nano
+PROJECT = de10nano_top
 SOF = output_files/$(PROJECT).sof
 
 .PHONY: all

@@ -1,8 +1,8 @@
 # signaltap_acquire.tcl - run one SignalTap capture on the DE10-Nano over JTAG.
 #
 # Prerequisites:
-#   1. salaras_auth_de10nano.stp exists (created in the Quartus GUI).
-#   2. quartus_stp salaras_auth_de10nano --stp_file salaras_auth_de10nano.stp --enable
+#   1. de10nano_top.stp exists (created in the Quartus GUI).
+#   2. quartus_stp de10nano_top --stp_file de10nano_top.stp --enable
 #      has been run and the design recompiled and programmed.
 #   3. The board is connected and visible to jtagconfig.
 #
@@ -16,7 +16,7 @@
 
 package require ::quartus::stp
 
-set stp_file   "salaras_auth_de10nano.stp"
+set stp_file   "de10nano_top.stp"
 set instance   "auto_signaltap_0"
 set signal_set "signal_set_1"
 set trigger    "trigger_1"

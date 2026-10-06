@@ -1,6 +1,6 @@
 `default_nettype none
 
-module salaras_auth_de10nano (
+module de10nano_top (
     input  wire       CLOCK_50,
     input  wire [1:0] KEY,
     input  wire [3:0] SW,
@@ -45,7 +45,7 @@ module salaras_auth_de10nano (
         .key_locked (key_locked)
     );
 
-    salaras_auth_top u_l2l3 (
+    boundary_top u_l2l3 (
         .clk        (CLOCK_50),
         .rst_n      (KEY[0]),
         .key        (key_out),

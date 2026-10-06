@@ -16,7 +16,7 @@ module auth_data_integrity (
     wire        fresh_ok;
     wire        done;
 
-    salaras_auth_top dut (
+    boundary_top dut (
         .clk(clk),
         .rst_n(rst_n),
         .key(key),

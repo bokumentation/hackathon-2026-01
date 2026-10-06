@@ -8,7 +8,7 @@ VENV       := venv
 PYTHON     := $(VENV)/bin/python
 PIP        := $(VENV)/bin/pip
 
-TOP        := tt_um_bokumentation_auth_boundary
+TOP        := tt_um_auth_boundary
 RTL_SRCS   := $(sort $(wildcard $(RTL_DIR)/*.v) $(wildcard $(RTL_DIR)/*.sv))
 SBY_FILES  := $(wildcard $(FORMAL_DIR)/*.sby)
 
@@ -20,7 +20,7 @@ SBY        := sby
 
 .PHONY: help
 help:
-	@echo "SALARAS build targets"
+	@echo "TRI-ARGA build targets"
 	@echo ""
 	@echo "  make submodules   initialize and update baseline submodules"
 	@echo "  make env          create the Python virtual environment"
@@ -36,6 +36,7 @@ help:
 	@echo "  make crc          measure the RF CRC streaming latency (comparison)"
 	@echo "  make wrapper      run the TT wrapper testbench (key separation and frame tests)"
 	@echo "  make sim          run the simulation evidence suites"
+	@echo "  make figures      render the proposal/appendix figures from real VCDs"
 	@echo "  make docs         build the proposal into output/ (incremental)"
 	@echo "  make docs-force   rebuild the proposal even if unchanged"
 	@echo "  make docs-all     build the proposal and the deck into output/"
@@ -128,6 +129,10 @@ wrapper:
 sim:
 	$(MAKE) -C sim baseline
 	$(MAKE) -C sim boundary
+
+.PHONY: figures
+figures:
+	bash sim/figures.sh
 
 .PHONY: docs
 docs:

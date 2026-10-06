@@ -1,6 +1,6 @@
 `default_nettype none
 
-module tt_um_bokumentation_auth_boundary (
+module tt_um_auth_boundary (
     input  wire [7:0] ui_in,
     output wire [7:0] uo_out,
     input  wire [7:0] uio_in,
@@ -46,7 +46,7 @@ module tt_um_bokumentation_auth_boundary (
         .key_locked (key_locked)
     );
 
-    salaras_auth_top u_l2l3 (
+    boundary_top u_l2l3 (
         .clk        (clk),
         .rst_n      (rst_n),
         .key        (key_out),

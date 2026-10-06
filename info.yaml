@@ -9,13 +9,14 @@ project:
 
   tiles: "2x2"
 
-  top_module:  "tt_um_bokumentation_auth_boundary"
+  top_module:  "tt_um_auth_boundary"
 
   source_files:
+    - "l1_serial_loader.v"
     - "simon32_64.v"
     - "l2_auth.v"
     - "l3_commit_gatekeeper.v"
-    - "salaras_auth_top.v"
+    - "boundary_top.v"
     - "project.v"
 
 pinout:

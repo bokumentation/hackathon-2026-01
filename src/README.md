@@ -9,17 +9,17 @@ Committed RTL: the authenticated, replay-resistant, fail-closed ingress boundary
 | `simon32_64.v` | Serialized SIMON-32/64 block cipher, one round per cycle |
 | `l2_auth.v` | CBC-MAC over counter plus payload, counter freshness |
 | `l3_commit_gatekeeper.v` | Atomic fail-closed commit, sticky fault (shared with the RF appendix) |
-| `salaras_auth_top.v` | L2 and L3 integration |
-| `project.v` | Tiny Tapeout wrapper (`tt_um_bokumentation_auth_boundary`) with a serial frame loader |
-| `salaras_rx_defs.svh` | Shared protocol constants and MAC parameters |
+| `boundary_top.v` | L2 and L3 integration |
+| `project.v` | Tiny Tapeout wrapper (`tt_um_auth_boundary`) with a serial frame loader |
+| `defs.svh` | Shared protocol constants and MAC parameters |
 | `config.tcl` | Tiny Tapeout and OpenLane hardening configuration |
 | `user_config.tcl` | Project hardening overrides (50 MHz, `CLOCK_PERIOD 20`) |
 
 ## Hierarchy
 
 ```
-tt_um_bokumentation_auth_boundary   (project.v)
-└── salaras_auth_top
+tt_um_auth_boundary   (project.v)
+└── boundary_top
     ├── l2_auth
     │   └── simon32_64
     └── l3_commit_gatekeeper
