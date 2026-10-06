@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build the SALARAS presentation into the repository output folder.
+# Build the TRI-ARGA presentation into the repository output folder.
 #
 # The timestamp in the file name comes from the mtime of the deck sources
 # (build.mjs and the rasterized SVG inputs): unchanged sources keep the existing
@@ -25,9 +25,9 @@ newest() {
   echo "$m"
 }
 
-SRC_MTIME="$(newest "$DIR/build.mjs" "$SVG_DIR/block-diagram.svg" "$SVG_DIR/prototype-s1.svg" "$SVG_DIR/prototype-s2.svg")"
+SRC_MTIME="$(newest "$DIR/build.mjs" "$SVG_DIR/block-diagram.svg" "$DIR/../proposal/cover.json")"
 TS="$(date -d "@$SRC_MTIME" +%Y%m%d-%H%M)"
-BASE="DECK-SALARAS-$TS"
+BASE="DECK-TRIARGA-$TS"
 
 FORCE=""
 [ "${1:-}" = "--force" ] && FORCE=1
@@ -57,16 +57,14 @@ fi
 mkdir -p "$DIR/assets" "$OUT_PPTX" "$OUT_PDF"
 echo "Rasterizing diagrams..."
 inkscape "$SVG_DIR/block-diagram.svg" -o "$DIR/assets/block-diagram.png" -w 1600 >/dev/null 2>&1
-inkscape "$SVG_DIR/prototype-s1.svg" -o "$DIR/assets/prototype-s1.png" -w 1600 >/dev/null 2>&1
-inkscape "$SVG_DIR/prototype-s2.svg" -o "$DIR/assets/prototype-s2.png" -w 1600 >/dev/null 2>&1
 
 (cd "$DIR" && DECK_OUT_DIR="$OUT_PPTX" DECK_BASE="$BASE" node build.mjs)
 
 echo "Converting to PDF..."
-"$SOFFICE" --headless -env:UserInstallation=file:///tmp/salaras-lo \
+"$SOFFICE" --headless -env:UserInstallation=file:///tmp/tri-arga-lo \
   --convert-to pdf --outdir "$OUT_PDF" "$OUT_PPTX/$BASE.pptx" >/dev/null 2>&1
 echo "built $OUT_PDF/$BASE.pdf"
 
-find "$OUT_PPTX" -maxdepth 1 -name 'DECK-SALARAS-*.pptx' ! -name "$BASE.*" -delete
-find "$OUT_PDF" -maxdepth 1 -name 'DECK-SALARAS-*.pdf' ! -name "$BASE.*" -delete
+find "$OUT_PPTX" -maxdepth 1 -name 'DECK-TRIARGA-*.pptx' ! -name "$BASE.*" -delete
+find "$OUT_PDF" -maxdepth 1 -name 'DECK-TRIARGA-*.pdf' ! -name "$BASE.*" -delete
 echo "deck version $TS"

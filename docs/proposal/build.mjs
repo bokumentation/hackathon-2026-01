@@ -14,73 +14,74 @@ if (!ts) {
 const htmlDir = process.env.PROPOSAL_HTML_DIR || dir;
 mkdirSync(htmlDir, { recursive: true });
 
-const base = `PROPOSAL-SALARAS-${ts}`;
+const base = `PROPOSAL-TRIARGA-${ts}`;
+
+const coverFile = process.env.COVER_FILE || join(dir, "cover.json");
+const covers = JSON.parse(readFileSync(coverFile, "utf8"));
 
 const figure =
-  '<figure><img src="assets/block-diagram.svg" alt="SALARAS system block diagram">' +
-  "<figcaption>SALARAS system block diagram</figcaption></figure>";
+  '<figure><img src="assets/block-diagram.svg" alt="TRI-ARGA system block diagram">' +
+  "<figcaption>TRI-ARGA system block diagram</figcaption></figure>";
 
 const docs = [
   {
-    in: "proposal-salaras.id.md",
+    in: "proposal.id.md",
     out: `${base}.id.html`,
     lang: "id",
-    title: "Authenticated Fail-Closed Ingress Boundary - Proposal PERURI Chip Hackathon 2026",
-    cover: {
-      eyebrow: "PERURI CHIP HACKATHON 2026",
-      chip: "AUTHENTICATED INGRESS BOUNDARY",
-      subtitle:
-        "A Hardware-Enforced Secure Ingress Barrier for Manchester/RF Serial Links",
-      rows: [
-        ["Kategori", "IC Chip Design &amp; FPGA Implementation"],
-        ["Area Fokus", "04 - Secure Communication (secure framing &amp; interface integrity)"],
-        ["Tim", "dinotice - Universitas Telkom"],
-        ["Ketua", "Ibrahim Fauzi Rahman"],
-        ["Anggota", "Idris Syaifulloh"],
-        ["Dosen Pembimbing", "Dr. Setia Juli Irzal Ismail, S.T., M.T."],
-        ["Berkas", "docs/proposal/proposal-salaras.id.md"],
-      ],
-      footer: "Proposal peserta - kurasi tahap pertama",
-    },
+    title: "TRI-ARGA - Proposal PERURI Chip Hackathon 2026",
+    cover: covers.id,
   },
   {
-    in: "proposal-salaras.en.md",
+    in: "proposal.en.md",
     out: `${base}.en.html`,
     lang: "en",
-    title: "Authenticated Fail-Closed Ingress Boundary - PERURI Chip Hackathon 2026 Proposal",
-    cover: {
-      eyebrow: "PERURI CHIP HACKATHON 2026",
-      chip: "AUTHENTICATED INGRESS BOUNDARY",
-      subtitle:
-        "A Hardware-Enforced Secure Ingress Barrier for Manchester/RF Serial Links",
-      rows: [
-        ["Category", "IC Chip Design &amp; FPGA Implementation"],
-        ["Focus Area", "04 - Secure Communication (secure framing &amp; interface integrity)"],
-        ["Team", "dinotice - Universitas Telkom"],
-        ["Lead", "Ibrahim Fauzi Rahman"],
-        ["Member", "Idris Syaifulloh"],
-        ["Advisor", "Dr. Setia Juli Irzal Ismail, S.T., M.T."],
-        ["Source", "docs/proposal/proposal-salaras.en.md"],
-      ],
-      footer: "Participant proposal - first curation stage",
-    },
+    title: "TRI-ARGA - PERURI Chip Hackathon 2026 Proposal",
+    cover: covers.en,
   },
 ];
 
+function esc(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function renderMembers(members) {
+  return (members || [])
+    .map((m) => {
+      const detail = [m.institution, m.contact].filter(Boolean).join(" - ");
+      const who = `${esc(m.name)}${detail ? " - " + esc(detail) : ""}`;
+      return `<li><span class="m-role">${esc(m.role)}:</span> ${who}</li>`;
+    })
+    .join("\n      ");
+}
+
 function renderCover(c) {
-  const rows = c.rows
-    .map(([k, v]) => `<div class="c-k">${k}</div><div class="c-v">${v}</div>`)
-    .join("\n");
   return `<section class="cover">
-  <div class="cover-top">${c.eyebrow}</div>
-  <div class="cover-mid">
-    <h1 class="cover-title">${c.chip}</h1>
-    <p class="cover-sub">${c.subtitle}</p>
-    <div class="cover-meta">
-${rows}
-    </div>
+  <div class="cover-top">${esc(c.event)}</div>
+  <div class="cover-cat">${esc(c.categoryLabel)}: ${esc(c.category)}</div>
+  <div class="cover-hero">
+    <h1 class="cover-title">${esc(c.brand)}</h1>
+    <p class="cover-sub">${esc(c.subtitle)}</p>
   </div>
-  <div class="cover-foot">${c.footer}</div>
+  <div class="cover-id">
+    <div class="cover-id-h">${esc(c.idHeading)}</div>
+    <dl class="cover-dl">
+      <dt>${esc(c.chipLabel)}</dt>
+      <dd>${esc(c.chip)}</dd>
+      <dt>${esc(c.teamLabel)}</dt>
+      <dd>${esc(c.team)}</dd>
+      <dt>${esc(c.membersLabel)}</dt>
+      <dd>
+      <ul class="cover-members">
+      ${renderMembers(c.members)}
+      </ul>
+      </dd>
+      <dt>${esc(c.advisorLabel)}</dt>
+      <dd>${esc(c.advisor)}</dd>
+    </dl>
+  </div>
 </section>`;
 }
 

@@ -16,8 +16,8 @@ ROOT="$(cd "$DIR/../.." && pwd)"
 OUT_HTML="$ROOT/output/html"
 OUT_PDF="$ROOT/output/pdf"
 
-SRC_ID="$DIR/proposal-salaras.id.md"
-SRC_EN="$DIR/proposal-salaras.en.md"
+SRC_ID="$DIR/proposal.id.md"
+SRC_EN="$DIR/proposal.en.md"
 for f in "$SRC_ID" "$SRC_EN"; do
   [ -f "$f" ] || { echo "ERROR: missing $f" >&2; exit 1; }
 done
@@ -31,9 +31,9 @@ newest() {
   echo "$m"
 }
 
-SRC_MTIME="$(newest "$SRC_ID" "$SRC_EN" "$DIR/build.mjs" "$DIR/proposal.css")"
+SRC_MTIME="$(newest "$SRC_ID" "$SRC_EN" "$DIR/build.mjs" "$DIR/proposal.css" "$DIR/cover.json")"
 TS="$(date -d "@$SRC_MTIME" +%Y%m%d-%H%M)"
-BASE="PROPOSAL-SALARAS-$TS"
+BASE="PROPOSAL-TRIARGA-$TS"
 
 FORCE=""
 [ "${1:-}" = "--force" ] && FORCE=1
@@ -45,8 +45,8 @@ if [ -z "$FORCE" ] \
   exit 0
 fi
 
-if [ ! -d "$DIR/node_modules/marked" ]; then
-  echo "Installing build dependencies (marked)..."
+if [ ! -d "$DIR/node_modules/marked" ] || [ ! -d "$DIR/node_modules/puppeteer-core" ] || [ ! -d "$DIR/node_modules/pdf-lib" ]; then
+  echo "Installing build dependencies (marked, puppeteer-core, pdf-lib)..."
   if [ -f "$DIR/package-lock.json" ]; then
     (cd "$DIR" && npm ci --silent)
   else
@@ -61,20 +61,18 @@ if [ -z "$CHROME" ]; then
 fi
 
 mkdir -p "$OUT_HTML" "$OUT_PDF"
+rm -rf "$OUT_HTML/assets"
 cp -r "$DIR/assets" "$OUT_HTML/assets"
 cp "$DIR/proposal.css" "$OUT_HTML/proposal.css"
 
 PROPOSAL_TS="$TS" PROPOSAL_HTML_DIR="$OUT_HTML" node "$DIR/build.mjs"
 
 for L in id en; do
-  "$CHROME" --headless=new --disable-gpu --no-pdf-header-footer \
-    --virtual-time-budget=8000 \
-    --print-to-pdf="$OUT_PDF/$BASE.$L.pdf" \
-    "file://$OUT_HTML/$BASE.$L.html" >/dev/null 2>&1
+  node "$DIR/print-pdf.mjs" "$OUT_HTML/$BASE.$L.html" "$OUT_PDF/$BASE.$L.pdf" "$CHROME" "$L"
   echo "built $OUT_PDF/$BASE.$L.pdf"
 done
 
 # keep only the latest proposal build
-find "$OUT_PDF" -maxdepth 1 -name 'PROPOSAL-SALARAS-*.pdf' ! -name "$BASE.*" -delete
-find "$OUT_HTML" -maxdepth 1 -name 'PROPOSAL-SALARAS-*.html' ! -name "$BASE.*" -delete
+find "$OUT_PDF" -maxdepth 1 -name 'PROPOSAL-TRIARGA-*.pdf' ! -name "$BASE.*" -delete
+find "$OUT_HTML" -maxdepth 1 -name 'PROPOSAL-TRIARGA-*.html' ! -name "$BASE.*" -delete
 echo "proposal version $TS"
