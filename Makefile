@@ -39,7 +39,9 @@ help:
 	@echo "  make figures      render the proposal/appendix figures from real VCDs"
 	@echo "  make docs         build the proposal into output/ (incremental)"
 	@echo "  make docs-force   rebuild the proposal even if unchanged"
-	@echo "  make docs-all     build the proposal and the deck into output/"
+	@echo "  make docs-all     build the proposal, deck, and progress report into output/"
+	@echo "  make progress     build the progress report into output/ (incremental)"
+	@echo "  make progress-force  rebuild the progress report even if unchanged"
 	@echo "  make gds          instructions for ASIC hardening"
 	@echo "  make fpga         instructions for the DE10-Nano build"
 	@echo "  make clean        remove build outputs"
@@ -147,6 +149,14 @@ docs-force:
 .PHONY: docs-all
 docs-all:
 	bash docs/build.sh all
+
+.PHONY: progress
+progress:
+	bash docs/progress/build.sh
+
+.PHONY: progress-force
+progress-force:
+	bash docs/progress/build.sh --force
 
 .PHONY: gds
 gds:

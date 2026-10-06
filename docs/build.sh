@@ -4,7 +4,7 @@
 # Usage:
 #   docs/build.sh [target] [--force]
 #
-#   target   proposal (default) | deck | all
+#   target   proposal (default) | deck | progress | all
 #   --force  rebuild even when the sources look unchanged
 #
 # The generated PDFs land in output/pdf, the intermediate HTML in output/html,
@@ -19,6 +19,7 @@ run_one() {
   case "$1" in
     proposal) bash "$DOCS_DIR/proposal/build.sh" $FORCE ;;
     deck)     bash "$DOCS_DIR/deck/build.sh" $FORCE ;;
+    progress) bash "$DOCS_DIR/progress/build.sh" $FORCE ;;
     *) echo "unknown target: $1" >&2; exit 1 ;;
   esac
 }
@@ -27,12 +28,13 @@ case "$TARGET" in
   all)
     run_one proposal
     run_one deck
+    run_one progress
     ;;
-  proposal|deck)
+  proposal|deck|progress)
     run_one "$TARGET"
     ;;
   *)
-    echo "usage: docs/build.sh [proposal|deck|all] [--force]" >&2
+    echo "usage: docs/build.sh [proposal|deck|progress|all] [--force]" >&2
     exit 1
     ;;
 esac

@@ -21,9 +21,11 @@ Raw numbers live in `sim/RESULTS.md`, `synth/area.md`, and `docs/design/quartus-
 
 | Claim | Value | Artifact | Reproduce |
 | --- | --- | --- | --- |
-| Fail-closed commit invariant | 7 jobs pass (4 committed link, 3 RF appendix) | `synth/formal/` | `make formal` |
-| L1 loader properties | 6 properties | `synth/formal/l1_link.sby` | `make formal` |
+| Fail-closed commit invariant | 8 jobs pass (5 committed link, 3 RF appendix) | `synth/formal/` | `make formal` |
+| Committed L3 commit gate | `host_full` high only if the last commit accepted the frame | `synth/formal/l3_commit_core.sby` | `make formal` |
+| L1 loader properties | 8 properties (key policy, pulses, framing, timeout) | `synth/formal/l1_link.sby` | `make formal` |
 | Data integrity | committed data equals the authenticated frame (BMC depth 20, abstracted cipher) | `synth/formal/auth_data_integrity.sby` | `make formal` |
+| Framing and timeout rejection | truncated burst raises a sticky framing fault, stalled core raises a timeout fault | `test/test_project.py` | `make wrapper` |
 
 ## Problem evidence (CWE-354)
 

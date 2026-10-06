@@ -24,7 +24,7 @@ TRI-ARGA fixes this with three composable layers:
 
 | Layer | Module | What it does | CWE closed |
 | --- | --- | --- | --- |
-| **L1 serial loader** | `l1_serial_loader.v` | Shift in 64-bit key then 128-bit frame (counter + payload + tag) over a single-bit interface; key-lock prevents second key load | CWE-20 |
+| **L1 serial loader** | `l1_serial_loader.v` | Shift in 64-bit key then 128-bit frame (counter + payload + tag) over a single-bit interface; key-lock, plus framing and timeout watchdogs | CWE-20 |
 | **L2 auth** | `l2_auth.v` | SIMON-32/64 CBC-MAC over `counter + payload`, compare 32-bit tag; counter freshness check | CWE-354, CWE-345, CWE-294 |
 | **L3 commit** | `l3_commit_gatekeeper.v` | Atomic fail-closed commit; sticky fault on any auth or freshness failure | CWE-1264, CWE-1245 |
 
@@ -71,7 +71,7 @@ untrusted link
 | Commit latency | 1 cycle | `make auth` |
 | Forgery rejected | yes | `make l2`, `make auth` |
 | Replay rejected | yes | `make auth` |
-| Formal verification | 7/7 proofs pass (4 committed link, 3 RF appendix), see [Formal verification](#formal-verification) | `make formal`, `sby` |
+| Formal verification | 8/8 proofs pass (5 committed link, 3 RF appendix), see [Formal verification](#formal-verification) | `make formal`, `sby` |
 | FPGA resources | 242 ALM, 654 FF, 0 M10K, 0 DSP (Cyclone V) | `fpga/de10nano` `make` |
 | FPGA Fmax | 136.37 MHz (WNS +12.667 ns) | `fpga/de10nano` `make` |
 | FPGA power | 425.4 mW total, 2.42 mW core dynamic, vector-less | `quartus_pow` |
@@ -88,9 +88,9 @@ Full evidence: [`sim/RESULTS.md`](sim/RESULTS.md) · [`synth/area.md`](synth/are
 
 ## Formal verification
 
-Formal properties use SymbiYosys (`sby`) over `synth/formal/*.sby`, with the `smtbmc z3` engine. All seven jobs pass.
+Formal properties use SymbiYosys (`sby`) over `synth/formal/*.sby`, with the `smtbmc z3` engine. All eight jobs pass.
 
-- Committed link: `auth_top` (fail-closed commit), `auth_data_integrity` (committed data equals the authenticated frame), `simon32_64` (exactly 32 rounds), and `l1_link` (six loader properties).
+- Committed link: `auth_top` (fail-closed commit), `auth_data_integrity` (committed data equals the authenticated frame), `l3_commit_core` (committed commit gate), `simon32_64` (exactly 32 rounds), and `l1_link` (loader key policy, pulse, framing, and timeout properties).
 - RF appendix: `l1_framing`, `l2_integrity`, and `l3_commit` verify the archived appendix RTL, not the committed link modules.
 - `auth_data_integrity` is a bounded proof (`mode bmc`, depth 20) with `simon32_64` abstracted by `synth/formal/simon32_64_stub.v`. The data-integrity invariant is independent of the cipher, which is proven separately by `simon32_64.sby`.
 
@@ -127,7 +127,8 @@ Formal properties use SymbiYosys (`sby`) over `synth/formal/*.sby`, with the `sm
 │   ├── evidence.md       Claim to artifact to reproduce-command index
 │   ├── glossary.md       Terms, abbreviations, and CWE list
 │   ├── demo.md           On-board demo plan (BOM, wiring, cases)
-│   ├── proposal/         Competition proposal (ID + EN) and PDF build
+│   ├── proposal/        Competition proposal (ID + EN) and PDF build
+│   ├── progress/        Progress report source and PDF build
 │   ├── design/           Architecture, threat model, trade study, FMEA, Quartus plan/report, SignalTap
 │   ├── setup/            Host setup and repository workflow (Debian 13)
 │   ├── judging/          Submission audit, judge QnA, feasibility, prior-art analysis
@@ -232,7 +233,8 @@ python test/run_project_test.py
 | `make figures` | Regenerate the proposal and appendix figures from real VCDs |
 | `make docs` | Build the proposal into `output/` |
 | `make docs-force` | Rebuild the proposal even if unchanged |
-| `make docs-all` | Build the proposal and the deck into `output/` |
+| `make docs-all` | Build the proposal, deck, and progress report into `output/` |
+| `make progress` | Build the progress report into `output/` |
 | `make gds` | Instructions for ASIC hardening |
 | `make fpga` | Instructions for DE10-Nano build |
 | `make clean` | Remove build artifacts |
