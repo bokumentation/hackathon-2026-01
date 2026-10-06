@@ -71,8 +71,9 @@ Tier A (committed, in the link tree):
 | boundary_top.v | integration of L2 and L3 | - |
 | project.v | Tiny Tapeout wrapper, key-load and status pins | - |
 
-Tier B adds `link_enc_8b10b.v`, `link_dec_10b8b.v`, `link_tx.v`, `link_rx.v`, and
-`l1_link_framing.v`. Tier C adds the vendored `cdc_fifo.v`.
+Tier B (built on `Security-V3-Serdes`) adds `link_enc_8b10b.v`,
+`link_dec_10b8b.v`, `l1_link_framing.v`, `link_tx.v`, `link_rx.v`, `link_top.v`,
+and `project_link.v` (`tt_um_link`). Tier C adds the vendored `cdc_fifo.v`.
 
 ## 6. Disk layout
 
@@ -190,10 +191,11 @@ Every row maps to one test case.
     info.yaml; the link top must build first.
 11. Update AGENTS.md and the project-workflow skill with the new modules and the Tier A
     scope, and keep CI green.
-12. Next milestone (Tier B): attach the boundary to the SerDes front-end
-    (`TT_UM_SERDES`), add running disparity, K-character comma framing, word
-    lock, and invalid-code error, and produce the single-clock end-to-end link
-    evidence. This earns the secure serial link headline.
+12. Tier B (built on `Security-V3-Serdes`): the boundary is attached to an
+    a self-contained 8b/10b serial link with running disparity, K-character comma
+    framing, word lock, and invalid-code error, and the single-clock loopback
+    through the Tier A core passes (clean commit, forgery, replay, line error).
+    This earns the secure serial link headline in simulation.
 
 Dates: proposal deadline 8 October 2026; bootcamp 18 to 20 October 2026.
 

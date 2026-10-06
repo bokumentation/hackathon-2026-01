@@ -71,6 +71,7 @@ untrusted link
 | Commit latency | 1 cycle | `make auth` |
 | Forgery rejected | yes | `make l2`, `make auth` |
 | Replay rejected | yes | `make auth` |
+| Serial link loopback | clean commit, forgery/replay/line-error rejected | `make link-top` |
 | Formal verification | 8/8 proofs pass (5 committed link, 3 RF appendix), see [Formal verification](#formal-verification) | `make formal`, `sby` |
 | FPGA resources | 242 ALM, 654 FF, 0 M10K, 0 DSP (Cyclone V) | `fpga/de10nano` `make` |
 | FPGA Fmax | 136.37 MHz (WNS +12.667 ns) | `fpga/de10nano` `make` |
@@ -105,7 +106,7 @@ Formal properties use SymbiYosys (`sby`) over `synth/formal/*.sby`, with the `sm
 | Tier | Status | Description |
 | --- | --- | --- |
 | **Tier A** | ✅ Committed | Authenticated, replay-resistant, fail-closed boundary. Single clock. Simulation evidence, formal proofs, sky130 2×2 signoff. |
-| **Tier B** | Planned | Attach the boundary to a serial link (`TT_UM_SERDES`, 8b/10b framing). |
+| **Tier B** | ✅ Built (`Security-V3-Serdes`) | 8b/10b serial link with running disparity, K-character comma framing, word lock, and a single-clock loopback through the Tier A core. Simulation only. |
 | **Tier C** | Future | Clock-domain crossing using `tt07_cdc_fifo`. |
 | **Appendix RF** | Archived | Manchester/RF predecessor kept as problem evidence in `appendix/rf/`. |
 
@@ -115,7 +116,7 @@ Formal properties use SymbiYosys (`sby`) over `synth/formal/*.sby`, with the `sm
 
 ```
 .
-├── src/                  Committed RTL (l1_serial_loader, simon32_64, l2_auth, l3_commit_gatekeeper, boundary_top, project)
+├── src/                  Committed RTL (Tier A core plus the Tier B link: link_enc_8b10b, link_dec_10b8b, l1_link_framing, link_tx, link_rx, link_top, project_link)
 ├── test/                 cocotb suites + Windows run_*.py scripts
 ├── synth/
 │   ├── formal/           SymbiYosys properties (.sby + .sv)
@@ -198,6 +199,9 @@ make simon         # SIMON-32/64 cipher tests (2 tests, 49 vectors)
 make l2            # L2 auth + freshness tests (4 tests, 128 bit-flip checks)
 make auth          # Integrated auth + commit tests (6 tests, 108-cycle latency)
 make wrapper       # Tiny Tapeout wrapper tests (5 tests)
+make link-codec    # 8b/10b encoder/decoder tests
+make link-framing  # link comma/word-lock/timeout tests
+make link-top      # serial link loopback through the boundary
 make figures       # regenerate the proposal and appendix figures from VCDs
 make docs          # build the proposal PDF into output/
 ```
@@ -229,6 +233,9 @@ python test/run_project_test.py
 | `make auth` | Integrated authentication and commit tests |
 | `make crc` | RF CRC streaming latency (comparison) |
 | `make wrapper` | Tiny Tapeout wrapper tests |
+| `make link-codec` | 8b/10b encoder/decoder tests |
+| `make link-framing` | Link comma/word-lock/timeout tests |
+| `make link-top` | Serial link loopback through the boundary |
 | `make test` | RF appendix cocotb suite |
 | `make formal` | SymbiYosys formal properties |
 | `make sim` | RF appendix simulation evidence |
