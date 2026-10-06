@@ -1,4 +1,4 @@
-# SALARAS — Authenticated Fail-Closed Ingress Boundary
+# SALARAS - Authenticated Fail-Closed Ingress Boundary
 
 **PERURI Chip Hackathon 2026 · Area 04 Secure Communication**
 Tim *dinotice* · Universitas Telkom
@@ -18,7 +18,7 @@ Tim *dinotice* · Universitas Telkom
 
 A small, reusable hardware IP block that closes the gap between receiving a serial/RF frame and trusting it.
 
-The problem is measured on a real baseline: the Tiny Tapeout 07 Manchester decoder `tt07-bep-decode` receives a 24-bit integrity field and never checks it, so a corrupt or fault-injected frame still appears valid to the host (CWE-354). The integrity field itself is an undocumented error-correcting code — unsolved.
+The problem is measured on a real baseline: the Tiny Tapeout 07 Manchester decoder `tt07-bep-decode` receives a 24-bit integrity field and never checks it, so a corrupt or fault-injected frame still appears valid to the host (CWE-354). The integrity field itself is an undocumented error-correcting code, unsolved.
 
 SALARAS fixes this with three composable layers:
 
@@ -71,14 +71,34 @@ untrusted link
 | Commit latency | 1 cycle | `make auth` |
 | Forgery rejected | yes | `make l2`, `make auth` |
 | Replay rejected | yes | `make auth` |
-| Formal properties | 5 blocking + 1 non-blocking + 6 L1 | `make formal` |
-| ASIC die area | 0.0756 mm² (2×2 tile, sky130) | `gds.yaml` |
-| ASIC cell count | 2354 cells | `gds.yaml` |
-| ASIC power | 1.87 mW typical | `gds.yaml` |
-| DRC violations | 0 | `gds.yaml` |
-| LVS violations | 0 | `gds.yaml` |
+| Formal verification | red: `auth_data_integrity` fails, see [Formal verification](#formal-verification) | `make formal` |
+| FPGA resources | 242 ALM, 654 FF, 0 M10K, 0 DSP (Cyclone V) | `fpga/de10nano` `make` |
+| FPGA Fmax | 136.37 MHz (WNS +12.667 ns) | `fpga/de10nano` `make` |
+| FPGA power | 425.4 mW total, 2.42 mW core dynamic, vector-less | `quartus_pow` |
+| ASIC die area | 0.0756 mm² (2×2 tile, sky130), prior revision | `gds.yaml` |
+| ASIC cell count | 2354 cells, prior revision | `gds.yaml` |
+| ASIC power | 1.87 mW typical, prior revision | `gds.yaml` |
+| DRC violations | 0, prior revision | `gds.yaml` |
+| LVS violations | 0, prior revision | `gds.yaml` |
 
-Full evidence: [`sim/RESULTS.md`](sim/RESULTS.md) · [`synth/area.md`](synth/area.md)
+The ASIC numbers are the signoff of the pre-wrapper-fix revision; the GDS action must be re-run for the current wrapper.
+Full evidence: [`sim/RESULTS.md`](sim/RESULTS.md) · [`synth/area.md`](synth/area.md) · [`docs/evidence.md`](docs/evidence.md) · [`docs/design/quartus-report.md`](docs/design/quartus-report.md)
+
+---
+
+## Formal verification
+
+Formal properties use SymbiYosys (`sby`) over `synth/formal/*.sby`, with the `smtbmc z3` engine.
+
+- `make formal` currently fails on `auth_data_integrity.sby` (`mode prove`, depth 130), which returns a counterexample at `auth_data_integrity.sv:70` after a very long solve. It is a non-blocking check in CI.
+- Because that file sorts first, `make formal` aborts before the other six proofs run. They are not re-verified since the Tier A security fixes.
+- The five depth-40 proofs (`auth_top`, `l3_commit`, `simon32_64`, `l1_framing`, `l2_integrity`) passed in the last green formal run (commit `1024de1`). `l1_link` (`mode bmc`, depth 200) is newer.
+
+Until the failing proof is fixed, run individual proofs:
+
+```bash
+sby -f synth/formal/auth_top.sby
+```
 
 ---
 
@@ -103,10 +123,14 @@ Full evidence: [`sim/RESULTS.md`](sim/RESULTS.md) · [`synth/area.md`](synth/are
 │   ├── formal/           SymbiYosys properties (.sby + .sv)
 │   └── area.md           Yosys estimates and sky130 signoff numbers
 ├── sim/                  RF appendix simulation evidence and RESULTS.md
-├── fpga/de10nano/        Link DE10-Nano project (Quartus)
+├── fpga/de10nano/        DE10-Nano Quartus project (.qpf/.qsf) and SignalTap script
 ├── appendix/rf/          Archived Manchester/RF design (problem evidence)
 ├── baseline/             Pinned Tiny Tapeout 07 submodules
 ├── docs/
+│   ├── index.md          Documentation entry point
+│   ├── evidence.md       Claim to artifact to reproduce-command index
+│   ├── glossary.md       Terms, abbreviations, and CWE list
+│   ├── demo.md           On-board demo plan (BOM, wiring, cases)
 │   ├── proposal/         Competition proposal (ID + EN) and PDF build
 │   ├── design/           Architecture, threat model, trade study, FMEA, Quartus plan/report, SignalTap
 │   ├── setup/            Host setup and repository workflow (Debian 13)
@@ -117,11 +141,11 @@ Full evidence: [`sim/RESULTS.md`](sim/RESULTS.md) · [`synth/area.md`](synth/are
 │   ├── submission/       Submission checklist and deliverables
 │   └── deck/             Presentation deck sources (builds into output/)
 ├── assets/               SVG figures referenced in README and proposal
-├── output/               Generated PDF export (not committed)
+├── output/               Generated PDFs, HTML, and deck (not committed)
 ├── gds/                  Generated ASIC output (not committed; see gds.yaml)
 ├── openlane/             OpenLane entry configuration
 ├── tools/                Integrity-field analysis scripts
-├── .github/workflows/    CI: lint, synth, test, formal, sim, gds, docs
+├── .github/workflows/    CI: lint, synth, test, formal, sim, gds, and a docs heading check
 ├── info.yaml             Tiny Tapeout project metadata
 ├── Makefile              Build entry point (`make help` to list all targets)
 └── requirements.txt      Python verification dependencies
@@ -138,7 +162,11 @@ Full evidence: [`sim/RESULTS.md`](sim/RESULTS.md) · [`synth/area.md`](synth/are
 - Verilator (RTL lint)
 - Yosys (synthesis check)
 - SymbiYosys / OSS CAD Suite (formal, optional)
+- Node.js and npm, plus Chromium or Google Chrome (documentation build, optional)
+- Inkscape and LibreOffice (`make docs-all`, optional)
 - Intel Quartus Prime Lite (DE10-Nano FPGA, optional)
+
+See [`docs/setup/debian-13.md`](docs/setup/debian-13.md) for the full Debian 13 setup, and run `make doctor` to list what is installed.
 
 ### 1. Clone
 
@@ -156,24 +184,25 @@ git submodule update --init --recursive
 ### 2. Set up the environment
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate        # Windows: venv\Scripts\activate
-pip install -r requirements.txt
+make env
 ```
 
-Or: `make env && source venv/bin/activate`
+`make env` creates `venv/` and installs `requirements.txt`. The cocotb targets add `venv/bin` to `PATH` automatically, so `source venv/bin/activate` is only needed if you want to run the Python tools by hand.
 
 ### 3. Run the verification stack
 
 ```bash
+make doctor        # check for the required host tools
 make lint          # RTL lint with Verilator
 make synth-check   # Synthesizability check with Yosys
 make simon         # SIMON-32/64 cipher tests (2 tests, 49 vectors)
 make l2            # L2 auth + freshness tests (4 tests, 128 bit-flip checks)
 make auth          # Integrated auth + commit tests (6 tests, 108-cycle latency)
 make wrapper       # Tiny Tapeout wrapper tests (5 tests)
-make formal        # SymbiYosys formal properties (5 blocking + 1 non-blocking)
+make docs          # build the proposal PDF into output/
 ```
+
+Formal verification is optional and currently failing; see [Formal verification](#formal-verification).
 
 On **Windows** (no `make`):
 
@@ -190,6 +219,7 @@ python test/run_project_test.py
 | --- | --- |
 | `make help` | List all available targets |
 | `make env` | Create the Python virtual environment |
+| `make doctor` | Check for the required host tools |
 | `make submodules` | Initialize and update baseline submodules |
 | `make lint` | RTL lint with Verilator |
 | `make synth-check` | Synthesizability check with Yosys |
@@ -197,9 +227,14 @@ python test/run_project_test.py
 | `make simon` | SIMON-32/64 cipher and CBC-MAC tests |
 | `make l2` | L2 authentication and freshness tests |
 | `make auth` | Integrated authentication and commit tests |
+| `make crc` | RF CRC streaming latency (comparison) |
 | `make wrapper` | Tiny Tapeout wrapper tests |
-| `make formal` | SymbiYosys formal properties |
+| `make test` | RF appendix cocotb suite |
+| `make formal` | SymbiYosys formal properties (currently red) |
 | `make sim` | RF appendix simulation evidence |
+| `make docs` | Build the proposal into `output/` |
+| `make docs-force` | Rebuild the proposal even if unchanged |
+| `make docs-all` | Build the proposal and the deck into `output/` |
 | `make gds` | Instructions for ASIC hardening |
 | `make fpga` | Instructions for DE10-Nano build |
 | `make clean` | Remove build artifacts |
@@ -233,11 +268,15 @@ Build the proposal HTML and PDF from the repository root:
 make docs
 ```
 
-To build every documentation set (proposal, deck, judging, ideas):
+Output: `output/pdf/PROPOSAL-SALARAS-<timestamp>.pdf`, with the intermediate HTML in `output/html/`. The `output/` folder is git-ignored. The timestamp comes from the source mtime, so an unchanged proposal keeps its existing file and an edit stamps a new one.
+
+Build the proposal and the presentation deck:
 
 ```bash
 make docs-all
 ```
+
+This adds `output/pptx/DECK-SALARAS-<timestamp>.pptx` and `output/pdf/DECK-SALARAS-<timestamp>.pdf`.
 
 ---
 
@@ -248,7 +287,7 @@ Two Tier A vulnerabilities were identified and fixed on this branch:
 | ID | CWE | Description | Fix |
 | --- | --- | --- | --- |
 | Bug 1 | CWE-1264 | TOCTOU: `salaras_auth_top` passed live input ports to L3 instead of the latched values from L2. Committed data could differ from authenticated data. | `l2_auth` now exposes `counter_q` / `payload_q` latched outputs; `salaras_auth_top` passes these to L3. |
-| Bug 2 | — | Key-path separation: `project.v` and the DE10-Nano wrapper loaded the key from the same 192-bit shift register as the frame. | Separate 64-bit `key_sr` with `key_mode` pin (`SW[0]`) and `key_locked` flag. |
+| Bug 2 | - | Key-path separation: `project.v` and the DE10-Nano wrapper loaded the key from the same 192-bit shift register as the frame. | Separate 64-bit `key_sr` with `key_mode` pin (`SW[0]`) and `key_locked` flag. |
 
 See [`SECURITY.md`](SECURITY.md) for the responsible-disclosure policy.
 
@@ -265,6 +304,15 @@ See [`SECURITY.md`](SECURITY.md) for the responsible-disclosure policy.
 All three are Apache-2.0. See [`NOTICE`](NOTICE) for attribution.
 
 ---
+
+## Documentation
+
+- Documentation entry point: [`docs/index.md`](docs/index.md)
+- Evidence index (claims to artifacts to commands): [`docs/evidence.md`](docs/evidence.md)
+- Setup and workflow on Debian 13: [`docs/setup/debian-13.md`](docs/setup/debian-13.md)
+- Submission checklist: [`docs/submission/checklist.md`](docs/submission/checklist.md)
+- On-board demo and bring-up: [`docs/demo.md`](docs/demo.md)
+- Quartus FPGA report: [`docs/design/quartus-report.md`](docs/design/quartus-report.md)
 
 ## Contributing
 
