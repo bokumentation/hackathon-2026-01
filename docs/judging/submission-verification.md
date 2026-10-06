@@ -53,7 +53,7 @@ Checked against the ground-truth files.
 | 33 cycles per SIMON block | Sec 3.4 | `sim/RESULTS.md` L1: 33 | PASS |
 | 128/128 single-bit flips rejected | Sec 1, Sec 3.4 | `sim/RESULTS.md` L2 | PASS |
 | False reject 0 of 20 clean frames | Sec 1, Sec 3.4 | `sim/RESULTS.md` L2 | PASS |
-| sky130 2x2, 0.0756 mm2, 2511 cells, 2.05 mW | Sec 1, Sec 3.3 | `synth/area.md` 2x2 signoff (run `37502491108`, commit `2f91905`) | WARN: the signoff is current, but the proposal still shows the prior-revision numbers (2354 cells, 1.87 mW) |
+| sky130 2x2, 0.0756 mm2, 2511 cells, 2.10 mW | Sec 1, Sec 3.3 | `synth/area.md` 2x2 signoff (run `37504588955`, commit `00fc423`), 0 DRC, 0 LVS, 0 antenna | WARN: the signoff is current, but the proposal still shows the prior-revision numbers (2354 cells, 1.87 mW) |
 | FPGA 242 ALM, 654 FF, 0 M10K, 0 DSP | Sec 1, Sec 3.3 | `docs/design/quartus-report.md` | PASS |
 | FPGA Fmax 136.37 MHz | Sec 3.4 | `docs/design/quartus-report.md` | PASS |
 | FPGA power 425.4 mW vector-less | Sec 1, Sec 3.3 | `docs/design/quartus-report.md` | PASS |

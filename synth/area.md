@@ -68,7 +68,7 @@ Hardened through `.github/workflows/gds.yaml` on the link
 (`tt_um_auth_boundary`). The 1x2 tile does not fit (GPL-0302 at
 density 0.6 and 0.8), so a 2x2 tile is used.
 
-Signoff run `37502491108` at commit `2f91905` (OpenLane 2024.04.22, sky130A).
+Signoff run `37504588955` at commit `00fc423` (OpenLane 2024.04.22, sky130A).
 
 | Metric | Value |
 | --- | --- |
@@ -77,13 +77,13 @@ Signoff run `37502491108` at commit `2f91905` (OpenLane 2024.04.22, sky130A).
 | Synthesis cells | 2511 |
 | Magic DRC | 0 violations |
 | LVS | 0 errors |
-| Antenna | 1 violation (net u_l1.key_out[44], met1) |
+| Antenna | 0 violations |
 | Setup WNS / TNS | 0.00 / 0.00 (timing met) |
-| Worst setup slack | +10.98 ns |
+| Worst setup slack | +10.87 ns |
 | Worst hold slack | +0.12 ns |
-| Power, typical | 2.05 mW |
-| Power, fastest | 2.41 mW |
-| Power, slowest | 1.61 mW |
+| Power, typical | 2.10 mW |
+| Power, fastest | 2.47 mW |
+| Power, slowest | 1.65 mW |
 
 ## ASIC (sky130) estimate
 

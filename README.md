@@ -77,12 +77,13 @@ untrusted link
 | FPGA power | 425.4 mW total, 2.42 mW core dynamic, vector-less | `quartus_pow` |
 | ASIC die area | 0.0756 mm² (2×2 tile, sky130) | `gds.yaml` |
 | ASIC cell count | 2511 cells | `gds.yaml` |
-| ASIC power | 2.05 mW typical | `gds.yaml` |
+| ASIC power | 2.10 mW typical | `gds.yaml` |
 | DRC violations | 0 | `gds.yaml` |
 | LVS violations | 0 | `gds.yaml` |
-| ASIC worst setup slack | +10.98 ns | `gds.yaml` |
+| Antenna violations | 0 | `gds.yaml` |
+| ASIC worst setup slack | +10.87 ns | `gds.yaml` |
 
-The ASIC numbers are the signoff at commit `2f91905` (run `37502491108`). One antenna violation remains on net `u_l1.key_out[44]`; see [`synth/area.md`](synth/area.md).
+The ASIC numbers are the signoff at commit `00fc423` (run `37504588955`); see [`synth/area.md`](synth/area.md).
 Full evidence: [`sim/RESULTS.md`](sim/RESULTS.md) · [`synth/area.md`](synth/area.md) · [`docs/evidence.md`](docs/evidence.md) · [`docs/design/quartus-report.md`](docs/design/quartus-report.md)
 
 ---

@@ -32,7 +32,7 @@ This cycle added real framing and timeout validation to the committed core, a de
 | Formal | 8 of 8 jobs pass: `auth_data_integrity`, `auth_top`, `l1_framing`, `l1_link`, `l2_integrity`, `l3_commit`, `l3_commit_core`, `simon32_64` |
 | Measured simulation | 128 of 128 single-bit flips rejected, 0 of 20 clean frames rejected, 108-cycle end-to-end |
 | FPGA | Quartus DE10-Nano: 242 ALM, 654 flip-flops, Fmax 136.37 MHz, 425.4 mW vector-less |
-| ASIC | sky130 2x2, 0.0756 mm2, 2511 cells, 0 DRC, 0 LVS, WNS 0.00, 2.05 mW typical (run 37502491108, commit 2f91905) |
+| ASIC | sky130 2x2, 0.0756 mm2, 2511 cells, 0 DRC, 0 LVS, 0 antenna, WNS 0.00, 2.10 mW typical (run 37504588955, commit 00fc423) |
 
 ## Changes this cycle
 
@@ -42,6 +42,7 @@ This cycle added real framing and timeout validation to the committed core, a de
 - A dedicated formal proof for the committed `l3_commit_gatekeeper` (`synth/formal/l3_commit_core.sby`) now covers the core, alongside the existing RF appendix proof.
 - The commit-latency test observes `host_full` independently instead of deriving it from the internal counter.
 - Lint is clean: the SIMON z-index width and the unused signals were fixed.
+- The residual antenna violation was cleared by enabling post-routing heuristic diode insertion in the hardening config.
 
 ## Open work
 
