@@ -34,24 +34,36 @@ module auth_data_integrity (
         .done(done)
     );
 
-    reg [31:0] latched_counter;
-    reg [63:0] latched_payload;
+    reg [31:0] cfg_counter;
+    reg [63:0] cfg_payload;
     reg        frame_pending;
+    reg [31:0] committed_counter;
+    reg [63:0] committed_payload;
 
     always @(posedge clk) begin
         if (!rst_n) begin
-            latched_counter <= 32'd0;
-            latched_payload <= 64'd0;
-            frame_pending   <= 1'b0;
+            cfg_counter       <= 32'd0;
+            cfg_payload       <= 64'd0;
+            frame_pending     <= 1'b0;
+            committed_counter <= 32'd0;
+            committed_payload <= 64'd0;
         end else begin
             if (start && !frame_pending) begin
-                latched_counter <= counter;
-                latched_payload <= payload;
-                frame_pending   <= 1'b1;
+                cfg_counter   <= counter;
+                cfg_payload   <= payload;
+                frame_pending <= 1'b1;
             end
             if (done) begin
-                frame_pending <= 1'b0;
+                committed_counter <= cfg_counter;
+                committed_payload <= cfg_payload;
+                frame_pending     <= 1'b0;
             end
+        end
+    end
+
+    always @(posedge clk) begin
+        if (rst_n) begin
+            assume (!start || !frame_pending);
         end
     end
 
@@ -67,7 +79,7 @@ module auth_data_integrity (
     always @(posedge clk) begin
         if (rst_n) begin
             if (host_full) begin
-                assert (host_data_q == {latched_counter, latched_payload});
+                assert (host_data_q == {committed_counter, committed_payload});
             end
         end
     end

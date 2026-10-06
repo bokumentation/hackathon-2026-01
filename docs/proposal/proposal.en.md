@@ -230,12 +230,12 @@ Formal verification (SymbiYosys):
 | SymbiYosys job | Property | Scope |
 | --- | --- | --- |
 | `auth_top` | `host_full` high only if the last completed frame passed `auth_ok` and `fresh_ok` | Core |
-| `l3_commit` | `host_full` high only if the last commit decision accepted the frame | Core |
+| `l3_commit` | `host_full` high only if the last commit decision accepted the frame | RF appendix |
 | `simon32_64` | `done` rises only after exactly 32 rounds | Core |
 | `l1_link` | 6 properties: `key_load`/`start` mutual exclusion, `start` only after key locked, `key_load` only before lock, `key_locked` sticky, both are single-cycle pulses | L1 |
 | `l1_framing` | `framing_ok` never high together with `timing_fault` or `timeout_fault` | RF appendix |
 | `l2_integrity` | CRC register always starts from initial value when a frame begins | RF appendix |
-| `auth_data_integrity` | Committed data equals the authenticated frame (non-blocking, depth=130) | Core |
+| `auth_data_integrity` | Committed data equals the authenticated frame (BMC depth 20, abstracted cipher) | Core |
 
 DE10-Nano board test (S2, planned):
 
@@ -253,7 +253,7 @@ Success metrics:
 | False reject | 0% | Simulation (20 clean frames) |
 | Forgery and replay | Rejected | Simulation, then on-board |
 | End-to-end latency | 108 cycles | Simulation, then SignalTap |
-| Fail-closed | 5 properties pass (3 core, 2 RF appendix) + 6 L1 | SymbiYosys |
+| Fail-closed | 7 jobs pass (4 core/link, 3 RF appendix) | SymbiYosys |
 | FPGA Fmax | 136.37 MHz measured (target at least 50 MHz) | Quartus Timing Analyzer |
 
 ## 4. References

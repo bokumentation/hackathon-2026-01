@@ -93,10 +93,12 @@ formal:
 		echo "sby not found. Install SymbiYosys (pip install symbiyosys or use the OSS CAD Suite)."; \
 		exit 1; \
 	fi
-	@for f in $(SBY_FILES); do \
+	@fail=0; for f in $(SBY_FILES); do \
 		echo "Running formal: $$f"; \
-		$(SBY) -f $$f || exit 1; \
-	done
+		$(SBY) -f $$f || fail=1; \
+	done; \
+	if [ $$fail -ne 0 ]; then echo "formal: one or more jobs FAILED"; exit 1; fi; \
+	echo "formal: all jobs passed"
 
 COCOTB_TARGETS := test simon l2 auth crc wrapper sim
 $(COCOTB_TARGETS): export PATH := $(CURDIR)/$(VENV)/bin:$(PATH)

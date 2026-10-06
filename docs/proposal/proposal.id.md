@@ -36,7 +36,7 @@ Hasil Terukur:
 | Forgery, kunci salah, replay, *counter* basi | Semua ditolak | Simulasi cocotb |
 | False reject | 0 dari 20 *frame* bersih | Simulasi cocotb |
 | Latensi ujung ke ujung | 108 siklus (2,16 µs pada 50 MHz) | Simulasi |
-| Properti *fail-closed* | 5 properti lolos (3 inti, 2 lampiran RF) + 6 properti L1 | SymbiYosys |
+| Properti *fail-closed* | 7 job lolos (4 inti/link, 3 lampiran RF) | SymbiYosys |
 | *Hardening* sky130 | Tile 2×2, 0,0756 mm², 2354 sel, DRC 0, LVS 0, WNS 0,00, 1,87 mW | OpenLane |
 | Sintesis FPGA | 242 ALM, 654 FF, 0 M10K, 0 DSP, Fmax 136 MHz | Quartus 25.1 |
 | Daya FPGA | 425,4 mW total, 2,42 mW dinamis inti | PowerPlay |
@@ -230,12 +230,12 @@ Pembuktian formal (SymbiYosys):
 | Job SymbiYosys | Properti | Lingkup |
 | --- | --- | --- |
 | `auth_top` | `host_full` hanya tinggi jika *frame* terakhir yang selesai lolos `auth_ok` dan `fresh_ok` | Inti |
-| `l3_commit` | `host_full` hanya tinggi jika keputusan *commit* terakhir menerima *frame* | Inti |
+| `l3_commit` | `host_full` hanya tinggi jika keputusan *commit* terakhir menerima *frame* | Lampiran RF |
 | `simon32_64` | `done` hanya naik setelah tepat 32 ronde | Inti |
 | `l1_link` | 6 properti: `key_load`/`start` saling eksklusif, `start` hanya setelah kunci terkunci, `key_load` hanya sebelum kunci terkunci, `key_locked` lengket, keduanya *single-cycle pulse* | L1 |
 | `l1_framing` | `framing_ok` tidak pernah tinggi bersamaan dengan `timing_fault` atau `timeout_fault` | Lampiran RF |
 | `l2_integrity` | Register CRC selalu mulai dari nilai awal saat *frame* dimulai | Lampiran RF |
-| `auth_data_integrity` | Data yang dikomit sama dengan *frame* yang diautentikasi (non-pemblokir, depth=130) | Inti |
+| `auth_data_integrity` | Data yang dikomit sama dengan *frame* yang diautentikasi (BMC depth 20, *cipher* diabstraksi) | Inti |
 
 Uji Hardware Board FPGA DE10-Nano (S2, rencana):
 
@@ -253,7 +253,7 @@ Metrik Keberhasilan Target:
 | False reject | 0 persen | Simulasi (20 *frame* bersih) |
 | Forgery dan replay | Ditolak | Simulasi, lalu *on-board* |
 | Latensi ujung ke ujung | 108 siklus | Simulasi, lalu SignalTap |
-| *Fail-closed* | 5 properti lolos (3 inti, 2 lampiran RF) + 6 L1 | SymbiYosys |
+| *Fail-closed* | 7 job lolos (4 inti/link, 3 lampiran RF) | SymbiYosys |
 | Fmax FPGA | 136,37 MHz terukur (target minimal 50 MHz) | Quartus Timing Analyzer |
 
 ## 4. Referensi

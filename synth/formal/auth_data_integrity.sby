@@ -1,15 +1,15 @@
 [tasks]
-prove
+bmc
 
 [options]
-mode prove
-depth 130
+mode bmc
+depth 20
 
 [engines]
 smtbmc z3
 
 [script]
-read_verilog -sv -formal simon32_64.v
+read_verilog -sv -formal simon32_64_stub.v
 read_verilog -sv -formal l2_auth.v
 read_verilog -sv -formal l3_commit_gatekeeper.v
 read_verilog -sv -formal boundary_top.v
@@ -18,7 +18,7 @@ prep -top auth_data_integrity
 flatten
 
 [files]
-src/simon32_64.v
+synth/formal/simon32_64_stub.v
 src/l2_auth.v
 src/l3_commit_gatekeeper.v
 src/boundary_top.v

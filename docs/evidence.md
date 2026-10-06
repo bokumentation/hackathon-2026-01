@@ -21,9 +21,9 @@ Raw numbers live in `sim/RESULTS.md`, `synth/area.md`, and `docs/design/quartus-
 
 | Claim | Value | Artifact | Reproduce |
 | --- | --- | --- | --- |
-| Fail-closed commit invariant | 5 blocking properties | `synth/formal/` | `make formal` |
+| Fail-closed commit invariant | 7 jobs pass (4 committed link, 3 RF appendix) | `synth/formal/` | `make formal` |
 | L1 loader properties | 6 properties | `synth/formal/l1_link.sby` | `make formal` |
-| Data integrity (non-blocking) | latched inputs equal committed data | `synth/formal/auth_data_integrity.sby` | `make formal` |
+| Data integrity | committed data equals the authenticated frame (BMC depth 20, abstracted cipher) | `synth/formal/auth_data_integrity.sby` | `make formal` |
 
 ## Problem evidence (CWE-354)
 

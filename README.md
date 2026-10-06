@@ -71,7 +71,7 @@ untrusted link
 | Commit latency | 1 cycle | `make auth` |
 | Forgery rejected | yes | `make l2`, `make auth` |
 | Replay rejected | yes | `make auth` |
-| Formal verification | 6/6 core proofs pass; `auth_data_integrity` fails (non-blocking), see [Formal verification](#formal-verification) | `make formal`, `sby` |
+| Formal verification | 7/7 proofs pass (4 committed link, 3 RF appendix), see [Formal verification](#formal-verification) | `make formal`, `sby` |
 | FPGA resources | 242 ALM, 654 FF, 0 M10K, 0 DSP (Cyclone V) | `fpga/de10nano` `make` |
 | FPGA Fmax | 136.37 MHz (WNS +12.667 ns) | `fpga/de10nano` `make` |
 | FPGA power | 425.4 mW total, 2.42 mW core dynamic, vector-less | `quartus_pow` |
@@ -88,16 +88,13 @@ Full evidence: [`sim/RESULTS.md`](sim/RESULTS.md) · [`synth/area.md`](synth/are
 
 ## Formal verification
 
-Formal properties use SymbiYosys (`sby`) over `synth/formal/*.sby`, with the `smtbmc z3` engine.
+Formal properties use SymbiYosys (`sby`) over `synth/formal/*.sby`, with the `smtbmc z3` engine. All seven jobs pass.
 
-- `make formal` currently fails on `auth_data_integrity.sby` (`mode prove`, depth 130), which returns a counterexample at `auth_data_integrity.sv:70` after a very long solve. It is a non-blocking check in CI.
-- Because that file sorts first, `make formal` aborts before the other six proofs run. The six core proofs are re-verified on the current tree: the five depth-40 proofs (`auth_top`, `l1_framing`, `l2_integrity`, `l3_commit`, `simon32_64`) and `l1_link` (`mode bmc`, depth 200) all pass when run individually.
+- Committed link: `auth_top` (fail-closed commit), `auth_data_integrity` (committed data equals the authenticated frame), `simon32_64` (exactly 32 rounds), and `l1_link` (six loader properties).
+- RF appendix: `l1_framing`, `l2_integrity`, and `l3_commit` verify the archived appendix RTL, not the committed link modules.
+- `auth_data_integrity` is a bounded proof (`mode bmc`, depth 20) with `simon32_64` abstracted by `synth/formal/simon32_64_stub.v`. The data-integrity invariant is independent of the cipher, which is proven separately by `simon32_64.sby`.
 
-Until the failing proof is fixed, run individual proofs:
-
-```bash
-sby -f synth/formal/auth_top.sby
-```
+`make formal` runs every job and reports a per-file result, so a single failure no longer aborts the suite.
 
 ---
 
@@ -202,7 +199,7 @@ make figures       # regenerate the proposal and appendix figures from VCDs
 make docs          # build the proposal PDF into output/
 ```
 
-Formal verification is optional and currently failing; see [Formal verification](#formal-verification).
+Formal verification is optional; see [Formal verification](#formal-verification).
 
 On **Windows** (no `make`):
 
@@ -230,7 +227,7 @@ python test/run_project_test.py
 | `make crc` | RF CRC streaming latency (comparison) |
 | `make wrapper` | Tiny Tapeout wrapper tests |
 | `make test` | RF appendix cocotb suite |
-| `make formal` | SymbiYosys formal properties (currently red) |
+| `make formal` | SymbiYosys formal properties |
 | `make sim` | RF appendix simulation evidence |
 | `make figures` | Regenerate the proposal and appendix figures from real VCDs |
 | `make docs` | Build the proposal into `output/` |
