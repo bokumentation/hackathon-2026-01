@@ -102,7 +102,7 @@ formal:
 	if [ $$fail -ne 0 ]; then echo "formal: one or more jobs FAILED"; exit 1; fi; \
 	echo "formal: all jobs passed"
 
-COCOTB_TARGETS := test simon l2 auth crc wrapper sim
+COCOTB_TARGETS := test simon l2 auth crc wrapper sim link-codec
 $(COCOTB_TARGETS): export PATH := $(CURDIR)/$(VENV)/bin:$(PATH)
 
 .PHONY: test
@@ -124,6 +124,10 @@ auth:
 .PHONY: crc
 crc:
 	$(MAKE) -C $(TEST_DIR) -f Makefile.crc
+
+.PHONY: link-codec
+link-codec:
+	$(MAKE) -C $(TEST_DIR) -f Makefile.link_codec
 
 .PHONY: wrapper
 wrapper:
