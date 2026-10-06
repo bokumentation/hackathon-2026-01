@@ -75,13 +75,14 @@ untrusted link
 | FPGA resources | 242 ALM, 654 FF, 0 M10K, 0 DSP (Cyclone V) | `fpga/de10nano` `make` |
 | FPGA Fmax | 136.37 MHz (WNS +12.667 ns) | `fpga/de10nano` `make` |
 | FPGA power | 425.4 mW total, 2.42 mW core dynamic, vector-less | `quartus_pow` |
-| ASIC die area | 0.0756 mm² (2×2 tile, sky130), prior revision | `gds.yaml` |
-| ASIC cell count | 2354 cells, prior revision | `gds.yaml` |
-| ASIC power | 1.87 mW typical, prior revision | `gds.yaml` |
-| DRC violations | 0, prior revision | `gds.yaml` |
-| LVS violations | 0, prior revision | `gds.yaml` |
+| ASIC die area | 0.0756 mm² (2×2 tile, sky130) | `gds.yaml` |
+| ASIC cell count | 2511 cells | `gds.yaml` |
+| ASIC power | 2.05 mW typical | `gds.yaml` |
+| DRC violations | 0 | `gds.yaml` |
+| LVS violations | 0 | `gds.yaml` |
+| ASIC worst setup slack | +10.98 ns | `gds.yaml` |
 
-The ASIC numbers are the signoff of the pre-wrapper-fix revision; the GDS action must be re-run for the current wrapper.
+The ASIC numbers are the signoff at commit `2f91905` (run `37502491108`). One antenna violation remains on net `u_l1.key_out[44]`; see [`synth/area.md`](synth/area.md).
 Full evidence: [`sim/RESULTS.md`](sim/RESULTS.md) · [`synth/area.md`](synth/area.md) · [`docs/evidence.md`](docs/evidence.md) · [`docs/design/quartus-report.md`](docs/design/quartus-report.md)
 
 ---

@@ -19,7 +19,7 @@ The earlier framing gap is closed: the committed L1 now validates framing and ti
 Two items still require action before submission:
 
 1. The core proposal exceeds the six-page limit set by the competition FAQ.
-2. The ASIC numbers are from a prior revision and are presented without that caveat.
+2. The proposal's ASIC rows still carry the prior-revision numbers; the current signoff (run `37502491108`) must be folded in.
 
 Neither is disqualifying on its own, but both should be resolved or annotated honestly.
 
@@ -53,7 +53,7 @@ Checked against the ground-truth files.
 | 33 cycles per SIMON block | Sec 3.4 | `sim/RESULTS.md` L1: 33 | PASS |
 | 128/128 single-bit flips rejected | Sec 1, Sec 3.4 | `sim/RESULTS.md` L2 | PASS |
 | False reject 0 of 20 clean frames | Sec 1, Sec 3.4 | `sim/RESULTS.md` L2 | PASS |
-| sky130 2x2, 0.0756 mm2, 2354 cells, 1.87 mW | Sec 1, Sec 3.3 | `synth/area.md` 2x2 signoff | WARN: this is a prior revision; the GDS action must be re-run for the current wrapper, as noted in `README.md` |
+| sky130 2x2, 0.0756 mm2, 2511 cells, 2.05 mW | Sec 1, Sec 3.3 | `synth/area.md` 2x2 signoff (run `37502491108`, commit `2f91905`) | WARN: the signoff is current, but the proposal still shows the prior-revision numbers (2354 cells, 1.87 mW) |
 | FPGA 242 ALM, 654 FF, 0 M10K, 0 DSP | Sec 1, Sec 3.3 | `docs/design/quartus-report.md` | PASS |
 | FPGA Fmax 136.37 MHz | Sec 3.4 | `docs/design/quartus-report.md` | PASS |
 | FPGA power 425.4 mW vector-less | Sec 1, Sec 3.3 | `docs/design/quartus-report.md` | PASS |
@@ -113,7 +113,7 @@ Required before submission:
 | # | Item | Location | Action |
 | --- | --- | --- | --- |
 | R1 | Core length exceeds six pages | Proposal Sections 1 to 3 | Trim the core to six pages; move detail into the technical appendix |
-| R2 | ASIC numbers are a prior revision | Sec 1, Sec 3.3 | Re-run the GDS action for the current wrapper and update the numbers, or label them as a prior revision |
+| R2 | Proposal ASIC rows are a prior revision | Sec 1, Sec 3.3 | Update the proposal to the current signoff (2511 cells, 2.05 mW, run `37502491108`), or label them as a prior revision |
 
 Minor:
 
@@ -126,7 +126,7 @@ Minor:
 ## Confirmed Correct
 
 - All simulation numbers match `sim/RESULTS.md`.
-- All ASIC numbers match `synth/area.md`, but they describe a prior revision.
+- The current ASIC signoff (`synth/area.md`: 2511 cells, 2.05 mW, run `37502491108`) is recorded; the proposal still needs updating to these numbers.
 - All FPGA numbers match `docs/design/quartus-report.md`.
 - The formal-property count and decomposition match `synth/formal/` (8 jobs), and the proposal labels the RF appendix jobs correctly.
 - The committed loader now rejects truncated bursts and stalled sessions fail-closed, backing the CWE-20 claim with core logic.

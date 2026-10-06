@@ -32,7 +32,7 @@ This cycle added real framing and timeout validation to the committed core, a de
 | Formal | 8 of 8 jobs pass: `auth_data_integrity`, `auth_top`, `l1_framing`, `l1_link`, `l2_integrity`, `l3_commit`, `l3_commit_core`, `simon32_64` |
 | Measured simulation | 128 of 128 single-bit flips rejected, 0 of 20 clean frames rejected, 108-cycle end-to-end |
 | FPGA | Quartus DE10-Nano: 242 ALM, 654 flip-flops, Fmax 136.37 MHz, 425.4 mW vector-less |
-| ASIC | sky130 2x2, 0.0756 mm2, 2354 cells, prior revision; GDS re-run pending for the current wrapper |
+| ASIC | sky130 2x2, 0.0756 mm2, 2511 cells, 0 DRC, 0 LVS, WNS 0.00, 2.05 mW typical (run 37502491108, commit 2f91905) |
 
 ## Changes this cycle
 
@@ -45,14 +45,14 @@ This cycle added real framing and timeout validation to the committed core, a de
 
 ## Open work
 
-- Re-run the sky130 GDS action for the current wrapper and update the ASIC numbers, or keep them labeled as a prior revision.
+- Fold the current sky130 signoff (run 37502491108) into the competition proposal.
 - Build the serial link (Tier B) on the `TT_UM_SERDES` baseline with 8b/10b framing, alignment, and word lock.
 - Trim the competition proposal core to the six-page limit.
 - Add the clock-domain crossing (Tier C) with the vendored CDC FIFO.
 
 ## Risks
 
-- The ASIC figures do not yet describe the current netlist.
+- The competition proposal still shows prior-revision ASIC figures; the repo signoff is current.
 - Tier B and Tier C are unbuilt, so no serial link or CDC result is claimed.
 - Limits: no confidentiality, no key provisioning, no cross-power replay counter, and no side-channel claim.
 

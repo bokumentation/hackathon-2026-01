@@ -38,8 +38,8 @@ Raw numbers live in `sim/RESULTS.md`, `synth/area.md`, and `docs/design/quartus-
 
 | Claim | Value | Artifact | Reproduce |
 | --- | --- | --- | --- |
-| Die area and cells | 2x2 tile, 0.0756 mm2, 2354 cells | `synth/area.md` | CI `gds.yaml` |
-| DRC, LVS, timing, power | 0 DRC, 0 LVS, WNS 0.00, 1.87 mW | `synth/area.md` | CI `gds.yaml` |
+| Die area and cells | 2x2 tile, 0.0756 mm2, 2511 cells | `synth/area.md` | CI `gds.yaml` |
+| DRC, LVS, timing, power | 0 DRC, 0 LVS, WNS 0.00, 2.05 mW typical; 1 antenna violation | `synth/area.md` | CI `gds.yaml` |
 
 ## FPGA (DE10-Nano, Cyclone V)
 
