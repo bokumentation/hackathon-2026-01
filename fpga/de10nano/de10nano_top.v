@@ -20,29 +20,39 @@ module de10nano_top (
     wire [63:0] payload_out;
     wire [31:0] tag_out;
     wire        start;
+    wire        framing_ok;
+    wire        framing_fault;
+    wire        timeout_fault;
     (* preserve, noprune *) wire key_locked;
 
     (* preserve, noprune *) wire        host_full;
     wire [95:0] host_data_q;
+    (* preserve, noprune *) wire        l3_fault;
     (* preserve, noprune *) wire        fault;
     (* preserve, noprune *) wire        auth_ok;
     (* preserve, noprune *) wire        fresh_ok;
     (* preserve, noprune *) wire        done;
 
+    assign fault = l3_fault | framing_fault | timeout_fault;
+
     l1_serial_loader u_l1 (
-        .clk        (CLOCK_50),
-        .rst_n      (KEY[0]),
-        .frame_bit  (gpio_frame_bit),
-        .load_en    (gpio_load_en),
-        .key_mode   (key_mode),
-        .done       (done),
-        .key_out    (key_out),
-        .key_load   (key_load),
-        .counter_out(counter_out),
-        .payload_out(payload_out),
-        .tag_out    (tag_out),
-        .start      (start),
-        .key_locked (key_locked)
+        .clk          (CLOCK_50),
+        .rst_n        (KEY[0]),
+        .frame_bit    (gpio_frame_bit),
+        .load_en      (gpio_load_en),
+        .key_mode     (key_mode),
+        .done         (done),
+        .fault_ack    (gpio_fault_ack),
+        .key_out      (key_out),
+        .key_load     (key_load),
+        .counter_out  (counter_out),
+        .payload_out  (payload_out),
+        .tag_out      (tag_out),
+        .start        (start),
+        .key_locked   (key_locked),
+        .framing_ok   (framing_ok),
+        .framing_fault(framing_fault),
+        .timeout_fault(timeout_fault)
     );
 
     boundary_top u_l2l3 (
@@ -54,10 +64,11 @@ module de10nano_top (
         .payload    (payload_out),
         .tag_in     (tag_out),
         .start      (start),
+        .framing_ok (framing_ok),
         .fault_ack  (gpio_fault_ack),
         .host_full  (host_full),
         .host_data_q(host_data_q),
-        .fault      (fault),
+        .fault      (l3_fault),
         .auth_ok    (auth_ok),
         .fresh_ok   (fresh_ok),
         .done       (done)

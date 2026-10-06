@@ -148,6 +148,36 @@ async def test_second_key_load_ignored(dut):
 
 
 @cocotb.test()
+async def test_truncated_frame_rejected(dut):
+    await _reset(dut)
+    await _load_key(dut, KEY)
+
+    for i in range(10):
+        dut.ui_in.value = (1 << 1) | (i & 1)
+        await RisingEdge(dut.clk)
+    dut.ui_in.value = 0
+    for _ in range(2):
+        await RisingEdge(dut.clk)
+
+    uo = int(dut.uo_out.value)
+    fault = (uo >> 5) & 1
+    host_full = (uo >> 6) & 1
+    assert fault == 1, "truncated frame did not raise a framing fault"
+    assert host_full == 0, "truncated frame committed"
+
+    dut.ui_in.value = (1 << 2)
+    await RisingEdge(dut.clk)
+    dut.ui_in.value = 0
+    await RisingEdge(dut.clk)
+
+    counter = 7
+    payload = 0x0BADF00DCAFEBABE
+    res = await _send_frame(dut, counter, payload, tag_of(counter, payload, KEY))
+    assert res["host_full"] == 1, "clean frame rejected after a framing fault"
+    dut._log.info("truncated_frame_rejected: recovered, host_full=%d", res["host_full"])
+
+
+@cocotb.test()
 async def test_frame_before_key_ignored(dut):
     await _reset(dut)
 

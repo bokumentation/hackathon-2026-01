@@ -38,6 +38,7 @@ module tb_auth_top ();
         .payload(payload),
         .tag_in(tag_in),
         .start(start),
+        .framing_ok(1'b1),
         .fault_ack(fault_ack),
         .host_full(host_full),
         .host_data_q(host_data_q),
