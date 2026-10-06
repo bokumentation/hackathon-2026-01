@@ -14,4 +14,4 @@ The Markdown files are the tracked, text-extracted form; the original PDFs sit a
 
 - The Markdown is extracted with `pdftotext -layout`, so figures, tables, and equations are not preserved.
 - The original PDFs are for local reading only and are excluded by `.gitignore` (`docs/references/*.pdf`).
-- The positioning analysis that uses these references is in `../judging/prior-art-analysis.id.md`.
+- These references support the cipher and protocol choices discussed in `../design/trade-study.md` and the proposal.
