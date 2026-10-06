@@ -53,6 +53,9 @@ fpga/de10nano/c5_pin_model_dump.txt
 docs/**/*.html
 output/
 
+# Judge profile analysis (public-data research, kept local)
+docs/judging/judge-profiles.md
+
 # Third-party reference papers (converted to markdown; original PDFs not tracked)
 docs/references/*.pdf
 
