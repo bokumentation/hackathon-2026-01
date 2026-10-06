@@ -1,6 +1,6 @@
 # References
 
-Third-party papers and vendor notes reviewed for the SALARAS prior-art and positioning analysis.
+Third-party papers and vendor notes reviewed for the TRI-ARGA prior-art and positioning analysis.
 The Markdown files are the tracked, text-extracted form; the original PDFs sit alongside them and are not tracked in git.
 
 | Reference | Markdown | Source PDF (not tracked) |

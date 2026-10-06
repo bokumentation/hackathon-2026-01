@@ -45,7 +45,7 @@ Raw numbers live in `sim/RESULTS.md`, `synth/area.md`, and `docs/design/quartus-
 | --- | --- | --- | --- |
 | Resource usage | 242 ALM, 654 FF, 0 M10K, 0 DSP | `docs/design/quartus-report.md` | `cd fpga/de10nano && make` |
 | Timing | Fmax 136.37 MHz, WNS +12.667 ns | `docs/design/quartus-report.md` | `cd fpga/de10nano && make` |
-| Power (vector-less) | 425.4 mW total, 2.42 mW core dynamic | `docs/design/quartus-report.md` | `cd fpga/de10nano && quartus_pow salaras_auth_de10nano` |
+| Power (vector-less) | 425.4 mW total, 2.42 mW core dynamic | `docs/design/quartus-report.md` | `cd fpga/de10nano && quartus_pow de10nano_top` |
 
 ## How to run everything
 

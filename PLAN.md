@@ -18,7 +18,7 @@ Committed scope (Tier A):
   and bit flips rejected; clean frames accepted.
 - A fail-closed atomic commit with a sticky fault and a measured latency.
 - Machine-checked invariants for the commit path.
-- The RF work (SALARAS) retained as the CWE-354 problem appendix.
+- The RF work (TRI-ARGA) retained as the CWE-354 problem appendix.
 
 Tier A is single clock and does not require the SerDes link or the CDC crossing.
 Those are Tier B and Tier C, described at the end.
@@ -68,7 +68,7 @@ Tier A (committed, in the link tree):
 | simon32_64.v | serialized SIMON block cipher, one round per cycle | - |
 | l2_auth.v | CBC-MAC compute and verify, counter freshness | CWE-354, 345, 294 |
 | l3_commit_gatekeeper.v | atomic commit, sticky fault, host ack | CWE-1264 |
-| salaras_auth_top.v | integration of L2 and L3 | - |
+| boundary_top.v | integration of L2 and L3 | - |
 | project.v | Tiny Tapeout wrapper, key-load and status pins | - |
 
 Tier B adds `link_enc_8b10b.v`, `link_dec_10b8b.v`, `link_tx.v`, `link_rx.v`, and
@@ -85,7 +85,7 @@ Tier B adds `link_enc_8b10b.v`, `link_dec_10b8b.v`, `link_tx.v`, `link_rx.v`, an
 Planned move, to run as the first Tier A implementation step: relocate the RF
 modules (`sync2`, `edge_detect`, `state_machine`, `data_validate`,
 `frame_capture`, `l1_framing_validator`, `l2_integrity_verify`,
-`l3_commit_gatekeeper`, `salaras_rx_top`, `project`, `salaras_rx_defs.svh`) to
+`l3_commit_gatekeeper`, `salaras_rx_top`, `project`, `defs.svh`) to
 `appendix/rf/src/`, and add `appendix/rf/info.yaml`. The root `src/` then holds
 the link design. The move is deferred until the link top exists, so lint, synth,
 test, formal, and the FPGA build stay green in the meantime.
@@ -167,7 +167,7 @@ Every row maps to one test case.
 | test/test_simon.py | SIMON block and CBC-MAC vectors against a Python reference |
 | test/test_l2_auth.py | forgery, wrong key, replay, stale counter, bit flips, false reject |
 | test/test_auth_boundary.py | fail-closed commit, sticky fault, commit and end-to-end latency |
-| test/test_salaras_rx.py | RF appendix still passes |
+| test/test_rf_boundary.py | RF appendix still passes |
 
 ## 11. Execution order
 
@@ -178,7 +178,7 @@ Every row maps to one test case.
 3. Adapt l3_commit_gatekeeper.v for the authenticated frame; keep it fail-closed
    and avoid the stale-decision pattern (do not sample a registered result on
    the same edge that produces it).
-4. Integrate salaras_auth_top.v and add the commit and latency tests.
+4. Integrate boundary_top.v and add the commit and latency tests.
 5. Add the two-profile portability testbench (synthetic CRC plus MAC).
 6. Extend synth/formal: host_full implies MAC-verified and fresh, and
    fail-closed.
@@ -188,7 +188,7 @@ Every row maps to one test case.
    success matrix, and measured latency; keep the RF appendix; rebuild PDFs.
 10. Perform the disk move (`appendix/rf/` and root link tree) and retarget
     info.yaml; the link top must build first.
-11. Update AGENTS.md and the salaras-rx skill with the new modules and the Tier A
+11. Update AGENTS.md and the project-workflow skill with the new modules and the Tier A
     scope, and keep CI green.
 12. Next milestone (Tier B): attach the boundary to the SerDes front-end
     (`TT_UM_SERDES`), add running disparity, K-character comma framing, word

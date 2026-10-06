@@ -1,4 +1,4 @@
-# SALARAS: Authenticated, Replay-Resistant Ingress Boundary for Lightweight Serial Links
+# TRI-ARGA: Authenticated, Replay-Resistant Ingress Boundary for Lightweight Serial Links
 
 Category: IC Chip Design & FPGA Implementation
 
@@ -6,7 +6,7 @@ Focus Area: 04 - Secure Communication (secure framing & interface integrity)
 
 ## 1. Executive Summary
 
-SALARAS is a hardware-enforced ingress boundary IP that ensures the host only ever sees authenticated, fresh frames. Frames that fail any check never reach the host.
+TRI-ARGA is a hardware-enforced ingress boundary IP that ensures the host only ever sees authenticated, fresh frames. Frames that fail any check never reach the host.
 
 Problem:
 
@@ -81,7 +81,7 @@ No small-area block combines authentication, freshness, and atomic fail-closed c
 | Software verification | Flexible | Runs after trust boundary is crossed |
 | MAC without freshness | Forgery | Replay |
 | Full AEAD (e.g. Ascon) | Forgery and confidentiality | Freshness and commit gating still need design; larger area |
-| **SALARAS** | **Forgery, replay, atomic fail-closed commit** | Confidentiality (out of scope, see Appendix G) |
+| **TRI-ARGA** | **Forgery, replay, atomic fail-closed commit** | Confidentiality (out of scope, see Appendix G) |
 
 ### 2.4 Problem Statement
 
@@ -92,13 +92,13 @@ No small-area block combines authentication, freshness, and atomic fail-closed c
 
 ## 3. Proposed Chip Design
 
-SALARAS is a single-clock digital core sitting between an untrusted front-end and the host: a frame arrives, is authenticated, its freshness is checked, then it is atomically released or rejected.
+TRI-ARGA is a single-clock digital core sitting between an untrusted front-end and the host: a frame arrives, is authenticated, its freshness is checked, then it is atomically released or rejected.
 
 ### 3.1 System Architecture
 
-<figure class="proto"><img src="assets/block-diagram.svg" alt="Authenticated boundary architecture"><figcaption>Figure 2. SALARAS architecture: trust boundary, three layers, separate key path. Everything from the link is untrusted; the key arrives from the host via a separate path, and only L3 may release data to the host.</figcaption></figure>
+<figure class="proto"><img src="assets/block-diagram.svg" alt="Authenticated boundary architecture"><figcaption>Figure 2. TRI-ARGA architecture: trust boundary, three layers, separate key path. Everything from the link is untrusted; the key arrives from the host via a separate path, and only L3 may release data to the host.</figcaption></figure>
 
-<figure class="proto"><img src="assets/frame-link.svg" alt="Link frame format"><figcaption>Figure: link frame format (128 bits) and the CBC-MAC chain.</figcaption></figure>
+The frame format and CBC-MAC chain diagram is in Appendix I, Figure I.1.
 
 Frame format (128 bits + separate key):
 
@@ -123,10 +123,10 @@ Module summary:
 | `simon32_64.v` | L2 | Serialized SIMON-32/64 block cipher, one round per cycle |
 | `l2_auth.v` | L2 | CBC-MAC over counter + payload (three 32-bit blocks), tag compare, counter freshness |
 | `l3_commit_gatekeeper.v` | L3 | Atomic commit only if auth and freshness pass; on failure holds `host_full` low and raises sticky `fault` |
-| `salaras_auth_top.v` | L2+L3 | L2 and L3 integration |
+| `boundary_top.v` | L2+L3 | L2 and L3 integration |
 | `project.v` | Wrapper | Tiny Tapeout wrapper: instantiates L1 + L2+L3 |
 
-`salaras_auth_top` interface:
+`boundary_top` interface:
 
 | Signal | Direction | Width | Notes |
 | --- | --- | --- | --- |
@@ -196,13 +196,13 @@ Quartus Prime 25.1 post-fit synthesis result for the DE10-Nano (Cyclone V 5CSEBA
 | Fmax | 136.37 MHz | 50 MHz target |
 
 The design maps with no block RAM, no DSP, and no PLL, and closes timing at 50 MHz with a large margin.
-This replaces the earlier Yosys estimate (about 360 LUT equivalent and 500 FF for `salaras_auth_top`), because it now covers the full board wrapper including the L1 serial loader.
+This replaces the earlier Yosys estimate (about 360 LUT equivalent and 500 FF for `boundary_top`), because it now covers the full board wrapper including the L1 serial loader.
 
 ASIC target: Tiny Tapeout sky130 130nm via OpenLane.
 
 sky130 hardening (real result): 2×2 tile, die 0.0756 mm², 2354 cells, 0 DRC, 0 LVS, WNS 0.00, typical power 1.87 mW.
 
-The RF appendix has a separate real result: 1×2 tile, die 0.0363 mm², WNS 0.00, typical power 1.21 mW. These are **not** the SALARAS core numbers (see Appendix F).
+The RF appendix has a separate real result: 1×2 tile, die 0.0363 mm², WNS 0.00, typical power 1.21 mW. These are **not** the TRI-ARGA core numbers (see Appendix F).
 
 Tools:
 
@@ -221,9 +221,9 @@ RTL simulation (S1, measured):
 - cocotb testbenches drive L1, L2, and commit with the success matrix: clean frames accepted, forgery, wrong key, replay, and stale counter rejected, and 128 of 128 single-bit flips rejected.
 - Latency measured per stage: 33 cycles per SIMON block, 107 cycles for MAC and freshness, 108 cycles end-to-end.
 
-<figure class="proto"><img src="assets/sim-auth-commit.png" alt="Authentication and commit"><figcaption>Figure 3. SALARAS core: first frame passes (auth_ok, fresh_ok, host_full high); second frame rejected (host_full stays low, fault high).</figcaption></figure>
+The measured authentication and commit waveform (first frame passes, second frame rejected) is in Appendix I, Figure I.2.
 
-<figure class="proto"><img src="assets/sim-boundary-timeout.png" alt="Boundary timeout"><figcaption>Figure 4. RF appendix: with no transitions for 4096 cycles, timeout_fault rises and framing_ok falls, so the frame is rejected.</figcaption></figure>
+
 
 Formal verification (SymbiYosys):
 
@@ -276,13 +276,12 @@ Success metrics:
 
 ### Appendix A. Team Identity and Roles
 
-Team **dinotice**, Universitas Telkom.
+Team **Tri Arga**, Universitas Telkom.
 
-| Name | NIM / NIP | Institution | Study Program | Position | Expertise | Role |
-| --- | --- | --- | --- | --- | --- | --- |
-| Ibrahim Fauzi Rahman | 1301213xxx | Universitas Telkom, Faculty of Electrical Engineering | S1 Electrical Engineering | Lead | RTL / Verilog | RTL designer, integration, synthesis |
-| Idris Syaifulloh | 1301210541 | Universitas Telkom, Faculty of Electrical Engineering | S1 Electrical Engineering | Member | Verification / Python | cocotb, fault injection, metrics |
-| Dr. Setia Juli Irzal Ismail, S.T., M.T. | NIP 197207xx | Universitas Telkom, Faculty of Electrical Engineering | — | Advisor | Architecture / Methodology | Advisor, claim validation |
+| Member Name | Primary Expertise | Responsibility & Role |
+| --- | --- | --- |
+| Ibrahim Fauzi Rahman | Embedded Hardware/System, IoT, Isolated PCB Design RS485/CAN Bus | RTL: L1-L3 design and integration |
+| Idris Syaifulloh | DevOps, Malware Researcher, CI/CD | Verification: cocotb, fault injection, metrics |
 
 ### Appendix B. Outputs and Demo
 
@@ -312,7 +311,7 @@ Team **dinotice**, Universitas Telkom.
 
 ### Appendix E. Integrity Comparison (measured)
 
-| Property | Keyless CRC | Keyed MAC | MAC + counter (SALARAS) |
+| Property | Keyless CRC | Keyed MAC | MAC + counter (TRI-ARGA) |
 | --- | --- | --- | --- |
 | Latency | 73 cycles (CRC serial 72 bit) | 107 cycles | 108 cycles |
 | Random error detection | Yes | Yes | Yes |
@@ -323,9 +322,9 @@ One additional cycle for freshness and commit adds replay resistance; 34 additio
 
 ### Appendix F. Problem Evidence (RF)
 
-The baseline `tt07-bep-decode` latches a corrupt payload and integrity field with `full=1` (CWE-354, measured). Details in `sim/RESULTS.md`.
+The baseline `tt07-bep-decode` latches a corrupt payload and integrity field with `full=1` (CWE-354, measured). Details in `sim/RESULTS.md`; the L1 timeout waveform is in `appendix/rf/figures/sim-boundary-timeout.png`.
 
-sky130 hardening result for the RF appendix design (baseline front-end plus L1 framing, parameterized CRC L2 integrity, and the same L3 gate as the core): 1×2 tile, die 0.0363 mm², WNS 0.00, typical power 1.21 mW. These are **not** the SALARAS core numbers (see 3.3).
+sky130 hardening result for the RF appendix design (baseline front-end plus L1 framing, parameterized CRC L2 integrity, and the same L3 gate as the core): 1×2 tile, die 0.0363 mm², WNS 0.00, typical power 1.21 mW. These are **not** the TRI-ARGA core numbers (see 3.3).
 
 ### Appendix G. Limits
 
@@ -352,3 +351,9 @@ sky130 hardening result for the RF appendix design (baseline front-end plus L1 f
 - **Test scenarios:** clean frame accepted (`host_full` high); corrupt frame rejected (`host_full` low, `fault` high); replay not committed; frame attempting a second key load ignored.
 - **Reports:** Fitter 242 ALM / 654 FF, Timing Analyzer Fmax 136.37 MHz (WNS +12.667 ns), PowerPlay 425.4 mW vector-less.
 - **Facility:** organizer's FPGA/sandbox at bootcamp.
+
+### Appendix I. Supporting Figures
+
+<figure class="proto"><img src="assets/frame-link.svg" alt="Frame format and CBC-MAC chain"><figcaption>Figure I.1. 128-bit frame format (counter + payload + tag) and the SIMON-32/64 CBC-MAC chain.</figcaption></figure>
+
+<figure class="proto"><img src="assets/sim-auth-commit.png" alt="Authentication and commit"><figcaption>Figure I.2. TRI-ARGA core: first frame passes (auth_ok, fresh_ok, host_full high); second frame rejected (host_full stays low, fault high).</figcaption></figure>

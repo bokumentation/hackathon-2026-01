@@ -1,4 +1,4 @@
-SALARAS-RX
+TRI-ARGA
 Copyright 2026 The contributors
 
 This product includes third-party source code, pinned as git submodules under
@@ -11,9 +11,9 @@ tt07-bep-decode
   Source:  https://github.com/DusterTheFirst/tt07-bep-decode
   Author:  Zachary Kohnen
   License: Apache License 2.0
-  Note:    Reference Manchester/433MHz decoder used as the SALARAS-RX ingress
+  Note:    Reference Manchester/433MHz decoder used as the TRI-ARGA ingress
            baseline. The integrity field (tail_1..3) it receives is verified by
-           SALARAS-RX layer L2.
+           TRI-ARGA layer L2.
 
 TT_UM_SERDES
   Path:    baseline/TT_UM_SERDES

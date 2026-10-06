@@ -1,20 +1,20 @@
 ---
 name: verify-paper
-description: Verify the SALARAS proposal against PERURI Chip Hackathon 2026 guidelines and check for overclaims, missing sections, and reference quality. Run when asked to check the proposal, review references, or audit claims.
+description: Verify the TRI-ARGA proposal against PERURI Chip Hackathon 2026 guidelines and check for overclaims, missing sections, and reference quality. Run when asked to check the proposal, review references, or audit claims.
 ---
 
-Audit the SALARAS competition proposal for the PERURI Chip Hackathon 2026, Area 04 (deadline 8 Oktober 2026).
+Audit the TRI-ARGA competition proposal for the PERURI Chip Hackathon 2026, Area 04 (deadline 8 Oktober 2026).
 Work through all eight checks, then produce a summary table and overall verdict.
 
 ## Check 1 - Structure: 5 required sections
 
-Read `docs/proposal/proposal-salaras.id.md`.
+Read `docs/proposal/proposal.id.md`.
 Verify all five sections from `docs/competition/ketentuan-proposal.md` are present with substantive content:
 1. Ringkasan Ide / Executive Summary
 2. Latar Belakang & Rumusan Masalah
 3. Proposed Chip Design (must include: architecture, block diagram, I/O, verification strategy, simulation strategy, FPGA/ASIC target)
 4. Referensi
-5. Lampiran (must include: rencana bootcamp, identitas personal tim with NIM/NIP, pembagian peran)
+5. Lampiran (must include: rencana bootcamp, identitas personal tim dengan nama/keahlian/peran, pembagian peran)
 
 PASS: all present with content. WARN: section exists but thin. FAIL: section missing.
 
@@ -81,14 +81,14 @@ SIMON: tag must be described as 32 bits / ~2^-32 forgery probability. Forbidden 
 ## Check 7 - Bold subheadings
 
 Check that inline subheadings in the proposal use `**bold:**` format, not plain text.
-Key patterns to check in proposal-salaras.id.md:
+Key patterns to check in proposal.id.md:
 `Masalah yang Diangkat:`, `Solusi yang Ditawarkan:`, `Chip yang Dirancang:`, `Target Pengguna:`, `Hasil Terukur:`, `Dampak:`, `Latar Belakang:`, `Bukti dari Tautan Nyata:`, `Rumusan Masalah:`, `Gap terhadap Solusi yang Tersedia:`
 
 Note: the build.mjs pipeline now auto-bolds these patterns at HTML generation time, so this check is for the Markdown source quality.
 
 ## Check 8 - English version parity
 
-Read `docs/proposal/proposal-salaras.en.md`. Verify same 5 sections exist and key numbers match the Indonesian version. WARN for any discrepancy.
+Read `docs/proposal/proposal.en.md`. Verify same 5 sections exist and key numbers match the Indonesian version. WARN for any discrepancy.
 
 ## Output
 

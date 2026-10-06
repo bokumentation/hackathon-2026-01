@@ -6,7 +6,7 @@ Terms, abbreviations, and weakness identifiers used across the documentation.
 
 | Term | Meaning |
 | --- | --- |
-| SALARAS | The authenticated, fail-closed ingress boundary for lightweight serial links |
+| TRI-ARGA | The authenticated, fail-closed ingress boundary for lightweight serial links |
 | L1 | Serial loader: shifts in the key and the frame |
 | L2 | Authentication: keyed MAC plus freshness counter |
 | L3 | Commit gatekeeper: atomic fail-closed commit with a sticky fault |

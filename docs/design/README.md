@@ -1,6 +1,6 @@
 # Design documentation
 
-Design-level documents for SALARAS.
+Design-level documents for TRI-ARGA.
 
 | Document | Contents |
 | --- | --- |

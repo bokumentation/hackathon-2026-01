@@ -1,4 +1,4 @@
-# SALARAS documentation
+# TRI-ARGA documentation
 
 Entry point for all project documentation.
 
@@ -6,7 +6,7 @@ Entry point for all project documentation.
 
 | Directory | Contents |
 | --- | --- |
-| [`proposal/`](proposal/proposal-salaras.id.md) | Competition proposal (ID + EN) and build |
+| [`proposal/`](proposal/proposal.id.md) | Competition proposal (ID + EN) and build |
 | [`design/`](design/README.md) | Architecture, threat model, verification plan, trade study, FMEA, Quartus plan and report, SignalTap plan, ideas |
 | [`setup/`](setup/debian-13.md) | Host setup, repository workflow, and Quartus install notes for Debian 13 |
 | [`judging/`](judging/README.md) | Submission audit, judge QnA, feasibility, prior-art analysis |
@@ -20,8 +20,8 @@ Generated PDFs, intermediate HTML, and the presentation are written to the git-i
 
 ## Quick links
 
-- Canonical proposal (ID): [`proposal/proposal-salaras.id.md`](proposal/proposal-salaras.id.md)
-- Canonical proposal (EN): [`proposal/proposal-salaras.en.md`](proposal/proposal-salaras.en.md)
+- Canonical proposal (ID): [`proposal/proposal.id.md`](proposal/proposal.id.md)
+- Canonical proposal (EN): [`proposal/proposal.en.md`](proposal/proposal.en.md)
 - Submission checklist: [`submission/checklist.md`](submission/checklist.md)
 - Evidence index: [`evidence.md`](evidence.md)
 - Glossary: [`glossary.md`](glossary.md)
@@ -36,4 +36,3 @@ Generated PDFs, intermediate HTML, and the presentation are written to the git-i
 - Prior-art analysis: [`judging/prior-art-analysis.id.md`](judging/prior-art-analysis.id.md)
 - Submission audit: [`judging/submission-verification.md`](judging/submission-verification.md)
 - Judge QnA: [`judging/judge-qna.md`](judging/judge-qna.md)
-- Security budget: [`proposal/security-budget.md`](proposal/security-budget.md)

@@ -1,4 +1,4 @@
-# Ide-06: Outline Proposal SALARAS-SERDES (CRC)
+# Ide-06: Outline Proposal TRI-ARGA-SERDES (CRC)
 
 Kerangka proposal mengikuti 5 struktur resmi PERURI Chip Hackathon 2026
 
@@ -6,7 +6,7 @@ Kerangka proposal mengikuti 5 struktur resmi PERURI Chip Hackathon 2026
 Area Fokus: 04 - Secure Communication (*secure framing*, protocol security, *interface integrity*)
 Integritas: CRC (bukan MAC), untuk biaya area rendah
 Status: outline, siap dikembangkan menjadi proposal penuh
-Induk: `01-salaras-serdes.md`
+Induk: `01-serdes.md`
 
 Dokumen ini adalah kerangka proposal, bukan proposal final.
 Setiap bagian memuat poin isi, draft kalimat kunci, dan penanda pekerjaan.
@@ -31,7 +31,7 @@ Akibatnya penerima tidak dapat memastikan batas data dan tidak dapat menolak dat
 Mesin penyelaras dan penanda status juga rawan pada CWE-1245 (Improper Finite State Machines in *Hardware* Logic) dan CWE-1264 (Insecure De-Synchronization between Control and Data Channels).
 
 Solusi yang Ditawarkan:
-SALARAS-SERDES adalah *boundary* tiga lapis yang memakai teknik SALARAS pada tautan serial, dengan CRC sebagai mekanisme integritas.
+TRI-ARGA-SERDES adalah *boundary* tiga lapis yang memakai teknik TRI-ARGA pada tautan serial, dengan CRC sebagai mekanisme integritas.
 Lapisan L1 menambahkan framing dan penyelarasan word beserta status *lock*.
 Lapisan L2 menghitung dan memeriksa CRC atas *frame* secara *streaming* memakai LFSR.
 Lapisan L3 melakukan *commit* atomik yang *fail-closed* dan menaikkan *fault* lengket bila CRC gagal.
@@ -68,7 +68,7 @@ Pola ini memunculkan tiga risiko utama, yaitu tidak ada dukungan integritas (CWE
 
 Relevansi CWE untuk Hardening (bagian inti penguatan):
 
-| CWE | Nama | Celah pada baseline | Mitigasi SALARAS-SERDES |
+| CWE | Nama | Celah pada baseline | Mitigasi TRI-ARGA-SERDES |
 | --- | --- | --- | --- |
 | CWE-353 | Missing Support for Integrity Check | Tidak ada nilai pemeriksa sama sekali | L2 menambahkan CRC atas frame |
 | CWE-354 | Improper Validation of Integrity Check Value | Tidak ada pemeriksaan, karena tidak ada nilai | L2 memeriksa CRC sebelum commit |
@@ -84,7 +84,7 @@ Gap terhadap Solusi yang Tersedia:
 Solusi keandalan sederhana menambahkan *parity* pada byte, tetapi tidak memeriksa batas *frame*.
 Solusi pengkodean penuh menambahkan *running disparity*, tetapi tetap tanpa nilai integritas.
 Solusi MAC memberi autentikasi, tetapi biaya area dan manajemen kunci lebih tinggi.
-SALARAS-SERDES mengisi celah integritas dengan CRC yang murah, dan menyiapkan jalur ke MAC.
+TRI-ARGA-SERDES mengisi celah integritas dengan CRC yang murah, dan menyiapkan jalur ke MAC.
 
 Rumusan Masalah dan Perancangan:
 1. Bagaimana menambahkan framing dan penyelarasan word yang kokoh pada SerDes tanpa mengubah antarmuka dasar?

@@ -16,23 +16,23 @@ jobs:
       - name: Check subheadings are bold in ID proposal
         run: |
           for pattern in "Masalah yang Diangkat" "Solusi" "Arsitektur" "Chip yang Dirancang" "Target Pengguna" "Hasil Terukur" "Dampak" "Latar Belakang"; do
-            if grep -qP "^\*\*${pattern}" docs/proposal/proposal-salaras.id.md; then
+            if grep -qP "^\*\*${pattern}" docs/proposal/proposal.id.md; then
               echo "OK (bold): $pattern"
-            elif grep -qP "^${pattern}" docs/proposal/proposal-salaras.id.md; then
-              echo "WARN: '$pattern' appears as plain text (not bold **) in proposal-salaras.id.md"
+            elif grep -qP "^${pattern}" docs/proposal/proposal.id.md; then
+              echo "WARN: '$pattern' appears as plain text (not bold **) in proposal.id.md"
             else
-              echo "INFO: '$pattern' not found in proposal-salaras.id.md"
+              echo "INFO: '$pattern' not found in proposal.id.md"
             fi
           done
 
       - name: Check subheadings are bold in EN proposal
         run: |
           for pattern in "Problem" "Solution" "Architecture" "Chip Design" "Target" "Results" "Impact" "Background"; do
-            if grep -qP "^\*\*${pattern}" docs/proposal/proposal-salaras.en.md; then
+            if grep -qP "^\*\*${pattern}" docs/proposal/proposal.en.md; then
               echo "OK (bold): $pattern"
-            elif grep -qP "^${pattern}" docs/proposal/proposal-salaras.en.md; then
-              echo "WARN: '$pattern' appears as plain text (not bold **) in proposal-salaras.en.md"
+            elif grep -qP "^${pattern}" docs/proposal/proposal.en.md; then
+              echo "WARN: '$pattern' appears as plain text (not bold **) in proposal.en.md"
             else
-              echo "INFO: '$pattern' not found in proposal-salaras.en.md"
+              echo "INFO: '$pattern' not found in proposal.en.md"
             fi
           done

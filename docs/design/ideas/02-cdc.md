@@ -1,17 +1,17 @@
-# Ide-02: SALARAS-CDC
+# Ide-02: TRI-ARGA-CDC
 
-Trusted *Clock Domain Crossing* Datapath dengan Teknik SALARAS
+Trusted *Clock Domain Crossing* Datapath dengan Teknik TRI-ARGA
 
 *Baseline*: `tt07_cdc_fifo` (`tt_um_pa1mantri_cdc_fifo`)
 Area Fokus: 04 - Secure Communication (CDC, interface integrity)
-Status: ide turunan yang memakai ulang teknik SALARAS
+Status: ide turunan yang memakai ulang teknik TRI-ARGA
 Skor simulasi juri: 78.75 dari 100
 
 ## 1. Ringkasan Ide
 
 Masalah yang diangkat adalah perpindahan data antar domain *clock* rawan terhadap korupsi dan meta-stability, dan *baseline* tidak memeriksa integritas data.
 *Baseline* CDC FIFO memindahkan data 4 bit antar dua *clock* memakai pointer *gray code*, *dual-port RAM*, dan sinkronizer dua *flip-flop*, tetapi isi memori tidak diperiksa.
-Solusi yang ditawarkan adalah SALARAS-CDC, yaitu *boundary* integritas dengan teknik SALARAS yang menambahkan *parity* atau ECC pada *payload* dan pointer, pengecekan konsistensi status, serta *commit* *fail-closed*.
+Solusi yang ditawarkan adalah TRI-ARGA-CDC, yaitu *boundary* integritas dengan teknik TRI-ARGA yang menambahkan *parity* atau ECC pada *payload* dan pointer, pengecekan konsistensi status, serta *commit* *fail-closed*.
 
 Chip yang dirancang menambahkan pengecekan integritas per word, pengecekan *parity* pada pointer gray, deteksi inkonsistensi empty dan full, dan *fault* lengket yang disinkronkan ke domain baca.
 Target pengguna adalah perancang SoC aman yang memindahkan data identitas atau transaksi antara HPS dan FPGA, atau antar subsistem berclock berbeda.
@@ -32,9 +32,9 @@ Yang kurang pada *baseline*:
 - Tidak ada mekanisme *fail-closed* atau sinyal *fault*.
 - Tidak ada pengujian integritas, hanya pengujian fungsional FIFO.
 
-## 3. Penerapan Teknik SALARAS
+## 3. Penerapan Teknik TRI-ARGA
 
-| Lapisan | Implementasi pada SALARAS-CDC |
+| Lapisan | Implementasi pada TRI-ARGA-CDC |
 | --- | --- |
 | L1 | Cek konsistensi status handshake, cek keabsahan pointer, timeout, recovery |
 | L2 | Parity atau ECC pada payload dan parity pada pointer gray, diperiksa per word |
@@ -50,9 +50,9 @@ CRC bersifat linear tanpa kunci, cocok untuk mendeteksi error beruntun pada blok
 MAC bersifat berkunci dan melindungi dari pemalsuan, tetapi lebih mahal dan membutuhkan kunci.
 Untuk datapath internal seperti FIFO, *parity* atau ECC lebih lazim, sedangkan MAC lebih relevan bila data melewati batas kepercayaan antar perangkat.
 
-## 5. Perbandingan dengan SALARAS
+## 5. Perbandingan dengan TRI-ARGA
 
-| Aspek | SALARAS (tt07-bep-decode) | SALARAS-CDC |
+| Aspek | TRI-ARGA (tt07-bep-decode) | TRI-ARGA-CDC |
 | --- | --- | --- |
 | Domain clock | Tunggal | Dua domain, perlu CDC aman |
 | Sumber integritas | Field CRC sudah ada | Belum ada, ditambah parity atau ECC |
@@ -75,7 +75,7 @@ Minus dari ide ini:
 
 Kelayakan teknis: tinggi sampai sedang, karena struktur FIFO sudah rapi dan modular.
 Estimasi area: 1x1 sampai 1x2 *tile*, tergantung pilihan *parity*, ECC, atau CRC.
-Alat sama dengan SALARAS, ditambah *testbench* dua *clock* pada cocotb.
+Alat sama dengan TRI-ARGA, ditambah *testbench* dua *clock* pada cocotb.
 Waktu: dapat diselesaikan pada *bootcamp* dengan fokus pada pengecekan integritas dan gangguan CDC.
 Risiko utama: kebenaran lintas domain *clock* dan kemungkinan false alarm bila sinkronisasi tidak rapi.
 

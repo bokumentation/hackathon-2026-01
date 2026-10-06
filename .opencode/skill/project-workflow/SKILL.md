@@ -1,5 +1,5 @@
 ---
-name: salaras-rx
+name: project-workflow
 description: Project workflow, design program, and invariants for this Tiny Tapeout hardware repository (sky130 RTL, cocotb verification, SymbiYosys formal, simulation evidence, and the tracked proposal docs). Use when working in this repository on src/, test/, sim/, synth/, tools/, fpga/, the Makefile, README, or the proposal.
 ---
 
@@ -9,7 +9,7 @@ Use this when changing anything in this repository.
 
 ## Design program
 
-- SALARAS is the fail-closed Manchester/RF ingress boundary on `tt07-bep-decode`; it is the CWE-354 problem evidence and is kept as an appendix.
+- TRI-ARGA is the fail-closed Manchester/RF ingress boundary on `tt07-bep-decode`; it is the CWE-354 problem evidence and is kept as an appendix.
 - The committed successor is the authenticated, replay-resistant, fail-closed boundary (Tier A): SIMON-32/64 CBC-MAC plus a freshness counter, single clock.
 - Tier B (next): a purpose-built link layer on `TT_UM_SERDES` (`link_enc_8b10b`, `link_dec_10b8b`, `link_tx`, `link_rx`, `l1_link_framing`).
 - Tier C (future): two-clock operation using the vendored `cdc_fifo`, real hardening, FPGA.
@@ -17,7 +17,7 @@ Use this when changing anything in this repository.
 
 ## Repository map
 
-- `src/` committed link RTL: `simon32_64`, `l2_auth`, `l3_commit_gatekeeper`, `salaras_auth_top`, `project.v`, plus the Tiny Tapeout config.
+- `src/` committed link RTL: `simon32_64`, `l2_auth`, `l3_commit_gatekeeper`, `boundary_top`, `project.v`, plus the Tiny Tapeout config.
 - `appendix/rf/` archived Manchester/RF design, its FPGA project, and the ESP32 replay.
 - `test/` cocotb suites (link tests plus the RF unit suite).
 - `sim/` simulation evidence harness and results (`make sim`), plus `RESULTS.md`.
@@ -38,7 +38,7 @@ Use this when changing anything in this repository.
 - `make auth` integrated authentication and commit tests.
 - `make crc` RF CRC streaming latency (comparison).
 - `make sim` RF appendix simulation evidence suites (baseline + boundary).
-- `.opencode/skill/salaras-rx/scripts/verify.sh` runs all gates and reports a pass/fail summary.
+- `.opencode/skill/project-workflow/scripts/verify.sh` runs all gates and reports a pass/fail summary.
 
 ## Invariants to respect
 
@@ -51,7 +51,7 @@ Use this when changing anything in this repository.
 
 ## Field status (do not overclaim)
 
-- The SALARAS 24-bit on-wire field is affine over GF(2) but is not a standard CRC-24; the baseline author suspects an error-correcting code.
+- The TRI-ARGA 24-bit on-wire field is affine over GF(2) but is not a standard CRC-24; the baseline author suspects an error-correcting code.
 - With the 7 available pairs the delta rank is only 5, so the RF L2 is parameterized and real-frame detection is not claimed.
 - The RF sky130 result is 1x2 (1x1 overflows at 105.57%): die 0.0363 mm^2, WNS 0.00, typical power 1.21 mW. It belongs to the appendix and does not transfer to the MAC module set.
 

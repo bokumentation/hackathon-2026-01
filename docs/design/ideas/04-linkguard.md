@@ -1,17 +1,17 @@
 # Ide-04: LINK-GUARD
 
-Online Serial Link Monitor dan *Anti-Tamper* Flag dengan Teknik SALARAS
+Online Serial Link Monitor dan *Anti-Tamper* Flag dengan Teknik TRI-ARGA
 
 *Baseline*: `TT_UM_SERDES` (`tt_um_serdes`)
 Area Fokus: 04 - Secure Communication (protocol security, *anti-tamper*)
-Status: ide turunan yang memakai ulang teknik SALARAS
+Status: ide turunan yang memakai ulang teknik TRI-ARGA
 Skor simulasi juri: 78.4 dari 100
 
 ## 1. Ringkasan Ide
 
 Masalah yang diangkat adalah gangguan pada tautan serial sering tidak terlihat dan tidak tercatat, sehingga indikasi *tamper* hilang.
 *Baseline* SerDes tidak memiliki pemantauan, tidak memiliki penghitung error, dan tidak melaporkan kode 10b yang tidak sah.
-Solusi yang ditawarkan adalah LINK-GUARD, yaitu blok pemantauan yang memakai pola teknik SALARAS untuk mengamati kesehatan tautan dan menaikkan *fault* bila ada anomali.
+Solusi yang ditawarkan adalah LINK-GUARD, yaitu blok pemantauan yang memakai pola teknik TRI-ARGA untuk mengamati kesehatan tautan dan menaikkan *fault* bila ada anomali.
 
 Chip yang dirancang memantau disparitas, kode 8b/10b yang tidak sah, *glitch*, dan laju error, lalu menyimpannya pada register status yang dapat dibaca *host*.
 Target pengguna adalah perancang perangkat aman yang membutuhkan indikasi *tamper* pada lapis fisik.
@@ -22,7 +22,7 @@ Dampaknya adalah visibilitas terhadap gangguan tautan dan dasar untuk respons ke
 Yang tersedia: *encoder* dan *decoder* 8b/10b, PISO, dan SIPO.
 Yang kurang untuk pemantauan: tidak ada deteksi kode tidak sah, tidak ada penghitung error, tidak ada status kesehatan tautan, dan tidak ada sinyal *fault*.
 
-## 3. Penerapan Teknik SALARAS
+## 3. Penerapan Teknik TRI-ARGA
 
 | Lapisan | Implementasi pada LINK-GUARD |
 | --- | --- |
@@ -38,9 +38,9 @@ Disparitas dan kode 8b/10b yang tidak sah adalah sinyal murah untuk mendeteksi g
 Penghitung error memberi ukuran kuantitatif kesehatan tautan.
 Untuk keperluan autentikasi, MAC tetap diperlukan bila tautan dipakai untuk data sensitif.
 
-## 5. Perbandingan dengan SALARAS
+## 5. Perbandingan dengan TRI-ARGA
 
-| Aspek | SALARAS (tt07-bep-decode) | LINK-GUARD |
+| Aspek | TRI-ARGA (tt07-bep-decode) | LINK-GUARD |
 | --- | --- | --- |
 | Tujuan | Menolak frame tidak sah | Memantau dan melaporkan anomali |
 | Integritas | Verifikasi CRC | Pemeriksaan struktural dan penghitung error |
@@ -55,7 +55,7 @@ Minus: bukan mekanisme autentikasi, sehingga bukan pengganti MAC.
 
 Kelayakan teknis: tinggi.
 Estimasi area: 1x1 *tile*.
-Alat sama dengan SALARAS.
+Alat sama dengan TRI-ARGA.
 Waktu: singkat, cocok sebagai pelengkap ide lain.
 Risiko utama: menetapkan ambang *fault* yang tepat agar tidak false alarm.
 
@@ -81,7 +81,7 @@ Pertanyaan kritis:
 
 ## 8. Rekomendasi
 
-- Gabungkan dengan SALARAS-SERDES sebagai lapis observabilitas.
+- Gabungkan dengan TRI-ARGA-SERDES sebagai lapis observabilitas.
 - Sediakan register status dan penghitung error yang jelas.
 
 ## 9. Glosarium

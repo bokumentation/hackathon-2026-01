@@ -5,7 +5,7 @@
 This repository contains hardware description languages and documentation. It
 does not run a network service. Security-relevant items include:
 
-- Fault-handling correctness in the SALARAS ingress boundary (`src/`).
+- Fault-handling correctness in the TRI-ARGA ingress boundary (`src/`).
 - Verification claims (detection rate, false-reject rate) in `test/` and
   `synth/formal/`.
 - Any leak of credentials or private material in the repository.
@@ -20,7 +20,7 @@ suggested fix. We aim to acknowledge reports within a few days.
 
 ## Design security notes
 
-SALARAS is a fail-closed hardware boundary: a frame is committed only when
+TRI-ARGA is a fail-closed hardware boundary: a frame is committed only when
 its embedded integrity field verifies. The integrity field parameters are still
 under investigation, so L2 is parameterized and does not yet accept real frames.
 The threat model and mitigations are maintained in the local design

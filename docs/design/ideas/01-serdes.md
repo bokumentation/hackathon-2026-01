@@ -1,10 +1,10 @@
-# Ide-01: SALARAS-SERDES
+# Ide-01: TRI-ARGA-SERDES
 
-Secure Framed Serial Link dengan Teknik SALARAS
+Secure Framed Serial Link dengan Teknik TRI-ARGA
 
 *Baseline*: `TT_UM_SERDES` (`tt_um_serdes`)
 Area Fokus: 04 - Secure Communication (secure framing, protocol security)
-Status: ide turunan yang memakai ulang teknik SALARAS
+Status: ide turunan yang memakai ulang teknik TRI-ARGA
 Skor simulasi juri: 82.6 dari 100
 
 ## 1. Ringkasan Ide
@@ -12,7 +12,7 @@ Skor simulasi juri: 82.6 dari 100
 Masalah yang diangkat adalah tautan serial pada terminal aman sering mengirim byte tanpa framing dan tanpa integritas.
 *Baseline* SerDes hanya mengubah data paralel ke serial memakai 8b/10b sederhana, tanpa batas *frame*, tanpa penyelarasan, dan tanpa nilai integritas.
 Akibatnya penerima tidak dapat memastikan batas data, tidak dapat mendeteksi kode 10b yang tidak sah, dan tidak dapat menolak *frame* yang berubah.
-Solusi yang ditawarkan adalah SALARAS-SERDES, yaitu *boundary* yang memakai teknik SALARAS pada tautan serial.
+Solusi yang ditawarkan adalah TRI-ARGA-SERDES, yaitu *boundary* yang memakai teknik TRI-ARGA pada tautan serial.
 
 Chip yang dirancang menambahkan tiga hal pada *baseline*: framing dengan penanda awal *frame*, penyelarasan word dengan status lock, dan integritas MAC atau CRC, ditambah *commit* *fail-closed*.
 Target pengguna adalah perancang terminal pembaca identitas, *smart card*, dan perangkat pembayaran yang memakai tautan serial internal atau eksternal.
@@ -33,9 +33,9 @@ Yang kurang pada *baseline*:
 - *Decoder* memakai cabang default yang memetakan kode 10b tidak dikenal menjadi nol, sehingga error tidak dilaporkan.
 - Tidak ada sinyal lock, tidak ada penghitung error, dan tidak ada mekanisme *fail-closed*.
 
-## 3. Penerapan Teknik SALARAS
+## 3. Penerapan Teknik TRI-ARGA
 
-| Lapisan | Implementasi pada SALARAS-SERDES |
+| Lapisan | Implementasi pada TRI-ARGA-SERDES |
 | --- | --- |
 | L1 | Deteksi penanda awal frame, penyelarasan berbasis K-code, status lock, timeout, dan recovery |
 | L2 | Hitung dan periksa MAC atau CRC atas frame secara streaming memakai LFSR atau blok MAC |
@@ -50,9 +50,9 @@ MAC adalah nilai pemeriksa berkunci yang bersifat kriptografis dan tahan terhada
 Untuk terminal identitas dan pembayaran, model ancaman mencakup penyerang aktif, sehingga MAC lebih tepat.
 Rekomendasi adalah MAC sebagai opsi utama dan CRC sebagai opsi ringan, dengan catatan biaya area dan kebutuhan manajemen kunci.
 
-## 5. Perbandingan dengan SALARAS
+## 5. Perbandingan dengan TRI-ARGA
 
-| Aspek | SALARAS (tt07-bep-decode) | SALARAS-SERDES |
+| Aspek | TRI-ARGA (tt07-bep-decode) | TRI-ARGA-SERDES |
 | --- | --- | --- |
 | Baseline | Decoder Manchester thermostat | SerDes 8b/10b |
 | Sumber integritas | Field CRC sudah ada, tinggal diverifikasi | Belum ada, harus dibangun |
@@ -64,7 +64,7 @@ Rekomendasi adalah MAC sebagai opsi utama dan CRC sebagai opsi ringan, dengan ca
 
 Plus dari ide ini:
 - Relevan langsung dengan kebutuhan komunikasi aman Peruri.
-- Memperbaiki kelemahan utama SALARAS, yaitu CRC bukan kontrol kriptografis.
+- Memperbaiki kelemahan utama TRI-ARGA, yaitu CRC bukan kontrol kriptografis.
 - Framing dan penanganan error adalah kontribusi nyata, bukan sekadar verifikasi.
 
 Minus dari ide ini:
@@ -76,7 +76,7 @@ Minus dari ide ini:
 
 Kelayakan teknis: tinggi, karena *baseline* sudah menyediakan *encoder*, *decoder*, dan *loopback*.
 Estimasi area: 1x1 sampai 1x2 *tile*, tergantung pilihan MAC atau CRC dan kedalaman *buffer*.
-Alat yang dipakai sama dengan SALARAS: Verilog, cocotb, Verilator, Yosys, OpenLane, dan Quartus.
+Alat yang dipakai sama dengan TRI-ARGA: Verilog, cocotb, Verilator, Yosys, OpenLane, dan Quartus.
 Waktu: pemulihan parameter dan integrasi dapat diselesaikan pada Hari 1 dan Hari 2 *bootcamp*.
 Risiko utama: implementasi MAC ringan menambah area dan membutuhkan manajemen kunci sederhana.
 

@@ -11,18 +11,18 @@ This report replaces the earlier Yosys proxy estimate with post-fit Fitter, Timi
 | Tool | Quartus Prime Lite Edition 25.1std.0, build 1129 |
 | Device | Cyclone V `5CSEBA6U23I7` |
 | Board | Terasic DE10-Nano |
-| Project | `fpga/de10nano/salaras_auth_de10nano` |
-| Top entity | `salaras_auth_de10nano` |
+| Project | `fpga/de10nano/de10nano_top` |
+| Top entity | `de10nano_top` |
 | Result | Full compilation successful, 0 errors, 14 warnings |
 
 ## Method
 
-The project is defined by `salaras_auth_de10nano.qsf` with the timing constraints in `salaras_auth_de10nano.sdc`.
+The project is defined by `de10nano_top.qsf` with the timing constraints in `de10nano_top.sdc`.
 
 ```bash
 cd fpga/de10nano
-quartus_sh --flow compile salaras_auth_de10nano
-quartus_pow salaras_auth_de10nano
+quartus_sh --flow compile de10nano_top
+quartus_pow de10nano_top
 ```
 
 `quartus_sh --flow compile` runs Analysis and Synthesis, the Fitter, the Assembler, and the Timing Analyzer.
@@ -41,7 +41,7 @@ quartus_pow salaras_auth_de10nano
 | PLLs | 0 | 6 | 0% |
 
 The design maps cleanly with no block memory, no DSP, and no PLL.
-For reference, the earlier Yosys proxy estimate was about 360 LUT equivalents and 500 flip-flops for `salaras_auth_top`; the Fitter number covers the full board wrapper including the L1 serial loader.
+For reference, the earlier Yosys proxy estimate was about 360 LUT equivalents and 500 flip-flops for `boundary_top`; the Fitter number covers the full board wrapper including the L1 serial loader.
 
 ## Timing (Slow 1100mV 100C, final models)
 
@@ -105,9 +105,9 @@ The DE10-Nano has 8 user LEDs (LED0-LED7) and 4 slide switches (SW0-SW3), so the
 The board project had never been compiled before this run.
 The following fixes were required.
 
-- `salaras_auth_de10nano.qsf` now lists `../../src/l1_serial_loader.v`, which the wrapper instantiates.
-- `salaras_auth_de10nano.qpf` was added, because `quartus_sh --flow compile` requires a project file.
-- `salaras_auth_de10nano.v` ports were reduced to `SW[3:0]` and `LEDR[7:0]` to match the board.
+- `de10nano_top.qsf` now lists `../../src/l1_serial_loader.v`, which the wrapper instantiates.
+- `de10nano_top.qpf` was added, because `quartus_sh --flow compile` requires a project file.
+- `de10nano_top.v` ports were reduced to `SW[3:0]` and `LEDR[7:0]` to match the board.
 - All invalid pin assignments were replaced with the official Terasic assignments above.
 
 ## Warnings
@@ -120,8 +120,8 @@ None of these affect the resource, timing, or power numbers.
 
 ```bash
 cd fpga/de10nano
-quartus_sh --flow compile salaras_auth_de10nano
-quartus_pow salaras_auth_de10nano
+quartus_sh --flow compile de10nano_top
+quartus_pow de10nano_top
 ```
 
 Reports are written to `fpga/de10nano/output_files/` and are not committed.
@@ -134,7 +134,7 @@ It requires the physical DE10-Nano and a USB-Blaster connection, and the `.stp` 
 The setup is prepared in the repository:
 
 - The wrapper declares the tapped wires (`host_full`, `fault`, `auth_ok`, `fresh_ok`, `done`, `key_locked`) with `(* preserve, noprune *)` so they appear in Node Finder.
-- `fpga/de10nano/salaras_auth_de10nano.qsf` contains the three SignalTap assignments as a commented block, with the exact recompile recipe.
+- `fpga/de10nano/de10nano_top.qsf` contains the three SignalTap assignments as a commented block, with the exact recompile recipe.
 - `fpga/de10nano/signaltap_acquire.tcl` runs one capture over JTAG with `quartus_stp -t`.
 
 Enabling SignalTap adds M10K block memory to the fit and slightly increases power and logic.
@@ -147,4 +147,4 @@ The full procedure and the test cases are in `docs/design/signaltap-plan.md`.
 - `docs/design/quartus-plan.md` for the original capture plan.
 - `docs/design/signaltap-plan.md` for the on-board capture procedure.
 - `synth/area.md` for the ASIC and Yosys area evidence.
-- `docs/proposal/proposal-salaras.id.md` and `docs/proposal/proposal-salaras.en.md` for the proposal figures.
+- `docs/proposal/proposal.id.md` and `docs/proposal/proposal.en.md` for the proposal figures.

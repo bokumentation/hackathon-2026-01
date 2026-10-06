@@ -1,7 +1,7 @@
-# SALARAS - Authenticated Fail-Closed Ingress Boundary
+# TRI-ARGA - Authenticated Fail-Closed Ingress Boundary
 
 **PERURI Chip Hackathon 2026 · Area 04 Secure Communication**
-Tim *dinotice* · Universitas Telkom
+Tim *Tri Arga* · Universitas Telkom
 
 [![link](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/link.yaml/badge.svg)](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/link.yaml)
 [![lint](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/lint.yaml/badge.svg)](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/lint.yaml)
@@ -20,7 +20,7 @@ A small, reusable hardware IP block that closes the gap between receiving a seri
 
 The problem is measured on a real baseline: the Tiny Tapeout 07 Manchester decoder `tt07-bep-decode` receives a 24-bit integrity field and never checks it, so a corrupt or fault-injected frame still appears valid to the host (CWE-354). The integrity field itself is an undocumented error-correcting code, unsolved.
 
-SALARAS fixes this with three composable layers:
+TRI-ARGA fixes this with three composable layers:
 
 | Layer | Module | What it does | CWE closed |
 | --- | --- | --- | --- |
@@ -259,8 +259,8 @@ Key-load / frame-load protocol uses `SW[0]`: set high to shift the 64-bit key MS
 
 ## Proposal
 
-- Indonesian: [`docs/proposal/proposal-salaras.id.md`](docs/proposal/proposal-salaras.id.md)
-- English: [`docs/proposal/proposal-salaras.en.md`](docs/proposal/proposal-salaras.en.md)
+- Indonesian: [`docs/proposal/proposal.id.md`](docs/proposal/proposal.id.md)
+- English: [`docs/proposal/proposal.en.md`](docs/proposal/proposal.en.md)
 
 Build the proposal HTML and PDF from the repository root:
 
@@ -268,7 +268,7 @@ Build the proposal HTML and PDF from the repository root:
 make docs
 ```
 
-Output: `output/pdf/PROPOSAL-SALARAS-<timestamp>.pdf`, with the intermediate HTML in `output/html/`. The `output/` folder is git-ignored. The timestamp comes from the source mtime, so an unchanged proposal keeps its existing file and an edit stamps a new one.
+Output: `output/pdf/PROPOSAL-TRIARGA-<timestamp>.pdf`, with the intermediate HTML in `output/html/`. The `output/` folder is git-ignored. The timestamp comes from the source mtime, so an unchanged proposal keeps its existing file and an edit stamps a new one.
 
 Build the proposal and the presentation deck:
 
@@ -276,7 +276,7 @@ Build the proposal and the presentation deck:
 make docs-all
 ```
 
-This adds `output/pptx/DECK-SALARAS-<timestamp>.pptx` and `output/pdf/DECK-SALARAS-<timestamp>.pdf`.
+This adds `output/pptx/DECK-TRIARGA-<timestamp>.pptx` and `output/pdf/DECK-TRIARGA-<timestamp>.pdf`.
 
 ---
 
@@ -286,7 +286,7 @@ Two Tier A vulnerabilities were identified and fixed on this branch:
 
 | ID | CWE | Description | Fix |
 | --- | --- | --- | --- |
-| Bug 1 | CWE-1264 | TOCTOU: `salaras_auth_top` passed live input ports to L3 instead of the latched values from L2. Committed data could differ from authenticated data. | `l2_auth` now exposes `counter_q` / `payload_q` latched outputs; `salaras_auth_top` passes these to L3. |
+| Bug 1 | CWE-1264 | TOCTOU: `boundary_top` passed live input ports to L3 instead of the latched values from L2. Committed data could differ from authenticated data. | `l2_auth` now exposes `counter_q` / `payload_q` latched outputs; `boundary_top` passes these to L3. |
 | Bug 2 | - | Key-path separation: `project.v` and the DE10-Nano wrapper loaded the key from the same 192-bit shift register as the frame. | Separate 64-bit `key_sr` with `key_mode` pin (`SW[0]`) and `key_locked` flag. |
 
 See [`SECURITY.md`](SECURITY.md) for the responsible-disclosure policy.

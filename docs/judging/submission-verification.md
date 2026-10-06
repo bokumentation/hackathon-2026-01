@@ -1,7 +1,7 @@
 # Submission Verification Report
 
 Date: 2026-10-06
-Proposal: `docs/proposal/proposal-salaras.id.md` and `docs/proposal/proposal-salaras.en.md`
+Proposal: `docs/proposal/proposal.id.md` and `docs/proposal/proposal.en.md`
 Guidelines: `docs/competition/ketentuan-proposal.md`, `docs/competition/buku-panduan-peruri-chip-hackathon.md`
 Ground truth: `sim/RESULTS.md`, `synth/area.md`, `docs/design/quartus-report.md`, `docs/evidence.md`
 Rules: `AGENTS.md`, `VISION.md`
@@ -10,9 +10,9 @@ This report replaces the earlier audit, which was written before the proposal wa
 
 ## Overall Verdict
 
-**NEEDS REVISION**
+**PASS WITH MINOR NOTES**
 
-One required item is open: the personal identity values in Lampiran A are placeholders.
+The identity item is resolved: Lampiran A lists the team and each member's expertise and role (per `docs/identity/identity.md`).
 No disqualifying structural defect and no inaccurate measured claim was found.
 
 ## A. Structure Compliance
@@ -25,7 +25,7 @@ No disqualifying structural defect and no inaccurate measured claim was found.
 | A4 | Section 4 References | PASS | 13 entries with author, title, year |
 | A5 | Section 5 Lampiran | PASS | Lampiran A through H present |
 | A6 | Lampiran: bootcamp plan | PASS | Three days with deliverables |
-| A7 | Lampiran: identitas personal tim | FAIL | NIM/NIP are placeholders |
+| A7 | Lampiran: identitas personal tim | PASS | Team and members listed with expertise and role |
 | A8 | Lampiran: role split | PASS | Roles listed per member |
 
 ## B. Claims Accuracy
@@ -74,7 +74,7 @@ All 13 entries carry an author or organization and a year.
 | Frame: counter 32, payload 64, tag 32 | `l2_auth.v` inputs match | PASS |
 | SIMON-32/64: 16-bit words, 32 rounds, 64-bit key | `simon32_64.v` | PASS |
 | CBC-MAC: 3 blocks, IV 0, 32-bit tag | `l2_auth.v` | PASS |
-| L3 commits latched data, not live ports | `salaras_auth_top.v` | PASS |
+| L3 commits latched data, not live ports | `boundary_top.v` | PASS |
 | Key path separate from frame path | `l1_serial_loader.v`, wrappers | PASS |
 
 ## F. Subheading Formatting
@@ -85,9 +85,7 @@ This is cosmetic for the rendered submission and is checked informationally by `
 
 ## Critical Issues
 
-| # | Item | Location | Action |
-| --- | --- | --- | --- |
-| C1 | Personal identity incomplete | Lampiran A | Replace `1301213xxx` and `NIP 197207xx` with the real values |
+None.
 
 ## Minor Issues
 

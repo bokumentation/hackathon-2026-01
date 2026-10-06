@@ -1,7 +1,7 @@
 # Failure Mode and Effects Analysis
 
-Hardware-native FMEA for the SALARAS authenticated ingress boundary (Tier A).
-Scope: `simon32_64.v`, `l2_auth.v`, `l3_commit_gatekeeper.v`, `salaras_auth_top.v`, `project.v`.
+Hardware-native FMEA for the TRI-ARGA authenticated ingress boundary (Tier A).
+Scope: `simon32_64.v`, `l2_auth.v`, `l3_commit_gatekeeper.v`, `boundary_top.v`, `project.v`.
 
 **Severity scale:** 10 = safety critical; 7-9 = security breach; 4-6 = functional error; 1-3 = minor.
 

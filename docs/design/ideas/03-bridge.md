@@ -1,17 +1,17 @@
-# Ide-03: SALARAS-BRIDGE
+# Ide-03: TRI-ARGA-BRIDGE
 
 *End-to-End* Secure *Ingress* dengan SerDes dan CDC FIFO
 
 *Baseline*: `TT_UM_SERDES` dan `tt07_cdc_fifo`
 Area Fokus: 04 - Secure Communication (secure framing, CDC, interface integrity)
-Status: ide turunan gabungan yang memakai ulang teknik SALARAS
+Status: ide turunan gabungan yang memakai ulang teknik TRI-ARGA
 Skor simulasi juri: 82.6 dari 100
 
 ## 1. Ringkasan Ide
 
 Masalah yang diangkat adalah jalur *ingress* dari tautan serial ke subsistem berclock berbeda belum memiliki integritas ujung ke ujung.
 Data masuk sebagai aliran serial tanpa framing dan tanpa integritas, lalu melintasi domain *clock* tanpa pengecekan.
-Solusi yang ditawarkan adalah SALARAS-BRIDGE, yaitu rangkaian SerDes aman yang menyuplai CDC FIFO terpercaya, dengan verifikasi integritas di setiap tahap dan *commit* *fail-closed*.
+Solusi yang ditawarkan adalah TRI-ARGA-BRIDGE, yaitu rangkaian SerDes aman yang menyuplai CDC FIFO terpercaya, dengan verifikasi integritas di setiap tahap dan *commit* *fail-closed*.
 
 Chip yang dirancang menyusun dua blok: lapis pertama adalah tautan serial aman dengan framing dan MAC, lapis kedua adalah FIFO lintas *clock* dengan ECC pada *payload*.
 Target pengguna adalah perancang sistem identitas dan pembayaran yang menghubungkan front-end serial ke *host* atau *secure element*.
@@ -23,9 +23,9 @@ Dari `tt_um_serdes` tersedia *encoder* dan *decoder* 8b/10b, PISO, dan SIPO, tet
 Dari `tt07_cdc_fifo` tersedia FIFO asinkron dengan pointer *gray code*, sinkronizer dua *flip-flop*, dan *dual-port RAM*, tetapi tanpa *parity* atau ECC.
 Gabungan keduanya membentuk jalur lengkap dari bit serial sampai data paralel pada domain *clock* tujuan.
 
-## 3. Penerapan Teknik SALARAS
+## 3. Penerapan Teknik TRI-ARGA
 
-| Lapisan | Implementasi pada SALARAS-BRIDGE |
+| Lapisan | Implementasi pada TRI-ARGA-BRIDGE |
 | --- | --- |
 | L1 | Framing, penyelarasan, lock pada SerDes, dan cek status handshake pada FIFO |
 | L2 | MAC atau CRC pada tautan serial, lalu ECC pada payload FIFO |
@@ -39,9 +39,9 @@ Pada tautan serial yang melewati batas kepercayaan, MAC lebih tepat karena melin
 Pada FIFO internal antar domain *clock*, ECC atau *parity* lebih hemat dan cukup untuk error acak.
 Kombinasi MAC pada tautan dan ECC pada FIFO memberi perlindungan berlapis dengan biaya yang terkendali.
 
-## 5. Perbandingan dengan SALARAS
+## 5. Perbandingan dengan TRI-ARGA
 
-| Aspek | SALARAS (tt07-bep-decode) | SALARAS-BRIDGE |
+| Aspek | TRI-ARGA (tt07-bep-decode) | TRI-ARGA-BRIDGE |
 | --- | --- | --- |
 | Cakupan | Satu titik boundary | Dua tahap, serial dan CDC |
 | Integritas | Verifikasi CRC yang ada | MAC pada tautan dan ECC pada FIFO |
@@ -64,7 +64,7 @@ Minus dari ide ini:
 
 Kelayakan teknis: sedang, karena menggabungkan dua subsistem yang sudah ada.
 Estimasi area: kemungkinan 1x2 *tile*.
-Alat sama dengan SALARAS, ditambah *testbench* dua *clock* dan *loopback* serial.
+Alat sama dengan TRI-ARGA, ditambah *testbench* dua *clock* dan *loopback* serial.
 Waktu: realistis bila difokuskan pada integrasi, bukan pada MAC penuh.
 Risiko utama: area dan kompleksitas integrasi.
 

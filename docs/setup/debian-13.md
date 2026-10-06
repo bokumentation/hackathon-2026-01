@@ -181,7 +181,7 @@ cd fpga/de10nano
 make
 ```
 
-`make` calls `quartus_sh --flow compile salaras_auth_de10nano`.
+`make` calls `quartus_sh --flow compile de10nano_top`.
 Reports are written under `output_files/`.
 
 Capture the following numbers for the proposal and for `synth/area.md`.
@@ -225,7 +225,7 @@ jtagconfig
 Program the volatile bitstream over JTAG.
 
 ```bash
-quartus_pgm -m jtag -o "p;output_files/salaras_auth_de10nano.sof"
+quartus_pgm -m jtag -o "p;output_files/de10nano_top.sof"
 ```
 
 A `.sof` loaded over JTAG is lost on power cycle.
@@ -236,7 +236,7 @@ For persistence, convert it to a `.rbf` with `quartus_cpf` and configure it thro
 These issues affect the FPGA flow and some documentation.
 They are recorded here and are not yet fixed in the tree.
 
-- `fpga/de10nano/salaras_auth_de10nano.qsf` lists the sources but does not include `src/l1_serial_loader.v`, which the wrapper now instantiates, so `quartus_sh --flow compile` fails until it is added.
+- `fpga/de10nano/de10nano_top.qsf` lists the sources but does not include `src/l1_serial_loader.v`, which the wrapper now instantiates, so `quartus_sh --flow compile` fails until it is added.
 - `fpga/de10nano/` has no `.qpf` project file, which `quartus_sh --flow compile` expects.
 - `synth/area.md` says to reproduce the link estimate with `make area-link`, but no `area-link` target exists, so use `make area`.
 - `docs/design/quartus-plan.md` still describes the old 192-bit single-shift-register loader instead of the current 64-bit key plus 128-bit frame path with `SW[0]` key mode.

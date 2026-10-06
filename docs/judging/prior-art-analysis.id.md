@@ -64,7 +64,7 @@ Klaim saat ini:
 
 **Jangan jadikan ini sebagai selling point inti**, tetapi sebagai **diferensiasi latar belakang**:
 
-> "IP kriptografi yang tersedia saat ini adalah akselerator tunggal. Untuk mendapatkan autentikasi, kesegaran, dan commit fail-closed, integrator harus merancang sendiri logika koordinasi antar-blok. SALARAS menyediakan ketiganya dalam satu inti yang sudah diverifikasi secara formal, sehingga integrator dapat langsung menyisipkannya di batas ingress tanpa perlu merancang FSM koordinasi sendiri."
+> "IP kriptografi yang tersedia saat ini adalah akselerator tunggal. Untuk mendapatkan autentikasi, kesegaran, dan commit fail-closed, integrator harus merancang sendiri logika koordinasi antar-blok. TRI-ARGA menyediakan ketiganya dalam satu inti yang sudah diverifikasi secara formal, sehingga integrator dapat langsung menyisipkannya di batas ingress tanpa perlu merancang FSM koordinasi sendiri."
 
 **Keuntungan perumusan ini:**
 - Tidak menyangkal keberadaan IP yang ada (aman)

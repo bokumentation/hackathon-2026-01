@@ -1,8 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 540" font-family="Helvetica, Arial, sans-serif">
-  <rect x="0" y="0" width="820" height="540" fill="#ffffff"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 540" font-family="Helvetica, Arial, sans-serif">
+  <rect x="0" y="0" width="900" height="540" fill="#ffffff"/>
 
   <!-- title -->
-  <text x="260" y="30" font-size="13" font-weight="700" fill="#111827" text-anchor="middle">Hanya frame yang lolos autentikasi dan kesegaran sampai ke host</text>
+  <text x="450" y="30" font-size="13" font-weight="700" fill="#111827" text-anchor="middle">Hanya frame yang lolos autentikasi dan kesegaran sampai ke host</text>
 
   <!-- trust boundary dashed line -->
   <text x="310" y="55" font-size="11" fill="#94a3b8" text-anchor="middle">batas kepercayaan</text>
@@ -12,7 +12,7 @@
   <text x="155" y="80" font-size="11" fill="#94a3b8" text-anchor="middle">Tak tepercaya</text>
 
   <!-- Tepercaya label -->
-  <text x="720" y="80" font-size="11" fill="#94a3b8" text-anchor="middle">Tepercaya</text>
+  <text x="810" y="80" font-size="11" fill="#94a3b8" text-anchor="middle">Tepercaya</text>
 
   <!-- ===== FRONT-END box (left) ===== -->
   <rect x="40" y="95" width="170" height="110" rx="10" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>
@@ -30,9 +30,9 @@
   <!-- arrow penyerang → front-end (red, upward) -->
   <line x1="125" y1="310" x2="125" y2="207" stroke="#b91c1c" stroke-width="1.5" marker-end="url(#ar)"/>
 
-  <!-- ===== INTI SALARAS outer box ===== -->
+  <!-- ===== INTI TRI-ARGA outer box ===== -->
   <rect x="330" y="70" width="330" height="410" rx="12" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
-  <text x="495" y="97" font-size="12" font-weight="700" text-anchor="middle" fill="#334155">Inti SALARAS: satu clock, tanpa RAM</text>
+  <text x="495" y="97" font-size="12" font-weight="700" text-anchor="middle" fill="#334155">Inti TRI-ARGA: satu clock, tanpa RAM</text>
 
   <!-- L1 Pemuat frame -->
   <rect x="355" y="112" width="280" height="80" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.2"/>
@@ -50,8 +50,6 @@
   <text x="495" y="285" font-size="11" text-anchor="middle" fill="#475569">counter harus naik ketat</text>
   <text x="495" y="301" font-size="11" text-anchor="middle" fill="#475569">auth_ok, fresh_ok</text>
 
-  <!-- arrow label auth_ok fresh_ok -->
-  <text x="505" y="327" font-size="10" fill="#64748b">auth_ok, fresh_ok</text>
   <!-- arrow L2 → L3 -->
   <line x1="495" y1="312" x2="495" y2="345" stroke="#475569" stroke-width="1.5" marker-end="url(#a)"/>
 
@@ -63,26 +61,26 @@
   <text x="495" y="423" font-size="11" text-anchor="middle" fill="#1e40af">l3_commit_gatekeeper</text>
 
   <!-- ===== HOST box (right) ===== -->
-  <rect x="690" y="190" width="110" height="130" rx="10" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>
-  <text x="745" y="218" font-size="13" font-weight="700" text-anchor="middle" fill="#1e293b">Host</text>
-  <text x="745" y="238" font-size="11" text-anchor="middle" fill="#475569">memuat kunci sesi</text>
-  <text x="745" y="254" font-size="11" text-anchor="middle" fill="#475569">membaca data</text>
-  <text x="745" y="270" font-size="11" text-anchor="middle" fill="#475569">meng-ack fault</text>
+  <rect x="740" y="185" width="140" height="180" rx="10" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="810" y="212" font-size="13" font-weight="700" text-anchor="middle" fill="#1e293b">Host</text>
+  <text x="810" y="236" font-size="11" text-anchor="middle" fill="#475569">memuat kunci sesi</text>
+  <text x="810" y="254" font-size="11" text-anchor="middle" fill="#475569">membaca data</text>
+  <text x="810" y="272" font-size="11" text-anchor="middle" fill="#475569">meng-ack fault</text>
 
   <!-- arrow front-end → L1 (frame in) -->
   <line x1="210" y1="150" x2="353" y2="150" stroke="#475569" stroke-width="1.5" marker-end="url(#a)"/>
 
+  <!-- key arrow Host → L2 (kunci) -->
+  <line x1="738" y1="240" x2="637" y2="240" stroke="#475569" stroke-width="1.5" marker-end="url(#a)"/>
+  <text x="688" y="230" font-size="10" fill="#64748b" text-anchor="middle">kunci</text>
+
   <!-- arrow L3 → Host: data, full -->
-  <line x1="635" y1="375" x2="688" y2="270" stroke="#475569" stroke-width="1.5" marker-end="url(#a)"/>
-  <text x="648" y="338" font-size="10" fill="#64748b">data, full</text>
+  <line x1="635" y1="360" x2="738" y2="305" stroke="#475569" stroke-width="1.5" marker-end="url(#a)"/>
+  <text x="688" y="336" font-size="10" fill="#64748b" text-anchor="middle">data, full</text>
 
   <!-- arrow L3 → Host: fault -->
-  <line x1="635" y1="410" x2="688" y2="310" stroke="#475569" stroke-width="1.5" marker-end="url(#a)"/>
-  <text x="648" y="400" font-size="10" fill="#64748b">fault</text>
-
-  <!-- key arrow Host → L2 (kunci) -->
-  <line x1="690" y1="230" x2="637" y2="265" stroke="#475569" stroke-width="1.5" marker-end="url(#a)"/>
-  <text x="653" y="244" font-size="10" fill="#64748b">kunci</text>
+  <line x1="635" y1="420" x2="738" y2="355" stroke="#475569" stroke-width="1.5" marker-end="url(#a)"/>
+  <text x="688" y="412" font-size="10" fill="#64748b" text-anchor="middle">fault</text>
 
   <defs>
     <marker id="a" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">

@@ -58,7 +58,7 @@ Frame load:
 ```bash
 cd fpga/de10nano
 make
-quartus_pgm -m jtag -o "p;output_files/salaras_auth_de10nano.sof"
+quartus_pgm -m jtag -o "p;output_files/de10nano_top.sof"
 ```
 
 Then run the cases above and capture `auth_ok`, `fresh_ok`, `done`, `host_full`, and `fault` with SignalTap or an external logic analyzer.

@@ -13,5 +13,9 @@ Evidence: `sim/RESULTS.md` (E1, E2) and the sky130 1x2 signoff in
 `synth/area.md`. The on-wire integrity field is an undocumented
 error-correcting code and is not solved; this is intentional problem evidence.
 
+Figure: `figures/sim-boundary-timeout.png` shows the L1 no-edge timeout
+(`framing_ok` falls, `timeout_fault` rises), regenerated from the real VCD with
+`make figures`.
+
 The same `l3_commit_gatekeeper` is reused by the committed link design in the
 root `src/`.

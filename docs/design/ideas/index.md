@@ -1,6 +1,6 @@
-# Ikhtisar Ide SALARAS untuk Area 04 Secure Communication
+# Ikhtisar Ide TRI-ARGA untuk Area 04 Secure Communication
 
-Dokumen: kumpulan ide turunan berbasis teknik SALARAS
+Dokumen: kumpulan ide turunan berbasis teknik TRI-ARGA
 Area Fokus: 04 - Secure Communication
 *Baseline* resmi: `tt07-bep-decode`, `tt07_cdc_fifo`, `TT_UM_SERDES`
 Konteks: PERURI Chip Hackathon 2026
@@ -8,20 +8,20 @@ Tanggal: 4 Oktober 2026
 
 ## Ringkasan
 
-Dokumen ini mengumpulkan beberapa ide desain yang semuanya memakai satu teknik yang sama, yaitu *boundary* verifikasi integritas SALARAS.
+Dokumen ini mengumpulkan beberapa ide desain yang semuanya memakai satu teknik yang sama, yaitu *boundary* verifikasi integritas TRI-ARGA.
 Perbedaannya terletak pada *baseline* yang dipakai dan jenis integritas yang dibangun.
 Ide-01 sampai Ide-05 menggunakan *baseline* SerDes dan CDC FIFO yang disebut pada laman resmi Area 04, sehingga lebih dekat dengan kebutuhan Peruri pada komunikasi aman untuk identitas dan pembayaran.
 Ide-00 adalah dokumen ini yang berisi ikhtisar, perbandingan, primer CRC dan MAC, serta glosarium.
 
-## Dari SALARAS ke ide turunan
+## Dari TRI-ARGA ke ide turunan
 
-SALARAS memperkenalkan tiga lapis *boundary* yang bersifat generik.
+TRI-ARGA memperkenalkan tiga lapis *boundary* yang bersifat generik.
 Lapisan pertama memvalidasi framing dan legalitas mesin status.
 Lapisan kedua menghitung dan memeriksa integritas secara *streaming*.
 Lapisan ketiga melakukan *commit* atomik yang *fail-closed* dan menaikkan *fault* yang lengket.
 Teknik ini tidak terikat pada Manchester.
 Pada *baseline* yang tidak memiliki field integritas, lapisan kedua berubah peran dari sekadar memeriksa menjadi membangun dan memeriksa integritas.
-Dengan cara itu, teknik SALARAS dapat dipakai ulang pada SerDes maupun CDC FIFO.
+Dengan cara itu, teknik TRI-ARGA dapat dipakai ulang pada SerDes maupun CDC FIFO.
 
 ## Primer: Integritas, CRC, dan MAC
 
@@ -67,7 +67,7 @@ Pakai CRC bila tujuan utama adalah mendeteksi kerusakan acak pada lapis transpor
 Pakai MAC bila model ancaman mencakup penyerang aktif yang dapat menyuntik atau memodifikasi *frame*.
 Untuk konteks Peruri pada identitas dan pembayaran, MAC lebih tepat karena melindungi dari pemalsuan, sedangkan CRC hanya memperbaiki kualitas data.
 
-## Teknik SALARAS
+## Teknik TRI-ARGA
 
 | Lapisan | Fungsi | Peran saat baseline tidak punya integritas |
 | --- | --- | --- |
@@ -79,12 +79,12 @@ Untuk konteks Peruri pada identitas dan pembayaran, MAC lebih tepat karena melin
 
 | Ide | Judul | Baseline | Irisan Area 04 | Integritas | Area | Kesulitan | Skor Juri |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 01 | SALARAS-SERDES | TT_UM_SERDES | secure framing, protocol security | MAC (fallback CRC) | 1x1 sampai 1x2 | Sedang | 82.6 |
-| 02 | SALARAS-CDC | tt07_cdc_fifo | CDC, interface integrity | parity atau ECC | 1x1 sampai 1x2 | Sedang-tinggi | 78.75 |
-| 03 | SALARAS-BRIDGE | SerDes + CDC FIFO | end-to-end secure ingress | MAC + ECC | 1x2 | Tinggi | 82.6 |
+| 01 | TRI-ARGA-SERDES | TT_UM_SERDES | secure framing, protocol security | MAC (fallback CRC) | 1x1 sampai 1x2 | Sedang | 82.6 |
+| 02 | TRI-ARGA-CDC | tt07_cdc_fifo | CDC, interface integrity | parity atau ECC | 1x1 sampai 1x2 | Sedang-tinggi | 78.75 |
+| 03 | TRI-ARGA-BRIDGE | SerDes + CDC FIFO | end-to-end secure ingress | MAC + ECC | 1x2 | Tinggi | 82.6 |
 | 04 | LINK-GUARD | TT_UM_SERDES | protocol security, anti-tamper | CRC atau disparitas | 1x1 | Sedang | 78.4 |
 | 05 | DISPARITY-GUARD | TT_UM_SERDES | secure framing, PHY hardening | CRC | 1x1 | Sedang | 77.0 |
-| - | SALARAS (acuan) | tt07-bep-decode | secure framing, interface integrity | CRC (verifikasi) | 1x1 | Sedang | 76.05 |
+| - | TRI-ARGA (acuan) | tt07-bep-decode | secure framing, interface integrity | CRC (verifikasi) | 1x1 | Sedang | 76.05 |
 
 ## Glosarium
 
@@ -119,5 +119,5 @@ Ide-04 dan Ide-05 bersifat pelengkap untuk pemantauan dan penguatan lapis fisik.
 
 - Laman resmi Tiny Tapeout 07 untuk `tt_um_serdes` dan `tt_um_pa1mantri_cdc_fifo`.
 - Repository `Santeep/TT_UM_SERDES` dan `Pa1mantri/tt07_cdc_fifo`.
-- *Proposal* SALARAS, `docs/proposal/proposal-salaras.id.md`.
+- *Proposal* TRI-ARGA, `docs/proposal/proposal.id.md`.
 - Analisis kelayakan, `docs/judging/analisis-kelayakan.id.md`.

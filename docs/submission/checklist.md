@@ -6,7 +6,7 @@ Source of requirements: `docs/competition/ketentuan-proposal.md` and `docs/compe
 ## Required proposal structure
 
 The proposal must follow the five sections in order.
-Status is against `docs/proposal/proposal-salaras.id.md`.
+Status is against `docs/proposal/proposal.id.md`.
 
 | # | Section | Status |
 | --- | --- | --- |
@@ -20,9 +20,9 @@ Status is against `docs/proposal/proposal-salaras.id.md`.
 
 | Artifact | Format | Where | Status |
 | --- | --- | --- | --- |
-| Proposal (Indonesian) | PDF | `make docs` -> `output/pdf/PROPOSAL-SALARAS-<ts>.id.pdf` | Done |
-| Proposal (English) | PDF | `make docs` -> `output/pdf/PROPOSAL-SALARAS-<ts>.en.pdf` | Done |
-| Markdown sources | `.md` | `docs/proposal/proposal-salaras.{id,en}.md` | Done |
+| Proposal (Indonesian) | PDF | `make docs` -> `output/pdf/PROPOSAL-TRIARGA-<ts>.id.pdf` | Done |
+| Proposal (English) | PDF | `make docs` -> `output/pdf/PROPOSAL-TRIARGA-<ts>.en.pdf` | Done |
+| Markdown sources | `.md` | `docs/proposal/proposal.{id,en}.md` | Done |
 | Presentation deck | pptx and pdf | `make docs-all` -> `output/pptx` and `output/pdf` | Done |
 | RTL source | `.v` | `src/` | Done |
 | Testbench | cocotb `.py` | `test/` | Done |
@@ -33,7 +33,7 @@ Status is against `docs/proposal/proposal-salaras.id.md`.
 
 ## Pre-submission checklist
 
-- [ ] Fill the NIM/NIP identity values in `docs/proposal/proposal-salaras.{id,en}.md` (Lampiran A). Open.
+- [x] Team identity recorded in Lampiran A (per `docs/identity/identity.md`). Done.
 - [ ] Build the proposal PDF with `make docs` and attach it to the submission portal.
 - [ ] Build the deck with `make docs-all`.
 - [ ] Confirm every reference has an author, title, and year (Section 4). Done.
@@ -43,7 +43,7 @@ Status is against `docs/proposal/proposal-salaras.id.md`.
 
 ## Open items
 
-- Personal identity: NIM/NIP placeholders remain in Lampiran A.
+- Team identity is recorded (name, expertise, role); NIM/institution are omitted by the chosen three-column format.
 - On-board results and SignalTap capture require the DE10-Nano at bootcamp.
 - Tier B (serial link) and Tier C (CDC) are future work and are not claimed.
 

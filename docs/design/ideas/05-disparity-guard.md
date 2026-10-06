@@ -1,17 +1,17 @@
 # Ide-05: DISPARITY-GUARD
 
-8b/10b Penuh dan Berintegritas dengan Teknik SALARAS
+8b/10b Penuh dan Berintegritas dengan Teknik TRI-ARGA
 
 *Baseline*: `TT_UM_SERDES` (`tt_um_serdes`)
 Area Fokus: 04 - Secure Communication (secure framing, *PHY* hardening)
-Status: ide turunan yang memakai ulang teknik SALARAS
+Status: ide turunan yang memakai ulang teknik TRI-ARGA
 Skor simulasi juri: 77.0 dari 100
 
 ## 1. Ringkasan Ide
 
 Masalah yang diangkat adalah implementasi 8b/10b pada *baseline* belum lengkap, sehingga deteksi error dan keseimbangan DC tidak optimal.
 *Baseline* tidak mengatur *running disparity*, tidak memakai *K-code*, dan *decoder*-nya menelan kode tidak sah menjadi nol.
-Solusi yang ditawarkan adalah *DISPARITY*-GUARD, yaitu penyempurnaan lapis fisik 8b/10b menjadi penuh, ditambah framing dan integritas dengan teknik SALARAS.
+Solusi yang ditawarkan adalah *DISPARITY*-GUARD, yaitu penyempurnaan lapis fisik 8b/10b menjadi penuh, ditambah framing dan integritas dengan teknik TRI-ARGA.
 
 Chip yang dirancang menambahkan manajemen *running disparity*, *K-code* dan penanda koma, penanganan kode tidak sah, status lock, dan integritas CRC.
 Target pengguna adalah perancang tautan serial yang membutuhkan pengkodean fisik yang benar dan terdeteksi.
@@ -22,7 +22,7 @@ Dampaknya adalah tautan yang lebih andal dan aman pada lapis *PHY*.
 Yang tersedia: tabel *encoder* dan *decoder* 8b/10b, PISO, dan SIPO.
 Yang kurang: *running disparity*, *K-code*, penanda koma, deteksi kode tidak sah, framing, dan integritas.
 
-## 3. Penerapan Teknik SALARAS
+## 3. Penerapan Teknik TRI-ARGA
 
 | Lapisan | Implementasi pada DISPARITY-GUARD |
 | --- | --- |
@@ -36,9 +36,9 @@ Disparitas menjaga keseimbangan DC dan membantu sinkronisasi.
 CRC menambahkan deteksi error pada tingkat *frame*.
 Keduanya bersifat non-kriptografis, sehingga untuk data sensitif tetap perlu MAC.
 
-## 5. Perbandingan dengan SALARAS
+## 5. Perbandingan dengan TRI-ARGA
 
-| Aspek | SALARAS (tt07-bep-decode) | DISPARITY-GUARD |
+| Aspek | TRI-ARGA (tt07-bep-decode) | DISPARITY-GUARD |
 | --- | --- | --- |
 | Lapis | Protokol frame | Lapis fisik dan pengkodean |
 | Integritas | Verifikasi CRC | Disparitas dan CRC |
@@ -53,7 +53,7 @@ Minus: tidak menambah keamanan kriptografis, kurang menonjol bila berdiri sendir
 
 Kelayakan teknis: tinggi.
 Estimasi area: 1x1 *tile*.
-Alat sama dengan SALARAS.
+Alat sama dengan TRI-ARGA.
 Waktu: singkat.
 Risiko utama: kebenaran tabel 8b/10b penuh membutuhkan pengujian yang teliti.
 
@@ -79,7 +79,7 @@ Pertanyaan kritis:
 
 ## 8. Rekomendasi
 
-- Posisikan sebagai fondasi bagi SALARAS-SERDES.
+- Posisikan sebagai fondasi bagi TRI-ARGA-SERDES.
 - Tambahkan CRC dan status lock agar dapat berdiri sendiri.
 
 ## 9. Glosarium

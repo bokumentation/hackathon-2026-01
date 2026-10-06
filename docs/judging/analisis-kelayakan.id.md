@@ -1,15 +1,15 @@
-# Analisis Kelayakan dan Simulasi Penjurian SALARAS
+# Analisis Kelayakan dan Simulasi Penjurian TRI-ARGA
 
 Kategori: IC Chip Design & FPGA Implementation  
 Area Fokus: 04 - Secure Communication (secure framing & interface integrity)  
 Dokumen: analisis kelayakan internal pra-kurasi PERURI Chip Hackathon 2026  
-Objek: `docs/proposal/proposal-salaras.id.md`  
+Objek: `docs/proposal/proposal.id.md`  
 *Baseline*: `tt07-bep-decode`, `TT_UM_SERDES`, `tt07_cdc_fifo`  
 Tanggal: 4 Oktober 2026
 
 ## Ringkasan Eksekutif
 
-SALARAS layak secara teknis dan dapat diverifikasi, dengan satu revisi keamanan yang bersifat wajib.
+TRI-ARGA layak secara teknis dan dapat diverifikasi, dengan satu revisi keamanan yang bersifat wajib.
 
 Tiga temuan utama:
 - Field integritas pada *baseline* bersifat affine (linear ditambah konstanta), tetapi tidak cocok dengan CRC-24 standar mana pun; penulis *baseline* menduga kode koreksi galat (ECC), sehingga L2 layak dikerjakan dengan catatan parameter perlu direkonstruksi.
@@ -21,7 +21,7 @@ Hasil simulasi *panel* penjurian profesional menghasilkan rata-rata 72.83 dari 1
 ## 1. Metodologi
 
 Analisis meninjau tiga sumber utama.
-Pertama, proposal final `proposal-salaras.id.md` beserta arsitektur L1, L2, dan L3, prototipe S1 dan S2, serta metrik keberhasilan.
+Pertama, proposal final `proposal.id.md` beserta arsitektur L1, L2, dan L3, prototipe S1 dan S2, serta metrik keberhasilan.
 Kedua, *baseline* RTL `tt07-bep-decode` pada `baseline/tt07-bep-decode`, termasuk `state_machine.v`, `serial_decode.v`, dan `data_validate.v`, ditambah data uji pada `test/data`.
 Ketiga, ketentuan kompetisi pada `docs/competition/ketentuan-proposal.md`, `buku-panduan-peruri-chip-hackathon.md`, dan `peruri-chip-hackathon-2026.md`.
 
@@ -231,7 +231,7 @@ Delta yang identik menunjukkan pemetaan affine, yang konsisten dengan CRC atau *
 
 ### Lampiran C. Rujukan
 
-- Proposal SALARAS, `docs/proposal/proposal-salaras.id.md`.
+- Proposal TRI-ARGA, `docs/proposal/proposal.id.md`.
 - *Baseline* `tt07-bep-decode`, `baseline/tt07-bep-decode`.
 - Ketentuan kompetisi, `docs/competition/ketentuan-proposal.md`.
 - Buku Panduan Peserta PERURI Chip Hackathon 2026.

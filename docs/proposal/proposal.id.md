@@ -1,4 +1,4 @@
-# SALARAS: Authenticated, Replay-Resistant Ingress Boundary for Lightweight Serial Links
+# TRI-ARGA: Authenticated, Replay-Resistant Ingress Boundary for Lightweight Serial Links
 
 Kategori: IC Chip Design & FPGA Implementation
 
@@ -6,7 +6,7 @@ Area Fokus: 04 - Secure Communication (secure framing & interface integrity)
 
 ## 1. Ringkasan Ide (Executive Summary)
 
-SALARAS adalah IP gerbang ingress berbasis hardware yang memastikan *host* hanya pernah melihat *frame* yang terautentikasi dan segar. *Frame* yang gagal diperiksa tidak pernah sampai ke *host*.
+TRI-ARGA adalah IP gerbang ingress berbasis hardware yang memastikan *host* hanya pernah melihat *frame* yang terautentikasi dan segar. *Frame* yang gagal diperiksa tidak pernah sampai ke *host*.
 
 Masalah yang Diangkat:
 
@@ -81,7 +81,7 @@ Belum ada blok hemat area yang menggabungkan autentikasi, kesegaran, dan *commit
 | Verifikasi *software* | Fleksibel | Berjalan setelah batas kepercayaan dilewati |
 | MAC tanpa kesegaran | Forgery | Replay |
 | AEAD penuh (mis. Ascon) | Forgery dan kerahasiaan | Kesegaran dan *commit gating* tetap perlu dirancang; area lebih besar |
-| **SALARAS** | **Forgery, replay, commit atomik fail-closed** | Kerahasiaan (di luar cakupan, lihat Lampiran G) |
+| **TRI-ARGA** | **Forgery, replay, commit atomik fail-closed** | Kerahasiaan (di luar cakupan, lihat Lampiran G) |
 
 ### 2.4 Rumusan Masalah
 
@@ -92,13 +92,13 @@ Belum ada blok hemat area yang menggabungkan autentikasi, kesegaran, dan *commit
 
 ## 3. Proposed Chip Design
 
-SALARAS adalah satu inti digital satu *clock* yang duduk di antara *front-end* tak tepercaya dan *host*: *frame* masuk, diautentikasi, diperiksa kesegarannya, lalu dilepas atomik atau ditolak.
+TRI-ARGA adalah satu inti digital satu *clock* yang duduk di antara *front-end* tak tepercaya dan *host*: *frame* masuk, diautentikasi, diperiksa kesegarannya, lalu dilepas atomik atau ditolak.
 
 ### 3.1 Arsitektur Sistem
 
-<figure class="proto"><img src="assets/block-diagram.svg" alt="Arsitektur boundary autentikasi"><figcaption>Gambar 2. Arsitektur SALARAS: batas kepercayaan, tiga lapis, jalur kunci terpisah. Semua yang datang dari tautan dianggap tak tepercaya; kunci masuk dari host lewat jalur terpisah, dan hanya L3 yang boleh melepas data ke host.</figcaption></figure>
+<figure class="proto"><img src="assets/block-diagram.svg" alt="Arsitektur boundary autentikasi"><figcaption>Gambar 2. Arsitektur TRI-ARGA: batas kepercayaan, tiga lapis, jalur kunci terpisah. Semua yang datang dari tautan dianggap tak tepercaya; kunci masuk dari host lewat jalur terpisah, dan hanya L3 yang boleh melepas data ke host.</figcaption></figure>
 
-<figure class="proto"><img src="assets/frame-link.svg" alt="Format frame tautan"><figcaption>Gambar: format frame tautan (128 bit) dan rantai CBC-MAC.</figcaption></figure>
+Diagram format *frame* dan rantai CBC-MAC ada di Lampiran I, Gambar I.1.
 
 Format frame (128 bit + kunci terpisah):
 
@@ -123,10 +123,10 @@ Rincian modul:
 | `simon32_64.v` | L2 | Blok *cipher* SIMON-32/64 terserialisasi, satu ronde per siklus |
 | `l2_auth.v` | L2 | CBC-MAC atas *counter* + *payload* (tiga blok 32 bit), perbandingan tag, pemeriksaan kesegaran *counter* |
 | `l3_commit_gatekeeper.v` | L3 | *Commit* atomik hanya jika autentikasi dan kesegaran lulus; jika gagal, menahan `host_full` dan menaikkan `fault` lengket |
-| `salaras_auth_top.v` | L2+L3 | Integrasi L2 dan L3 |
+| `boundary_top.v` | L2+L3 | Integrasi L2 dan L3 |
 | `project.v` | Wrapper | Pembungkus Tiny Tapeout: instansiasi L1 + L2+L3 |
 
-Antarmuka `salaras_auth_top`:
+Antarmuka `boundary_top`:
 
 | Sinyal | Arah | Lebar | Keterangan |
 | --- | --- | --- | --- |
@@ -196,13 +196,13 @@ Hasil sintesis Quartus Prime 25.1 untuk DE10-Nano (Cyclone V 5CSEBA6U23I7), pasc
 | Fmax | 136,37 MHz | target 50 MHz |
 
 Desain memetakan tanpa *block RAM*, DSP, atau PLL, dan menutup *timing* pada 50 MHz dengan margin besar.
-Angka ini menggantikan estimasi Yosys awal (sekitar 360 LUT-setara dan 500 FF untuk `salaras_auth_top`), karena kini mencakup pembungkus papan penuh termasuk pemuat serial L1.
+Angka ini menggantikan estimasi Yosys awal (sekitar 360 LUT-setara dan 500 FF untuk `boundary_top`), karena kini mencakup pembungkus papan penuh termasuk pemuat serial L1.
 
 Target ASIC: Tiny Tapeout sky130 130nm via OpenLane.
 
 *Hardening* sky130 (hasil nyata): tile 2×2, die 0,0756 mm², 2354 sel, DRC 0, LVS 0, WNS 0,00, daya tipikal 1,87 mW.
 
-Lampiran RF memiliki hasil nyata terpisah: tile 1×2, die 0,0363 mm², WNS 0,00, daya tipikal 1,21 mW. Angka ini **bukan** angka inti SALARAS (lihat Lampiran F).
+Lampiran RF memiliki hasil nyata terpisah: tile 1×2, die 0,0363 mm², WNS 0,00, daya tipikal 1,21 mW. Angka ini **bukan** angka inti TRI-ARGA (lihat Lampiran F).
 
 Perangkat Lunak dan Tools:
 
@@ -221,9 +221,9 @@ Simulasi RTL (S1, terukur):
 - *Testbench* cocotb menguji L1, L2, dan *commit* dengan matriks keberhasilan: *frame* bersih diterima, forgery, kunci salah, replay, dan *counter* basi ditolak, serta 128 dari 128 *single-bit flip* ditolak.
 - Latensi diukur per tahap: 33 siklus per blok SIMON, 107 siklus untuk MAC dan kesegaran, 108 siklus ujung ke ujung.
 
-<figure class="proto"><img src="assets/sim-auth-commit.png" alt="Autentikasi dan commit"><figcaption>Gambar 3. Inti SALARAS: frame pertama lolos (auth_ok, fresh_ok, host_full naik); frame kedua ditolak (host_full tetap rendah, fault naik).</figcaption></figure>
+Bentuk gelombang autentikasi dan commit yang terukur (*frame* pertama lolos, *frame* kedua ditolak) ada di Lampiran I, Gambar I.2.
 
-<figure class="proto"><img src="assets/sim-boundary-timeout.png" alt="Timeout L1"><figcaption>Gambar 4. Lampiran RF: tanpa transisi selama 4096 siklus, timeout_fault naik dan framing_ok turun, sehingga frame ditolak.</figcaption></figure>
+
 
 Pembuktian formal (SymbiYosys):
 
@@ -276,13 +276,12 @@ Metrik Keberhasilan Target:
 
 ### Lampiran A. Identitas Tim dan Pembagian Peran
 
-Tim **dinotice**, Universitas Telkom.
+Tim **Tri Arga**, Universitas Telkom.
 
-| Nama | NIM / NIP | Institusi | Program Studi | Posisi | Keahlian | Peran |
-| --- | --- | --- | --- | --- | --- | --- |
-| Ibrahim Fauzi Rahman | 1301213xxx | Universitas Telkom, Fakultas Teknik Elektro | S1 Teknik Elektro | Ketua | RTL / Verilog | Perancang RTL, integrasi, sintesis |
-| Idris Syaifulloh | 1301210541 | Universitas Telkom, Fakultas Teknik Elektro | S1 Teknik Elektro | Anggota | Verifikasi / Python | cocotb, *fault injection*, metrik |
-| Dr. Setia Juli Irzal Ismail, S.T., M.T. | NIP 197207xx | Universitas Telkom, Fakultas Teknik Elektro | — | Dosen Pembimbing | Arsitektur / Metodologi | Pembimbing, validasi klaim |
+| Nama Anggota | Keahlian Utama | Tanggung Jawab & Peran |
+| --- | --- | --- |
+| Ibrahim Fauzi Rahman | Embedded Hardware/System, IoT, Isolated PCB Design RS485/CAN Bus | RTL: L1-L3 design and integration |
+| Idris Syaifulloh | DevOps, Malware Researcher, CI/CD | Verification: cocotb, fault injection, metrics |
 
 ### Lampiran B. Luaran dan Demo
 
@@ -312,7 +311,7 @@ Tim **dinotice**, Universitas Telkom.
 
 ### Lampiran E. Perbandingan Integritas (terukur)
 
-| Properti | CRC tanpa kunci | MAC berkunci | MAC + counter (SALARAS) |
+| Properti | CRC tanpa kunci | MAC berkunci | MAC + counter (TRI-ARGA) |
 | --- | --- | --- | --- |
 | Latensi | 73 siklus (CRC serial 72 bit) | 107 siklus | 108 siklus |
 | Deteksi error acak | Ya | Ya | Ya |
@@ -323,9 +322,9 @@ Tambahan satu siklus untuk kesegaran dan *commit* memberi ketahanan *replay*; ta
 
 ### Lampiran F. Bukti Masalah (RF)
 
-*Baseline* `tt07-bep-decode` menerima `payload` dan *field* integritas yang korup dengan `full=1` (CWE-354, terukur). Rincian pada `sim/RESULTS.md`.
+*Baseline* `tt07-bep-decode` menerima `payload` dan *field* integritas yang korup dengan `full=1` (CWE-354, terukur). Rincian pada `sim/RESULTS.md`; bentuk gelombang timeout L1 ada di `appendix/rf/figures/sim-boundary-timeout.png`.
 
-Hasil *hardening* sky130 desain lampiran RF (front-end *baseline* ditambah L1 *framing*, L2 integritas CRC terparametrisasi, dan *gate* L3 yang sama dengan inti): tile 1×2, die 0,0363 mm², WNS 0,00, daya tipikal 1,21 mW. Angka ini **bukan** angka inti SALARAS (lihat 3.3).
+Hasil *hardening* sky130 desain lampiran RF (front-end *baseline* ditambah L1 *framing*, L2 integritas CRC terparametrisasi, dan *gate* L3 yang sama dengan inti): tile 1×2, die 0,0363 mm², WNS 0,00, daya tipikal 1,21 mW. Angka ini **bukan** angka inti TRI-ARGA (lihat 3.3).
 
 ### Lampiran G. Batasan
 
@@ -352,3 +351,9 @@ Hasil *hardening* sky130 desain lampiran RF (front-end *baseline* ditambah L1 *f
 - **Skenario uji:** *frame* bersih diterima (`host_full` naik); *frame* korup ditolak (`host_full` tetap rendah, `fault` naik); replay tidak dikomit; *frame* yang mencoba memuat kunci baru diabaikan.
 - **Laporan:** Fitter 242 ALM / 654 FF, Timing Analyzer Fmax 136,37 MHz (WNS +12,667 ns), PowerPlay 425,4 mW *vector-less*.
 - **Fasilitas:** FPGA/sandbox penyelenggara saat *bootcamp*.
+
+### Lampiran I. Gambar Pendukung
+
+<figure class="proto"><img src="assets/frame-link.svg" alt="Format frame dan rantai CBC-MAC"><figcaption>Gambar I.1. Format frame 128 bit (counter + payload + tag) dan rantai CBC-MAC SIMON-32/64.</figcaption></figure>
+
+<figure class="proto"><img src="assets/sim-auth-commit.png" alt="Autentikasi dan commit"><figcaption>Gambar I.2. Inti TRI-ARGA: frame pertama lolos (auth_ok, fresh_ok, host_full naik); frame kedua ditolak (host_full tetap rendah, fault naik).</figcaption></figure>

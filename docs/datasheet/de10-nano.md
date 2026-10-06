@@ -17,7 +17,7 @@ Reference notes for the Terasic DE10-Nano board used in `fpga/de10nano/`.
 - Intel DE10-Nano User Manual (pin assignment tables).
 - Terasic System Builder golden hardware reference design (authoritative pin map).
 
-## Pin map used by SALARAS
+## Pin map used by TRI-ARGA
 
 | Signal | Device pin | Board resource |
 | --- | --- | --- |

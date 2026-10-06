@@ -1,19 +1,19 @@
 ---
 name: judges
-description: Simulate the PERURI Chip Hackathon 2026 jury panel scoring the SALARAS proposal. Run when asked to simulate judges, get jury scores, predict panel scores, or identify weaknesses to fix before submission.
+description: Simulate the PERURI Chip Hackathon 2026 jury panel scoring the TRI-ARGA proposal. Run when asked to simulate judges, get jury scores, predict panel scores, or identify weaknesses to fix before submission.
 ---
 
-Simulate a full jury panel evaluation of the SALARAS proposal for the PERURI Chip Hackathon 2026.
+Simulate a full jury panel evaluation of the TRI-ARGA proposal for the PERURI Chip Hackathon 2026.
 Follow all steps in order and produce the full output in one response.
 
 ## Step 1 - Read source documents
 
 Before scoring, read these three files:
-1. `docs/proposal/proposal-salaras.id.md` - the main proposal
+1. `docs/proposal/proposal.id.md` - the main proposal
 2. `sim/RESULTS.md` - simulation evidence: SIMON vectors, auth matrix, latency, bit-flip rejection
 3. `synth/area.md` - synthesis evidence: Yosys estimates, sky130 signoff 2x2, DRC 0, LVS 0, timing met
 
-Note: the previous SALARAS-SERDES (CRC) simulation scored 77.53/100. The key weakness was CRC being forgeable (CWE-345 not closed). The current design uses keyed SIMON-32/64 MAC which closes that gap.
+Note: the previous TRI-ARGA-SERDES (CRC) simulation scored 77.53/100. The key weakness was CRC being forgeable (CWE-345 not closed). The current design uses keyed SIMON-32/64 MAC which closes that gap.
 
 ## Step 2 - Rubric weights
 
@@ -52,9 +52,9 @@ Strengths to credit: targets contactless smart card and secure element integrato
 Weaknesses to probe: no concrete Peruri use case named, "reusable core" claim needs evidence beyond one synthetic profile.
 
 **Juri 5 - Juri kompetisi dan kepatuhan**
-Focuses on: all 5 required sections present, Lampiran completeness (bootcamp plan, identitas tim with NIM, peran), no rule violations.
+Focuses on: all 5 required sections present, Lampiran completeness (bootcamp plan, identitas tim, peran), no rule violations.
 Strengths to credit: proposal is well-structured, bilingual (ID+EN), has measured evidence table and latency appendix.
-Weaknesses to probe: Lampiran A may lack full NIM/NIP/institution details; reference list may be missing year/title for some entries.
+Weaknesses to probe: Lampiran A lists members with expertise and roles but omits NIM/institution (three-column format); reference list may be missing year/title for some entries.
 
 ## Step 4 - Score table
 
@@ -77,7 +77,7 @@ Compute the panel average (mean of 5 weighted totals).
 ## Step 5 - Top 3 questions per judge
 
 For each judge, list the 3 critical questions they would ask in a Q&A:
-- Questions must be specific to SALARAS, not generic
+- Questions must be specific to TRI-ARGA, not generic
 - Questions should probe the actual weaknesses identified in Step 3
 - Provide a suggested answer for each question based on what the proposal and evidence can support
 
@@ -89,7 +89,7 @@ For each judge, list the 3 critical questions they would ask in a Q&A:
 **Three weakest points** (list with criterion and specific gap):
 - e.g., "Kelayakan: FPGA numbers are Yosys proxy, not Quartus Fitter - S2 hardware test is planned, not done"
 
-**Comparison to SALARAS-SERDES score (77.53)**:
+**Comparison to TRI-ARGA-SERDES score (77.53)**:
 - Explain the expected delta per criterion
 - State the expected direction of change (higher/lower/same) for each criterion
 - Give overall panel score estimate and rationale

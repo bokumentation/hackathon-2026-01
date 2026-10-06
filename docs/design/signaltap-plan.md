@@ -34,11 +34,11 @@ The wrapper declares these wires with `(* preserve, noprune *)` so they survive 
 
 ## Create the .stp in the GUI
 
-1. Open the project in Quartus Prime: `quartus fpga/de10nano/salaras_auth_de10nano.qpf`.
+1. Open the project in Quartus Prime: `quartus fpga/de10nano/de10nano_top.qpf`.
 2. Tools > SignalTap Logic Analyzer.
 3. Set the sample clock to `CLOCK_50`, the depth to 2048, and the position to pre-trigger.
 4. Add the six signals above using Node Finder.
-5. Set the trigger to `host_full` rising edge and save as `salaras_auth_de10nano.stp` in `fpga/de10nano/`.
+5. Set the trigger to `host_full` rising edge and save as `de10nano_top.stp` in `fpga/de10nano/`.
 6. The `.stp` file is not committed, because the compiled SLD wiring is project-specific.
 
 ## Generate the SLD wiring and recompile
@@ -48,8 +48,8 @@ Run the conversion, then recompile.
 
 ```bash
 cd fpga/de10nano
-quartus_stp salaras_auth_de10nano --stp_file salaras_auth_de10nano.stp --enable
-quartus_sh --flow compile salaras_auth_de10nano
+quartus_stp de10nano_top --stp_file de10nano_top.stp --enable
+quartus_sh --flow compile de10nano_top
 ```
 
 The `.qsf` contains these three assignments as a commented block.
@@ -57,20 +57,20 @@ Uncomment them only after the `.stp` exists, otherwise a fresh clone fails to bu
 
 ```
 set_global_assignment -name ENABLE_SIGNALTAP ON
-set_global_assignment -name USE_SIGNALTAP_FILE salaras_auth_de10nano.stp
-set_global_assignment -name SIGNALTAP_FILE salaras_auth_de10nano.stp
+set_global_assignment -name USE_SIGNALTAP_FILE de10nano_top.stp
+set_global_assignment -name SIGNALTAP_FILE de10nano_top.stp
 ```
 
 ## Resource impact
 
 SignalTap stores samples in M10K block memory, so enabling it adds RAM blocks to the fit and slightly increases power and logic.
-Record the new Fitter numbers from `output_files/salaras_auth_de10nano.fit.rpt` and report them as the SignalTap-enabled build.
+Record the new Fitter numbers from `output_files/de10nano_top.fit.rpt` and report them as the SignalTap-enabled build.
 
 ## Program and capture
 
 ```bash
 jtagconfig
-quartus_pgm -m jtag -o "p;output_files/salaras_auth_de10nano.sof"
+quartus_pgm -m jtag -o "p;output_files/de10nano_top.sof"
 quartus_stp -t signaltap_acquire.tcl
 ```
 
