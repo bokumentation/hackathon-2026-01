@@ -71,7 +71,7 @@ untrusted link
 | Commit latency | 1 cycle | `make auth` |
 | Forgery rejected | yes | `make l2`, `make auth` |
 | Replay rejected | yes | `make auth` |
-| Formal verification | red: `auth_data_integrity` fails, see [Formal verification](#formal-verification) | `make formal` |
+| Formal verification | 6/6 core proofs pass; `auth_data_integrity` fails (non-blocking), see [Formal verification](#formal-verification) | `make formal`, `sby` |
 | FPGA resources | 242 ALM, 654 FF, 0 M10K, 0 DSP (Cyclone V) | `fpga/de10nano` `make` |
 | FPGA Fmax | 136.37 MHz (WNS +12.667 ns) | `fpga/de10nano` `make` |
 | FPGA power | 425.4 mW total, 2.42 mW core dynamic, vector-less | `quartus_pow` |
@@ -91,8 +91,7 @@ Full evidence: [`sim/RESULTS.md`](sim/RESULTS.md) · [`synth/area.md`](synth/are
 Formal properties use SymbiYosys (`sby`) over `synth/formal/*.sby`, with the `smtbmc z3` engine.
 
 - `make formal` currently fails on `auth_data_integrity.sby` (`mode prove`, depth 130), which returns a counterexample at `auth_data_integrity.sv:70` after a very long solve. It is a non-blocking check in CI.
-- Because that file sorts first, `make formal` aborts before the other six proofs run. They are not re-verified since the Tier A security fixes.
-- The five depth-40 proofs (`auth_top`, `l3_commit`, `simon32_64`, `l1_framing`, `l2_integrity`) passed in the last green formal run (commit `1024de1`). `l1_link` (`mode bmc`, depth 200) is newer.
+- Because that file sorts first, `make formal` aborts before the other six proofs run. The six core proofs are re-verified on the current tree: the five depth-40 proofs (`auth_top`, `l1_framing`, `l2_integrity`, `l3_commit`, `simon32_64`) and `l1_link` (`mode bmc`, depth 200) all pass when run individually.
 
 Until the failing proof is fixed, run individual proofs:
 
@@ -117,12 +116,12 @@ sby -f synth/formal/auth_top.sby
 
 ```
 .
-├── src/                  Committed RTL (l1_serial_loader, simon32_64, l2_auth, l3_commit, top, project)
+├── src/                  Committed RTL (l1_serial_loader, simon32_64, l2_auth, l3_commit_gatekeeper, boundary_top, project)
 ├── test/                 cocotb suites + Windows run_*.py scripts
 ├── synth/
 │   ├── formal/           SymbiYosys properties (.sby + .sv)
 │   └── area.md           Yosys estimates and sky130 signoff numbers
-├── sim/                  RF appendix simulation evidence and RESULTS.md
+├── sim/                  Simulation evidence (boundary + RF appendix), RESULTS.md, and the figures script
 ├── fpga/de10nano/        DE10-Nano Quartus project (.qpf/.qsf) and SignalTap script
 ├── appendix/rf/          Archived Manchester/RF design (problem evidence)
 ├── baseline/             Pinned Tiny Tapeout 07 submodules
@@ -145,7 +144,7 @@ sby -f synth/formal/auth_top.sby
 ├── gds/                  Generated ASIC output (not committed; see gds.yaml)
 ├── openlane/             OpenLane entry configuration
 ├── tools/                Integrity-field analysis scripts
-├── .github/workflows/    CI: lint, synth, test, formal, sim, gds, and a docs heading check
+├── .github/workflows/    CI: link, lint, synth, test, formal, sim, gds, and a docs heading check
 ├── info.yaml             Tiny Tapeout project metadata
 ├── Makefile              Build entry point (`make help` to list all targets)
 └── requirements.txt      Python verification dependencies
@@ -199,6 +198,7 @@ make simon         # SIMON-32/64 cipher tests (2 tests, 49 vectors)
 make l2            # L2 auth + freshness tests (4 tests, 128 bit-flip checks)
 make auth          # Integrated auth + commit tests (6 tests, 108-cycle latency)
 make wrapper       # Tiny Tapeout wrapper tests (5 tests)
+make figures       # regenerate the proposal and appendix figures from VCDs
 make docs          # build the proposal PDF into output/
 ```
 
@@ -232,6 +232,7 @@ python test/run_project_test.py
 | `make test` | RF appendix cocotb suite |
 | `make formal` | SymbiYosys formal properties (currently red) |
 | `make sim` | RF appendix simulation evidence |
+| `make figures` | Regenerate the proposal and appendix figures from real VCDs |
 | `make docs` | Build the proposal into `output/` |
 | `make docs-force` | Rebuild the proposal even if unchanged |
 | `make docs-all` | Build the proposal and the deck into `output/` |
