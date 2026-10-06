@@ -197,6 +197,8 @@ module link_dec_10b8b (
 
     wire rd_next = (ones4(e4) == 2'd2) ? rd_mid : ~rd_mid;
     wire _unused = &{1'b0, x_opp[4:0], y_opp[2:0]};
+    wire comma_rdn = (din == 10'b0011111010);
+    wire comma_rdp = (din == 10'b1100000101);
     wire err_now = ~(six_ok && four_ok);
     wire err_opp = (six_opp && four_opp);
 
@@ -213,13 +215,19 @@ module link_dec_10b8b (
             code_error <= 1'b0;
             disp_error <= 1'b0;
             if (valid) begin
-                dout <= {y_exp[2:0], x};
-                is_k <= is_k_x;
-                if (err_now) begin
-                    if (err_opp) disp_error <= 1'b1;
-                    else         code_error <= 1'b1;
+                if (comma_rdn || comma_rdp) begin
+                    dout <= 8'hBC;
+                    is_k <= 1'b1;
+                    rd   <= comma_rdn;
+                end else begin
+                    dout <= {y_exp[2:0], x};
+                    is_k <= is_k_x;
+                    if (err_now) begin
+                        if (err_opp) disp_error <= 1'b1;
+                        else         code_error <= 1'b1;
+                    end
+                    rd <= rd_next;
                 end
-                rd <= rd_next;
             end
         end
     end
