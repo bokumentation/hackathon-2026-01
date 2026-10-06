@@ -22,6 +22,8 @@ module l1_link_framing (
     wire [9:0] sr_next = {serial_in, sr[9:1]};
     wire comma_match = (sr_next == COMMA_RDN) || (sr_next == COMMA_RDP);
 
+    wire _unused = &{1'b0, sr[0]};
+
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             sr            <= 10'd0;

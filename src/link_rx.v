@@ -58,6 +58,8 @@ module link_rx (
 
     wire [127:0] full_frame = {frame_sr[119:0], dec_dout};
 
+    wire _unused = &{1'b0, dec_is_k, dec_dout_valid, frame_sr[127:120]};
+
     assign link_fault = err_fault | timeout_fault;
 
     always @(posedge clk or negedge rst_n) begin

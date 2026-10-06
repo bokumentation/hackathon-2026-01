@@ -1,0 +1,56 @@
+# Tiny Tapeout project information (Tier B secure serial link)
+project:
+  title:        "TRI-ARGA Secure Serial Link"
+  author:       "The contributors"
+  discord:      ""
+  description:  "Authenticated, replay-resistant, fail-closed ingress boundary on an 8b/10b serial link"
+  language:     "Verilog"
+  clock_hz:     50_000_000
+
+  tiles: "2x2"
+
+  top_module:  "tt_um_link"
+
+  source_files:
+    - "link_enc_8b10b.v"
+    - "link_dec_10b8b.v"
+    - "l1_link_framing.v"
+    - "link_tx.v"
+    - "link_rx.v"
+    - "link_top.v"
+    - "l1_serial_loader.v"
+    - "simon32_64.v"
+    - "l2_auth.v"
+    - "l3_commit_gatekeeper.v"
+    - "boundary_top.v"
+    - "project_link.v"
+
+pinout:
+  ui[0]: "serial_in"
+  ui[1]: "key_bit"
+  ui[2]: "load_en"
+  ui[3]: "fault_ack"
+  ui[4]: "key_mode"
+  ui[5]: ""
+  ui[6]: ""
+  ui[7]: ""
+
+  uo[0]: ""
+  uo[1]: "key_locked"
+  uo[2]: "word_lock"
+  uo[3]: "fresh_ok"
+  uo[4]: "auth_ok"
+  uo[5]: "fault"
+  uo[6]: "host_full"
+  uo[7]: "done"
+
+  uio[0]: "host_full"
+  uio[1]: "fault"
+  uio[2]: ""
+  uio[3]: ""
+  uio[4]: ""
+  uio[5]: ""
+  uio[6]: ""
+  uio[7]: ""
+
+yaml_version: 6

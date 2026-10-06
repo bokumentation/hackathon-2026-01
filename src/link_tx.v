@@ -21,6 +21,7 @@ module link_tx (
     reg         tx_pending;
 
     wire [9:0]  enc_dout;
+    wire        enc_dout_valid;
 
     link_enc_8b10b u_enc (
         .clk(clk),
@@ -29,7 +30,7 @@ module link_tx (
         .is_k(enc_is_k),
         .din(enc_din),
         .dout(enc_dout),
-        .dout_valid()
+        .dout_valid(enc_dout_valid)
     );
 
     reg [1:0] n_mode;
@@ -51,6 +52,8 @@ module link_tx (
     wire       n_is_k = (n_mode != S_DATA);
 
     wire req = (bit_cnt == 4'd9) || (bit_cnt == 4'd10);
+
+    wire _unused = &{1'b0, enc_dout_valid};
 
     wire       enc_valid = req;
     wire [7:0] enc_din   = n_byte;
