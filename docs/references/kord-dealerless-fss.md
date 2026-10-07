@@ -2,6 +2,8 @@
 
 > Voice: text extracted from the original PDF for offline reference. Figures, tables, and equations are not preserved. The source PDF is kept alongside this file and is not tracked in git.
 
+Source: https://eprint.iacr.org/2026/1615
+
                                          KORD: Breaking the Key-Generation Bottleneck in
                                          Dealerless FSS via Protocol–Hardware Co-Design
                                                   Yijing Peng†‡ , Lin Liu†‡∗ , Yujie Xue† , Shaojing Fu† , Shaoqing Li†‡ , Yaohua Wang†‡ , Rongmao Chen† , Yang Guo†‡

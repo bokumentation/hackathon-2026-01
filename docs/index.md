@@ -9,7 +9,7 @@ Entry point for all project documentation.
 | [`proposal/`](proposal/proposal.id.md) | Competition proposal (ID + EN) and build |
 | [`design/`](design/README.md) | Architecture, threat model, verification plan, trade study, FMEA, Quartus plan and report, SignalTap plan, ideas |
 | [`setup/`](setup/debian-13.md) | Host setup, repository workflow, and Quartus install notes for Debian 13 |
-| [`judging/`](judging/submission-verification.md) | Submission audit dan simulasi penjurian |
+| [`judging/`](judging/submission-verification.md) | Submission audit |
 | [`competition/`](competition/ketentuan-proposal.md) | PERURI Chip Hackathon handbook, rules, and site notes |
 | [`references/`](references/README.md) | Third-party papers (Markdown) and citation index |
 | [`datasheet/`](datasheet/README.md) | Board and device datasheet notes |
@@ -37,4 +37,3 @@ Generated PDFs, intermediate HTML, and the presentation are written to the git-i
 - Trade study: [`design/trade-study.md`](design/trade-study.md)
 - FMEA: [`design/fmea.md`](design/fmea.md)
 - Submission audit: [`judging/submission-verification.md`](judging/submission-verification.md)
-- Simulasi penjurian: [`judging/simulasi-penjurian.id.md`](judging/simulasi-penjurian.id.md)

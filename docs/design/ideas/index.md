@@ -120,4 +120,3 @@ Ide-04 dan Ide-05 bersifat pelengkap untuk pemantauan dan penguatan lapis fisik.
 - Laman resmi Tiny Tapeout 07 untuk `tt_um_serdes` dan `tt_um_pa1mantri_cdc_fifo`.
 - Repository `Santeep/TT_UM_SERDES` dan `Pa1mantri/tt07_cdc_fifo`.
 - *Proposal* TRI-ARGA, `docs/proposal/proposal.id.md`.
-- Simulasi penjurian, `docs/judging/simulasi-penjurian.id.md`.

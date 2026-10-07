@@ -2,6 +2,8 @@
 
 > Voice: text extracted from the original PDF for offline reference. Figures, tables, and equations are not preserved. The source PDF is kept alongside this file and is not tracked in git.
 
+Source: https://doi.org/10.3390/electronics14132668
+
 Article
 
 Ascon on FPGA: Post-Quantum Safe Authenticated Encryption

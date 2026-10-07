@@ -55,6 +55,8 @@ output/
 
 # Judge profile analysis (public-data research, kept local)
 docs/judging/judge-profiles.md
+docs/judging/simulasi-penjurian.id.md
+docs/competition/peruri-ina-digital-personel.md
 
 # Third-party reference papers (converted to markdown; original PDFs not tracked)
 docs/references/*.pdf

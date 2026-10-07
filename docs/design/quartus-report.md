@@ -33,10 +33,9 @@ quartus_pow de10nano_top
 | Resource | Usage | Device capacity | Utilization |
 | --- | --- | --- | --- |
 | Logic utilization (ALMs) | 242 | 41,910 | < 1% |
-| Registers (FF) | 654 | - | - |
+| Registers (FF) | 654 | 166,036 | < 1% |
 | I/O pins | 21 | 314 | 7% |
-| Block memory bits | 0 | 5,662,720 | 0% |
-| RAM blocks (M10K) | 0 | 553 | 0% |
+| Embedded memory (M10K) | 0 | 5,570 Kbits | 0% |
 | DSP blocks | 0 | 112 | 0% |
 | PLLs | 0 | 6 | 0% |
 

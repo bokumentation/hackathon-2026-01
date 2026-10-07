@@ -10,10 +10,27 @@ Reference notes for the Terasic DE10-Nano board used in `fpga/de10nano/`.
 - User I/O: 8 LEDs (LED0-LED7), 4 slide switches (SW0-SW3), 2 keys (KEY0-KEY1).
 - Headers: GPIO_0 and GPIO_1, 36 pins each.
 
+## Device resources (5CSEBA6U23I7)
+
+Official capacity of the Cyclone V SoC on the board (Terasic Specifications;
+Intel Cyclone V CV-51001).
+
+| Resource | Capacity |
+| --- | --- |
+| Logic (ALMs) | 41,910 |
+| Registers | 166,036 |
+| Embedded memory (M10K) | 5,570 Kbits |
+| DSP blocks | 112 |
+| PLLs | 6 fractional |
+
 ## Sources
 
 - Terasic DE10-Nano product and documentation page:
   https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=167&No=1046&PartNo=1#contents
+- Terasic DE10-Nano Specifications tab:
+  https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=167&No=1046&PartNo=2#contents
+- Mouser DE10-Nano product page (device resources).
+- Intel Cyclone V Device Overview (CV-51001) for the device resource row.
 - Intel DE10-Nano User Manual (pin assignment tables).
 - Terasic System Builder golden hardware reference design (authoritative pin map).
 

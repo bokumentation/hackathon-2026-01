@@ -2,6 +2,8 @@
 
 > Voice: text extracted from the original PDF for offline reference. Figures, tables, and equations are not preserved. The source PDF is kept alongside this file and is not tracked in git.
 
+Source: https://www.cast-inc.com/press-releases/kivicore-and-cast-release-post-quantum-cryptographic-key-encapsulation-ip-core
+
 NEWS
 
 
