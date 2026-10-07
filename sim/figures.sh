@@ -7,12 +7,23 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
+export PATH="$ROOT/venv/bin:$PATH"
+
 PY="$ROOT/venv/bin/python"
 [ -x "$PY" ] || PY=python3
 
 echo "Generating VCD captures..."
 make auth
-make sim
+make -C sim baseline
+
+echo "Rendering baseline vulnerability figure (CWE-354)..."
+mkdir -p docs/proposal/assets
+"$PY" sim/plot_waveforms.py sim/out/tb_serial_baseline.vcd docs/proposal/assets/sim-baseline-vulnerability.png \
+  --t0 4000 --t1 11500 \
+  --title "Baseline tt07-bep-decode: full asserts for clean, corrupt-payload, and corrupt-integrity frames" \
+  sclk sdata full
+
+make -C sim boundary
 
 echo "Rendering link-core figure (authentication and commit)..."
 "$PY" sim/plot_waveforms.py test/auth_top.vcd docs/proposal/assets/sim-auth-commit.png \

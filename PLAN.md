@@ -167,7 +167,7 @@ Every row maps to one test case.
 | -- | ------------ |
 | test/test_simon.py | SIMON block and CBC-MAC vectors against a Python reference |
 | test/test_l2_auth.py | forgery, wrong key, replay, stale counter, bit flips, false reject |
-| test/test_auth_boundary.py | fail-closed commit, sticky fault, commit and end-to-end latency |
+| test/test_auth_top.py | fail-closed commit, sticky fault, commit and end-to-end latency |
 | test/test_rf_boundary.py | RF appendix still passes |
 
 ## 11. Execution order

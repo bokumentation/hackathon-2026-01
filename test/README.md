@@ -9,6 +9,7 @@ source venv/bin/activate
 make simon         # SIMON-32/64 cipher and CBC-MAC (2 tests, 49 vectors)
 make l2            # L2 authentication and freshness (4 tests, 128 bit-flip checks)
 make auth          # Integrated auth + commit (6 tests, TOCTOU regression)
+make crc           # RF CRC streaming latency (1 test, comparison)
 make wrapper       # Tiny Tapeout wrapper (6 tests)
 make link-codec    # 8b/10b encoder/decoder (6 tests)
 make link-framing  # comma, word lock, and timeout (2 tests)
@@ -46,6 +47,7 @@ Each script uses the `cocotb.runner` API with Icarus Verilog directly.
 | `make link-codec` | 6 | 8b/10b encode/decode, running disparity, code and disparity errors |
 | `make link-framing` | 2 | K28.5 comma detect, word lock, timeout fault |
 | `make link-top` | 4 | Loopback clean commit, forgery, replay, and line-error rejection |
+| `make crc` | 1 | RF CRC-24 streaming latency (integration comparison) |
 
 ## Contents
 
@@ -58,8 +60,9 @@ Each script uses the `cocotb.runner` API with Icarus Verilog directly.
 | `test_link_codec.py` | 8b/10b encoder and decoder |
 | `test_link_framing.py` | Link comma, word lock, and timeout |
 | `test_link_top.py` | Serial link loopback through the boundary |
+| `test_crc_latency.py` | RF CRC-24 streaming latency (integration comparison) |
 | `simon_ref.py` | Pure-Python SIMON-32/64 reference implementation |
-| `tb_simon.v`, `tb_l2_auth.v`, `tb_auth_top.v`, `tb_project.v` | Icarus Verilog testbenches for the core suites |
+| `tb_simon.v`, `tb_l2_auth.v`, `tb_auth_top.v`, `tb_project.v`, `tb_crc.v` | Icarus Verilog testbenches for the core suites |
 | `tb_link_codec.v`, `tb_link_framing.v`, `tb_link_top.v` | Icarus Verilog testbenches for the link suites |
 | `run_simon_test.py`, `run_l2_test.py`, `run_auth_test.py`, `run_project_test.py` | Windows runners for the core suites |
 | `vectors/` | Golden frame-level test vectors |
@@ -77,3 +80,4 @@ Expected results from `sim/RESULTS.md`:
 | link-codec | 6/6 | - |
 | link-framing | 2/2 | - |
 | link-top | 4/4 | - |
+| crc | 1/1 | 73 cycles (CRC-24 streaming) |

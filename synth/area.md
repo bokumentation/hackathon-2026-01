@@ -4,8 +4,8 @@ Preliminary, technology-independent estimate of the TRI-ARGA top
 (`tt_um_auth_boundary`). Reproduce with `make area`; raw Yosys logs
 are written to `synth/area/` (not tracked).
 
-- Revision: `main` (Phase B integration)
-- RTL: `src/` with the baseline front-end (`edge_detect`, `state_machine`, `data_validate`) integrated
+- Revision: `main` (Tier A core and Tier B serial link)
+- RTL: `src/` (Tier A core plus the Tier B 8b/10b link)
 - Tool: Yosys 0.52
 
 ## Method
@@ -19,56 +19,39 @@ are written to `synth/area/` (not tracked).
 
 | Metric | Value |
 | --- | --- |
-| Cells | 1352 |
-| Registers (DFF) | 352 |
-| Combinational cells | 1000 |
+| Cells | 1670 |
+| Registers (DFF) | 636 |
+| Combinational cells | 1029 |
 
 ## Cyclone V ALM mapping (proxy)
 
 | Resource | Value |
 | --- | --- |
-| Mapped cells | 923 |
-| Registers (MISTRAL_FF) | 360 |
-| LUTs (ALUT2/3/4/5/6) | 508 |
-| Arithmetic LUTs (ALUT_ARITH) | 88 |
+| Mapped cells | 1134 |
+| Registers (MISTRAL_FF) | 636 |
+| LUTs (ALUT2/3/4/5/6) | 353 |
+| Arithmetic LUTs (ALUT_ARITH) | 95 |
 
-## Cyclone V resource table (preliminary, for the proposal)
+## Cyclone V device capacity (5CSEBA6U23I7)
 
-| Resource | Estimate | DE10-Nano capacity |
-| --- | --- | --- |
-| Logic elements / LUT | about 508 LUT equivalent | 41,910 ALMs |
-| Registers / flip-flops | 360 | 166,542 |
-| Block RAM (M10K) | 0 (no buffer) | 5,570 Kbits |
-| DSP blocks | 0 (LFSR-based CRC) | 112 DSP |
+Source: Intel Cyclone V Product Table and Device Overview (CV-51001).
 
-Quartus Fitter numbers replace these once the integrated design is synthesized.
-
-## Tier A link estimate (boundary_top)
-
-The committed successor is the authenticated boundary (`simon32_64`, `l2_auth`,
-`l3_commit_gatekeeper`, `boundary_top`). Reproduce with `make area`.
-
-| Resource | Value |
+| Resource | Capacity |
 | --- | --- |
-| Generic cells | 1280 |
-| Generic flip-flops | 500 |
-| Cyclone V mapped cells | 1162 |
-| Cyclone V flip-flops | 500 |
-| Cyclone V LUTs (ALUT) | 360 |
-| Arithmetic LUTs (ALUT_ARITH) | 88 |
-| Block RAM (M10K) | 0 |
-| DSP blocks | 0 |
+| ALMs | 41,910 |
+| Registers (4 per ALM) | 166,036 |
+| Block RAM (M10K) | 5,570 Kbits |
+| DSP blocks | 112 |
 
-This is a pre-integration estimate: it does not yet include the Tier B link
-layer or the Tier C CDC FIFO. The Tier B link (`tt_um_link`) and its FPGA
-loopback wrapper are measured separately (see the sky130 link signoff below and
-`docs/design/quartus-report.md`).
+Measured results for the Tier B link (`tt_um_link`) and the FPGA loopback
+wrapper (421 ALM, 1029 registers, 0 M10K, 0 DSP) are in the sky130 signoff
+below and `docs/design/quartus-report.md`.
 
-### Real sky130 signoff (link, 2x2)
+### Real sky130 signoff (core, 2x2)
 
-Hardened through `.github/workflows/gds.yaml` on the link
-(`tt_um_auth_boundary`). The 1x2 tile does not fit (GPL-0302 at
-density 0.6 and 0.8), so a 2x2 tile is used.
+Hardened through `.github/workflows/gds.yaml` on the core
+(`tt_um_auth_boundary`, the L1 + L2 + L3 wrapper). The 1x2 tile does not fit
+(GPL-0302 at density 0.6 and 0.8), so a 2x2 tile is used.
 
 Signoff run `37504588955` at commit `00fc423` (OpenLane 2024.04.22, sky130A).
 
@@ -111,12 +94,12 @@ Signoff run `37511052813` at commit `9bbb2e0`.
 
 ## ASIC (sky130) estimate
 
-Technology-independent gate count is 1352 cells with 352 flip-flops. The
-baseline `tt07-bep-decode` occupies a single 1x1 Tiny Tapeout tile; TRI-ARGA
-adds a 24-bit CRC LFSR, a comparator, timing and timeout counters, and a small
-commit register.
+The committed design is the SIMON-32/64 CBC-MAC boundary (`simon32_64`,
+`l2_auth`, `l3_commit_gatekeeper`, `boundary_top`) plus the Tier B 8b/10b link.
+The measured sky130 signoff for each is in the sections below; the RF appendix
+result is kept separate.
 
-## Real sky130 signoff (OpenLane, Tiny Tapeout GDS action)
+## Real sky130 signoff (RF appendix, 1x2)
 
 Hardened through `.github/workflows/gds.yaml` (run `37273399910`).
 
@@ -146,6 +129,6 @@ Gate-level simulation of the netlist passes the cocotb suite (3/3).
 ## Power considerations
 
 Single clock, pure digital logic, no block RAM, no DSP, and no internal PLL.
-The CRC LFSR and comparator are active only while a frame arrives, so switching
-activity is minimal when idle. Measured power is pending the OpenLane power
-report and Quartus PowerPlay.
+The MAC cipher is active only while a frame arrives, so switching activity is
+minimal when idle. Measured power is reported in the signoff tables above and in
+`docs/design/quartus-report.md`.

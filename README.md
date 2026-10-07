@@ -73,7 +73,7 @@ untrusted link
 | Replay rejected | yes | `make auth` |
 | Serial link loopback | clean commit, forgery/replay/line-error rejected | `make link-top` |
 | Serial link ASIC | 2x2 (Tier B), 3220 cells, 0 DRC/LVS, 3.61 mW typical, 2 antenna | `gds.yaml` |
-| Formal verification | 9/9 proofs pass (6 link, 3 RF appendix), see [Formal verification](#formal-verification) | `make formal`, `sby` |
+| Formal verification | 9/9 proofs pass (5 core, 1 Tier B, 3 RF appendix), see [Formal verification](#formal-verification) | `make formal`, `sby` |
 | FPGA resources | 421 ALM, 1029 FF, 0 M10K, 0 DSP (Cyclone V, Tier B loopback wrapper) | `fpga/de10nano` `make link` |
 | FPGA Fmax | 97.9 MHz (WNS +9.785 ns) | `fpga/de10nano` `make link` |
 | FPGA power | 426.2 mW total, 3.76 mW core dynamic, vector-less | `quartus_pow` |

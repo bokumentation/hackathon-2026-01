@@ -21,7 +21,7 @@ Raw numbers live in `sim/RESULTS.md`, `synth/area.md`, and `docs/design/quartus-
 
 | Claim | Value | Artifact | Reproduce |
 | --- | --- | --- | --- |
-| Fail-closed commit invariant | 9 jobs pass (6 link, 3 RF appendix) | `synth/formal/` | `make formal` |
+| Fail-closed commit invariant | 9 jobs pass (5 core, 1 Tier B, 3 RF appendix) | `synth/formal/` | `make formal` |
 | Committed L3 commit gate | `host_full` high only if the last commit accepted the frame | `synth/formal/l3_commit_core.sby` | `make formal` |
 | L1 loader properties | 8 properties (key policy, pulses, framing, timeout) | `synth/formal/l1_link.sby` | `make formal` |
 | Tier B link framing | 8b/10b framing and word lock never rise together with a fault | `synth/formal/link_framing.sby` | `make formal` |

@@ -1,10 +1,10 @@
 # Simulation evidence
 
-Tier 1 evidence, reproducible with `make -C sim`, `make -C sim boundary`, and
+Tier A evidence, reproducible with `make -C sim`, `make -C sim boundary`, and
 `make simon`. Values are captured from the cocotb runs and the waveform figures
-in `out/`.
+under `docs/proposal/assets/` and `appendix/rf/figures/`.
 
-## L1 - SIMON-32/64 MAC latency (Tier A, M1)
+## M1 - SIMON-32/64 MAC latency (Tier A)
 
 SIMON-32/64 is implemented as a serialized block cipher, one round per cycle,
 and validated against an independent Python reference (`test/simon_ref.py`) that
@@ -22,7 +22,7 @@ The measured 33 cycles equals 32 rounds plus one pipeline cycle. This is the
 dominant term in the Tier A latency budget; the commit adds 1 to 2 cycles and
 the host visibility adds 0 to 1.
 
-## L2 - Authentication and freshness (Tier A, M2)
+## M2 - Authentication and freshness (Tier A)
 
 `l2_auth` runs a CBC-MAC over counter plus payload (three blocks) and a strict
 freshness counter. Measured with `make l2`.
@@ -42,7 +42,7 @@ The measured 107 cycles matches the estimate (three blocks at 33 cycles each
 plus FSM overhead). This is the measured Tier A latency for the authentication
 path; the commit and host visibility stages are added in M3.
 
-## L3 - Integrated authentication and commit (Tier A, M3)
+## M3 - Integrated authentication and commit (Tier A)
 
 `boundary_top` wires L2 into the shared `l3_commit_gatekeeper`. Measured with
 `make auth`.
@@ -59,7 +59,7 @@ path; the commit and host visibility stages are added in M3.
 
 The Tier A end-to-end latency is 108 cycles: 107 for MAC plus freshness, plus 1
 for the commit. The RF appendix boundary commit was also 1 cycle, so the shared
-gate adds the same single cycle. Figure: `out/auth_commit.png` shows a clean
+gate adds the same single cycle. Figure: `docs/proposal/assets/sim-auth-commit.png` shows a clean
 accept and a rejected frame side by side.
 
 ## Comparison: CRC vs MAC vs MAC+counter
@@ -88,7 +88,7 @@ interface with a 192-bit frame.
 | Integrity field bit flipped | 1 | tail becomes `0x14AE16` (corrupted), payload unchanged |
 
 The baseline has no error output and never checks the integrity field, so both
-corrupted frames are latched as valid. Figure: `out/baseline_vulnerability.png`.
+corrupted frames are latched as valid. Figure: `docs/proposal/assets/sim-baseline-vulnerability.png`.
 
 ## E2 - TRI-ARGA fail-closed boundary
 
@@ -104,7 +104,7 @@ Stimulus drives L1 (timing/timeout) and L3 (atomic commit) directly, with
 | No-edge timeout (4096 cycles) | `timeout_fault=1`, `framing_ok=0` |
 | Commit latency | 1 clock cycle |
 
-Figure: `out/boundary_commit_reject.png` and `out/boundary_timeout.png`.
+Figure: `docs/proposal/assets/sim-auth-commit.png` and `appendix/rf/figures/sim-boundary-timeout.png`.
 
 ## Not yet covered
 

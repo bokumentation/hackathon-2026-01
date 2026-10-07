@@ -32,9 +32,8 @@ make boundary   # TRI-ARGA boundary tests
 Figures:
 
 ```bash
-python plot_waveforms.py out/tb_boundary.vcd out/boundary_commit_reject.png \
-    --t0 0 --t1 620 transmission_begin framing_ok timing_fault frame_done \
-    crc_ok host_full fault
+python plot_waveforms.py out/tb_boundary.vcd appendix/rf/figures/sim-boundary-timeout.png \
+    --t0 41000 --t1 41700 framing_ok timeout_fault
 ```
 
 ## Dependencies
