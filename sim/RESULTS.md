@@ -44,7 +44,7 @@ path; the commit and host visibility stages are added in M3.
 
 ## L3 - Integrated authentication and commit (Tier A, M3)
 
-`salaras_auth_top` wires L2 into the shared `l3_commit_gatekeeper`. Measured with
+`boundary_top` wires L2 into the shared `l3_commit_gatekeeper`. Measured with
 `make auth`.
 
 | Case | Result |
@@ -90,7 +90,7 @@ interface with a 192-bit frame.
 The baseline has no error output and never checks the integrity field, so both
 corrupted frames are latched as valid. Figure: `out/baseline_vulnerability.png`.
 
-## E2 - SALARAS-RX fail-closed boundary
+## E2 - TRI-ARGA fail-closed boundary
 
 Stimulus drives L1 (timing/timeout) and L3 (atomic commit) directly, with
 `crc_ok` standing in for L2.

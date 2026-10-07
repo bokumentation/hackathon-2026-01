@@ -34,6 +34,7 @@ module l2_auth (
 
     wire [31:0] simon_out;
     wire        simon_done;
+    wire [5:0]  simon_rounds_done;
 
     wire [31:0] block_value = (blk == 2'd0) ? cnt_lat :
                               (blk == 2'd1) ? pay_lat[31:0] : pay_lat[63:32];
@@ -48,8 +49,10 @@ module l2_auth (
         .start(simon_start),
         .block_out(simon_out),
         .done(simon_done),
-        .rounds_done()
+        .rounds_done(simon_rounds_done)
     );
+
+    wire _unused = &{1'b0, simon_rounds_done};
 
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin

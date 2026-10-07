@@ -1,7 +1,12 @@
 # Simulation evidence
 
-Simulation harness and evidence for the SALARAS-RX proposal. Runs with cocotb
+Simulation harness and evidence for the TRI-ARGA proposal. Runs with cocotb
 and Icarus Verilog.
+
+This folder holds the RF appendix simulation evidence. The committed link
+evidence lives in the cocotb suites under `test/` (run with `make simon`, `make
+l2`, `make auth`, `make wrapper`, `make link-codec`, `make link-framing`, `make
+link-top`) and in the formal proofs under `synth/formal/`.
 
 ## Layout
 
@@ -11,7 +16,7 @@ and Icarus Verilog.
 | `tb_serial_baseline.v` | Drives the baseline `serial_decode` at its serial interface |
 | `tb_boundary.v` | Instantiates L1 and L3 |
 | `test_baseline_vuln.py` | Baseline vulnerability evidence |
-| `test_salaras_boundary.py` | SALARAS-RX fail-closed boundary evidence |
+| `test_boundary.py` | TRI-ARGA fail-closed boundary evidence |
 | `plot_waveforms.py` | Renders VCDs to PNG figures |
 | `RESULTS.md` | Evidence summary |
 | `out/` | Generated VCDs and PNGs (not tracked) |
@@ -21,7 +26,7 @@ and Icarus Verilog.
 ```bash
 source ../venv/bin/activate
 make            # baseline vulnerability tests
-make boundary   # SALARAS-RX boundary tests
+make boundary   # TRI-ARGA boundary tests
 ```
 
 Figures:

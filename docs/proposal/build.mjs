@@ -1,75 +1,87 @@
-import { readFileSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { dirname, join, isAbsolute } from "node:path";
 import { fileURLToPath } from "node:url";
 import { marked } from "marked";
 
 const dir = dirname(fileURLToPath(import.meta.url));
 
+const ts = process.env.PROPOSAL_TS;
+if (!ts) {
+  console.error("PROPOSAL_TS is required (set by build.sh)");
+  process.exit(1);
+}
+
+const htmlDir = process.env.PROPOSAL_HTML_DIR || dir;
+mkdirSync(htmlDir, { recursive: true });
+
+const base = `PROPOSAL-TRIARGA-${ts}`;
+
+const coverFile = process.env.COVER_FILE || join(dir, "cover.json");
+const covers = JSON.parse(readFileSync(coverFile, "utf8"));
+
 const figure =
-  '<figure><img src="assets/block-diagram.svg" alt="SALARAS-RX system block diagram">' +
-  "<figcaption>SALARAS-RX system block diagram</figcaption></figure>";
+  '<figure><img src="assets/block-diagram.svg" alt="TRI-ARGA system block diagram">' +
+  "<figcaption>TRI-ARGA system block diagram</figcaption></figure>";
 
 const docs = [
   {
-    in: "salaras-rx-proposal.id.md",
-    out: "salaras-rx-proposal.id.html",
+    in: "proposal.id.md",
+    out: `${base}.id.html`,
     lang: "id",
-    title: "Authenticated Fail-Closed Ingress Boundary - Proposal PERURI Chip Hackathon 2026",
-    cover: {
-      eyebrow: "PERURI CHIP HACKATHON 2026",
-      chip: "AUTHENTICATED INGRESS BOUNDARY",
-      subtitle:
-        "A Hardware-Enforced Secure Ingress Barrier for Manchester/RF Serial Links",
-      rows: [
-        ["Kategori", "IC Chip Design &amp; FPGA Implementation"],
-        ["Area Fokus", "04 - Secure Communication (secure framing &amp; interface integrity)"],
-        ["Tim", "dinotice - Universitas Telkom"],
-        ["Ketua", "Ibrahim Fauzi Rahman"],
-        ["Anggota", "Idris Syaifulloh"],
-        ["Dosen Pembimbing", "Dr. Setia Juli Irzal Ismail, S.T., M.T."],
-        ["Berkas", "docs/proposal/salaras-rx-proposal.id.md"],
-      ],
-      footer: "Proposal peserta - kurasi tahap pertama",
-    },
+    title: "TRI-ARGA - Proposal PERURI Chip Hackathon 2026",
+    cover: covers.id,
   },
   {
-    in: "salaras-rx-proposal.en.md",
-    out: "salaras-rx-proposal.en.html",
+    in: "proposal.en.md",
+    out: `${base}.en.html`,
     lang: "en",
-    title: "Authenticated Fail-Closed Ingress Boundary - PERURI Chip Hackathon 2026 Proposal",
-    cover: {
-      eyebrow: "PERURI CHIP HACKATHON 2026",
-      chip: "AUTHENTICATED INGRESS BOUNDARY",
-      subtitle:
-        "A Hardware-Enforced Secure Ingress Barrier for Manchester/RF Serial Links",
-      rows: [
-        ["Category", "IC Chip Design &amp; FPGA Implementation"],
-        ["Focus Area", "04 - Secure Communication (secure framing &amp; interface integrity)"],
-        ["Team", "dinotice - Universitas Telkom"],
-        ["Lead", "Ibrahim Fauzi Rahman"],
-        ["Member", "Idris Syaifulloh"],
-        ["Advisor", "Dr. Setia Juli Irzal Ismail, S.T., M.T."],
-        ["Source", "docs/proposal/salaras-rx-proposal.en.md"],
-      ],
-      footer: "Participant proposal - first curation stage",
-    },
+    title: "TRI-ARGA - PERURI Chip Hackathon 2026 Proposal",
+    cover: covers.en,
   },
 ];
 
+function esc(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function renderMembers(members) {
+  return (members || [])
+    .map((m) => {
+      const detail = [m.institution, m.contact].filter(Boolean).join(" - ");
+      const who = `${esc(m.name)}${detail ? " - " + esc(detail) : ""}`;
+      return `<li><span class="m-role">${esc(m.role)}:</span> ${who}</li>`;
+    })
+    .join("\n      ");
+}
+
 function renderCover(c) {
-  const rows = c.rows
-    .map(([k, v]) => `<div class="c-k">${k}</div><div class="c-v">${v}</div>`)
-    .join("\n");
   return `<section class="cover">
-  <div class="cover-top">${c.eyebrow}</div>
-  <div class="cover-mid">
-    <h1 class="cover-title">${c.chip}</h1>
-    <p class="cover-sub">${c.subtitle}</p>
-    <div class="cover-meta">
-${rows}
-    </div>
+  <div class="cover-top">${esc(c.event)}</div>
+  <div class="cover-cat">${esc(c.categoryLabel)}: ${esc(c.category)}</div>
+  <div class="cover-hero">
+    <h1 class="cover-title">${esc(c.brand)}</h1>
+    <p class="cover-sub">${esc(c.subtitle)}</p>
   </div>
-  <div class="cover-foot">${c.footer}</div>
+  <div class="cover-id">
+    <div class="cover-id-h">${esc(c.idHeading)}</div>
+    <dl class="cover-dl">
+      <dt>${esc(c.chipLabel)}</dt>
+      <dd>${esc(c.chip)}</dd>
+      <dt>${esc(c.teamLabel)}</dt>
+      <dd>${esc(c.team)}</dd>
+      <dt>${esc(c.membersLabel)}</dt>
+      <dd>
+      <ul class="cover-members">
+      ${renderMembers(c.members)}
+      </ul>
+      </dd>
+      <dt>${esc(c.advisorLabel)}</dt>
+      <dd>${esc(c.advisor)}</dd>
+    </dl>
+  </div>
 </section>`;
 }
 
@@ -108,6 +120,7 @@ ${body}
 </html>
 `;
 
-  writeFileSync(join(dir, doc.out), html);
-  console.log(`wrote ${doc.out}`);
+  const outPath = isAbsolute(doc.out) ? doc.out : join(htmlDir, doc.out);
+  writeFileSync(outPath, html);
+  console.log(`wrote ${outPath}`);
 }

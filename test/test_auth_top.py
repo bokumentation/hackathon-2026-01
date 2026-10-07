@@ -60,7 +60,18 @@ async def run_frame(dut, counter, payload, tag):
         to_done += 1
         if to_done > 512:
             raise AssertionError("auth top did not finish")
-    await RisingEdge(dut.clk)
+
+    hf_before = int(dut.host_full.value)
+    fault_before = int(dut.fault.value)
+    to_full = to_done
+    for _ in range(16):
+        await RisingEdge(dut.clk)
+        to_full += 1
+        hf = int(dut.host_full.value)
+        flt = int(dut.fault.value)
+        if (hf == 1 and hf_before == 0) or (flt == 1 and fault_before == 0):
+            break
+
     return {
         "auth": int(dut.auth_ok.value),
         "fresh": int(dut.fresh_ok.value),
@@ -68,7 +79,7 @@ async def run_frame(dut, counter, payload, tag):
         "fault": int(dut.fault.value),
         "data": int(dut.host_data_q.value),
         "to_done": to_done,
-        "to_full": to_done + 1,
+        "to_full": to_full,
     }
 
 

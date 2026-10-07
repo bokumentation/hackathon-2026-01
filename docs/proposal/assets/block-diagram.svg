@@ -1,92 +1,93 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" width="1200" height="420" font-family="Helvetica, Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 540" font-family="Helvetica, Arial, sans-serif">
+  <rect x="0" y="0" width="900" height="540" fill="#ffffff"/>
+
+  <!-- title -->
+  <text x="450" y="30" font-size="13" font-weight="700" fill="#111827" text-anchor="middle">Hanya frame yang lolos autentikasi dan kesegaran sampai ke host</text>
+
+  <!-- trust boundary dashed line -->
+  <text x="310" y="55" font-size="11" fill="#94a3b8" text-anchor="middle">batas kepercayaan</text>
+  <line x1="310" y1="62" x2="310" y2="480" stroke="#94a3b8" stroke-width="1" stroke-dasharray="5 4"/>
+
+  <!-- Tak tepercaya label -->
+  <text x="155" y="80" font-size="11" fill="#94a3b8" text-anchor="middle">Tak tepercaya</text>
+
+  <!-- Tepercaya label -->
+  <text x="810" y="80" font-size="11" fill="#94a3b8" text-anchor="middle">Tepercaya</text>
+
+  <!-- ===== FRONT-END box (left) ===== -->
+  <rect x="40" y="95" width="170" height="110" rx="10" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="125" y="120" font-size="13" font-weight="700" text-anchor="middle" fill="#1e293b">Front-end</text>
+  <text x="125" y="140" font-size="11" text-anchor="middle" fill="#475569">TT07 SerDes</text>
+  <text x="125" y="156" font-size="11" text-anchor="middle" fill="#475569">Manchester/RF</text>
+  <text x="125" y="172" font-size="11" text-anchor="middle" fill="#475569">UART</text>
+
+  <!-- ===== PENYERANG box (red, bottom-left) ===== -->
+  <rect x="40" y="310" width="170" height="90" rx="10" fill="#fee2e2" stroke="#b91c1c" stroke-width="1.5"/>
+  <text x="125" y="338" font-size="13" font-weight="700" text-anchor="middle" fill="#7f1d1d">Penyerang</text>
+  <text x="125" y="357" font-size="11" text-anchor="middle" fill="#991b1b">sisip, ubah, hapus,</text>
+  <text x="125" y="373" font-size="11" text-anchor="middle" fill="#991b1b">putar ulang frame</text>
+
+  <!-- arrow penyerang → front-end (red, upward) -->
+  <line x1="125" y1="310" x2="125" y2="207" stroke="#b91c1c" stroke-width="1.5" marker-end="url(#ar)"/>
+
+  <!-- ===== INTI TRI-ARGA outer box ===== -->
+  <rect x="330" y="70" width="330" height="410" rx="12" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="495" y="97" font-size="12" font-weight="700" text-anchor="middle" fill="#334155">Inti TRI-ARGA: satu clock, tanpa RAM</text>
+
+  <!-- L1 Pemuat frame -->
+  <rect x="355" y="112" width="280" height="80" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.2"/>
+  <text x="495" y="140" font-size="13" font-weight="700" text-anchor="middle" fill="#1e293b">Pemuat frame</text>
+  <text x="495" y="159" font-size="11" text-anchor="middle" fill="#475569">counter 32 + payload 64 + tag 32</text>
+  <text x="495" y="175" font-size="11" text-anchor="middle" fill="#475569">l1_serial_loader · kunci write-once</text>
+
+  <!-- arrow L1 → L2 -->
+  <line x1="495" y1="192" x2="495" y2="222" stroke="#475569" stroke-width="1.5" marker-end="url(#a)"/>
+
+  <!-- L2 Auth -->
+  <rect x="355" y="222" width="280" height="90" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.2"/>
+  <text x="495" y="250" font-size="13" font-weight="700" text-anchor="middle" fill="#1e293b">L2 Auth</text>
+  <text x="495" y="269" font-size="11" text-anchor="middle" fill="#475569">CBC-MAC SIMON-32/64, cek tag</text>
+  <text x="495" y="285" font-size="11" text-anchor="middle" fill="#475569">counter harus naik ketat</text>
+  <text x="495" y="301" font-size="11" text-anchor="middle" fill="#475569">auth_ok, fresh_ok</text>
+
+  <!-- arrow L2 → L3 -->
+  <line x1="495" y1="312" x2="495" y2="345" stroke="#475569" stroke-width="1.5" marker-end="url(#a)"/>
+
+  <!-- L3 Commit -->
+  <rect x="355" y="345" width="280" height="100" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+  <text x="495" y="372" font-size="13" font-weight="700" text-anchor="middle" fill="#1e3a8a">L3 Commit (fail-closed)</text>
+  <text x="495" y="391" font-size="11" text-anchor="middle" fill="#1e40af">data + host_full dilepas atomik</text>
+  <text x="495" y="407" font-size="11" text-anchor="middle" fill="#1e40af">gagal: fault lengket, data ditahan</text>
+  <text x="495" y="423" font-size="11" text-anchor="middle" fill="#1e40af">l3_commit_gatekeeper</text>
+
+  <!-- ===== HOST box (right) ===== -->
+  <rect x="740" y="185" width="140" height="180" rx="10" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="810" y="212" font-size="13" font-weight="700" text-anchor="middle" fill="#1e293b">Host</text>
+  <text x="810" y="236" font-size="11" text-anchor="middle" fill="#475569">memuat kunci sesi</text>
+  <text x="810" y="254" font-size="11" text-anchor="middle" fill="#475569">membaca data</text>
+  <text x="810" y="272" font-size="11" text-anchor="middle" fill="#475569">meng-ack fault</text>
+
+  <!-- arrow front-end → L1 (frame in) -->
+  <line x1="210" y1="150" x2="353" y2="150" stroke="#475569" stroke-width="1.5" marker-end="url(#a)"/>
+
+  <!-- key arrow Host → L2 (kunci) -->
+  <line x1="738" y1="240" x2="637" y2="240" stroke="#475569" stroke-width="1.5" marker-end="url(#a)"/>
+  <text x="688" y="230" font-size="10" fill="#64748b" text-anchor="middle">kunci</text>
+
+  <!-- arrow L3 → Host: data, full -->
+  <line x1="635" y1="360" x2="738" y2="305" stroke="#475569" stroke-width="1.5" marker-end="url(#a)"/>
+  <text x="688" y="336" font-size="10" fill="#64748b" text-anchor="middle">data, full</text>
+
+  <!-- arrow L3 → Host: fault -->
+  <line x1="635" y1="420" x2="738" y2="355" stroke="#475569" stroke-width="1.5" marker-end="url(#a)"/>
+  <text x="688" y="412" font-size="10" fill="#64748b" text-anchor="middle">fault</text>
+
   <defs>
-    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M0,0 L10,5 L0,10 z" fill="#1f2937"/>
+    <marker id="a" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L7,3 L0,6 z" fill="#475569"/>
     </marker>
-    <marker id="arrowd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M0,0 L10,5 L0,10 z" fill="#b91c1c"/>
+    <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L7,3 L0,6 z" fill="#b91c1c"/>
     </marker>
   </defs>
-
-  <rect x="0" y="0" width="1200" height="420" fill="#ffffff"/>
-
-  <!-- boundary grouping -->
-  <rect x="485" y="40" width="320" height="120" rx="12" ry="12" fill="#fff7ed" stroke="#c2410c" stroke-width="2" stroke-dasharray="7 5"/>
-  <text x="645" y="30" text-anchor="middle" font-size="15" font-weight="700" fill="#c2410c">SALARAS-RX boundary</text>
-
-  <!-- boxes -->
-  <g fill="#eef2ff" stroke="#3730a3" stroke-width="1.6">
-    <rect x="20"  y="70" width="120" height="60" rx="9"/>
-    <rect x="170" y="70" width="120" height="60" rx="9"/>
-    <rect x="320" y="70" width="140" height="60" rx="9"/>
-  </g>
-  <g fill="#ffedd5" stroke="#c2410c" stroke-width="1.6">
-    <rect x="500" y="70" width="90" height="60" rx="9"/>
-    <rect x="600" y="70" width="90" height="60" rx="9"/>
-    <rect x="700" y="70" width="90" height="60" rx="9"/>
-  </g>
-  <g fill="#dcfce7" stroke="#166534" stroke-width="1.6">
-    <rect x="830" y="70" width="160" height="60" rx="9"/>
-  </g>
-  <g fill="#e5e7eb" stroke="#374151" stroke-width="1.6">
-    <rect x="1020" y="70" width="150" height="60" rx="9"/>
-  </g>
-
-  <!-- box labels -->
-  <g text-anchor="middle" fill="#111827">
-    <text x="80"  y="96" font-size="12.5" font-weight="700">digital_in</text>
-    <text x="80"  y="113" font-size="10.5" fill="#374151">RF Manchester</text>
-
-    <text x="230" y="96" font-size="12.5" font-weight="700">edge_detect</text>
-    <text x="230" y="113" font-size="10.5" fill="#374151">pos/neg edges</text>
-
-    <text x="390" y="96" font-size="12.5" font-weight="700">state_machine</text>
-    <text x="390" y="113" font-size="10.5" fill="#374151">Manchester decode</text>
-
-    <text x="545" y="90" font-size="12.5" font-weight="700">L1</text>
-    <text x="545" y="108" font-size="10" fill="#7c2d12">framing &amp;</text>
-    <text x="545" y="121" font-size="10" fill="#7c2d12">FSM valid.</text>
-
-    <text x="645" y="90" font-size="12.5" font-weight="700">L2</text>
-    <text x="645" y="108" font-size="10" fill="#7c2d12">integrity</text>
-    <text x="645" y="121" font-size="10" fill="#7c2d12">verify (CRC)</text>
-
-    <text x="745" y="90" font-size="12.5" font-weight="700">L3</text>
-    <text x="745" y="108" font-size="10" fill="#7c2d12">atomic</text>
-    <text x="745" y="121" font-size="10" fill="#7c2d12">commit</text>
-
-    <text x="910" y="90" font-size="12.5" font-weight="700">Register &amp; Host I/F</text>
-    <text x="910" y="108" font-size="10" fill="#166534">shift reg 97-bit +</text>
-    <text x="910" y="121" font-size="10" fill="#166534">regs + address mux</text>
-
-    <text x="1095" y="90" font-size="12.5" font-weight="700">uo_out[7:0]</text>
-    <text x="1095" y="108" font-size="10" fill="#374151">data to host</text>
-  </g>
-
-  <!-- data path arrows -->
-  <g stroke="#1f2937" stroke-width="1.8" marker-end="url(#arrow)" fill="none">
-    <line x1="140" y1="100" x2="168" y2="100"/>
-    <line x1="290" y1="100" x2="318" y2="100"/>
-    <line x1="460" y1="100" x2="498" y2="100"/>
-    <line x1="590" y1="100" x2="598" y2="100"/>
-    <line x1="690" y1="100" x2="698" y2="100"/>
-    <line x1="790" y1="100" x2="828" y2="100"/>
-    <line x1="990" y1="100" x2="1018" y2="100"/>
-  </g>
-
-  <!-- full handshake label -->
-  <text x="885" y="55" text-anchor="middle" font-size="10.5" fill="#166534">full (commit)</text>
-
-  <!-- fault path -->
-  <g stroke="#b91c1c" stroke-width="1.8" marker-end="url(#arrowd)" fill="none">
-    <path d="M745,130 L745,250 L838,250"/>
-  </g>
-  <rect x="840" y="225" width="180" height="50" rx="9" fill="#fee2e2" stroke="#b91c1c" stroke-width="1.6"/>
-  <text x="930" y="246" text-anchor="middle" font-size="12" font-weight="700" fill="#7f1d1d">fault flag (sticky)</text>
-  <text x="930" y="263" text-anchor="middle" font-size="10" fill="#7f1d1d">uio_out: full, fault, diag</text>
-  <text x="755" y="205" font-size="10.5" fill="#b91c1c">verification failed</text>
-
-  <!-- baseline note -->
-  <text x="20" y="360" font-size="11.5" fill="#374151">Decoder front-end: edge_detect + state_machine (baseline tt07-bep-decode)</text>
-  <text x="20" y="380" font-size="11.5" fill="#374151">SALARAS-RX boundary verifies framing + integrity, then commits only valid frames (fail-closed)</text>
 </svg>

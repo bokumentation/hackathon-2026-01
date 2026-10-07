@@ -1,6 +1,6 @@
 # Trade Study
 
-Design alternatives considered and decisions made for the SALARAS-RX authenticated ingress boundary.
+Design alternatives considered and decisions made for the TRI-ARGA authenticated ingress boundary.
 Each study presents a decision table followed by the chosen alternative and its rationale.
 
 ---
@@ -11,7 +11,7 @@ The MAC core must fit in a 2x2 Tiny Tapeout tile (sky130, up to about 2000 synth
 
 | Alternative | Area (LUT equiv.) | Latency (cycles/block) | Key size (bits) | Security level | Hardware simplicity | Tiny Tapeout 2x2 fit |
 | --- | --- | --- | --- | --- | --- | --- |
-| SIMON-32/64 (chosen) | ~360 ALUTs (Cyclone V proxy) | 33 (32 rounds + 1) | 64 | ~64-bit block, 2^-32 forgery at 32-bit tag | High - XOR/shift datapath, no S-box LUT | Yes - 2354 cells total, WNS +10.79 ns |
+| SIMON-32/64 (chosen) | ~360 ALUTs (Cyclone V proxy) | 33 (32 rounds + 1) | 64 | ~64-bit block, 2^-32 forgery at 32-bit tag | High - XOR/shift datapath, no S-box LUT | Yes - 2511 cells total, WNS 0.00 |
 | AES-128 | ~800-1200 ALUTs | 11-44 depending on unrolling | 128 | 128-bit block, AES-proven | Low - 8-bit S-box requires LUT or ROM | Marginal - S-box alone approaches tile budget |
 | PRESENT-80 | ~500-700 ALUTs | 32 | 80 | 80-bit block | Medium - 4-bit S-box, bit permutation | Tight - P-layer wiring overhead |
 | Keyless CRC-32 | ~50 ALUTs (LFSR) | 72 (streaming, 72-bit) | None | None - linear, recomputable | Very high | Yes - measured 73 cycles, small area |
@@ -25,7 +25,7 @@ The serialized implementation (one round per cycle) measures 33 cycles per block
 AES requires an 8-bit S-box whose area is comparable to the entire SIMON datapath and does not fit within the tile budget.
 PRESENT has a 4-bit S-box and a wide bit-permutation layer that adds routing complexity.
 A keyless CRC is forgeable by an active attacker who can recompute the checksum without a key; the measured baseline demonstrates this vulnerability (CWE-354).
-The sky130 signoff for SIMON-based `tt_um_bokumentation_auth_boundary` on a 2x2 tile reports 2354 synthesis cells, Magic DRC 0, LVS 0, WNS +10.79 ns, and typical power 1.87 mW.
+The sky130 signoff for SIMON-based `tt_um_auth_boundary` on a 2x2 tile reports 2511 synthesis cells, Magic DRC 0, LVS 0, WNS 0.00 (worst setup slack +10.87 ns), and typical power 2.10 mW.
 
 ---
 
@@ -89,15 +89,35 @@ The tile size affects die area, tile cost, placement density, and signoff comple
 | --- | --- | --- | --- | --- | --- | --- |
 | 1x1 tile | ~80.5 x 225.76 um | - | 105.57% (overflow) | - | - | FAIL - GPL-0301 placement overflow |
 | 1x2 tile (RF appendix) | 161.0 x 225.76 um = 0.0363 mm^2 | 1671 placed | Measured fit | WNS +7.97 ns | 0 violations | PASS (RF appendix, 1x2) |
-| 2x2 tile (chosen, link) | 334.88 x 225.76 um = 0.0756 mm^2 | 2354 synthesis | Fit with margin | WNS +10.79 ns | 0 violations | PASS - SALARAS-RX link boundary |
-| FPGA-only (no ASIC) | N/A - Cyclone V | 360 ALUTs, 500 FFs | ~0.9% of DE10-Nano | Timing met (proxy) | N/A | Not a GDS deliverable |
+| 2x2 tile (chosen, link) | 334.88 x 225.76 um = 0.0756 mm^2 | 2511 synthesis (core), 3220 (link) | Fit with margin | WNS 0.00 | 0 violations (core), 2 antenna (link) | PASS - TRI-ARGA link boundary |
+| FPGA-only (no ASIC) | N/A - Cyclone V | Tier B loopback 421 ALM, 1029 FF | ~1% of DE10-Nano | Timing met (97.9 MHz) | N/A | Not a GDS deliverable |
 
-**Decision:** 2x2 tile for the committed link design (`tt_um_bokumentation_auth_boundary`).
+**Decision:** 2x2 tile for the committed core (`tt_um_auth_boundary`) and the secure serial link (`tt_um_link`).
 
 **Rationale:**
 The 1x1 tile is too small: OpenLane placement reports `GPL-0301 Utilization 105.57% exceeds 100%`.
-The 1x2 tile was used as a fallback for the RF appendix (`tt_um_bokumentation_salaras_rx`) and passes with WNS +7.97 ns, but the authenticated link core (SIMON-32/64 plus L2 plus L3) is larger than the RF appendix.
-The 2x2 tile provides a comfortable fit: the link boundary hardening reports 2354 synthesis cells, Magic DRC 0, LVS 0, worst setup slack +10.79 ns, worst hold slack +0.12 ns, and typical power 1.87 mW at the sky130 typical corner.
+The 1x2 tile was used as a fallback for the RF appendix (`tt_um_bokumentation_salaras_rx`) and passes with WNS +7.97 ns, but the authenticated core (SIMON-32/64 plus L2 plus L3) and the link are larger than the RF appendix.
+The 2x2 tile provides a comfortable fit: the core hardening reports 2511 synthesis cells, Magic DRC 0, LVS 0, WNS 0.00 (worst setup slack +10.87 ns), and typical power 2.10 mW; the link hardening reports 3220 cells, 2 antenna violations, WNS 0.00, and 3.61 mW typical.
 The die area 0.0756 mm^2 is within the Tiny Tapeout tile allocation for a 2x2 submission.
 An FPGA-only approach would not produce the GDS deliverable required for the competition.
-The Cyclone V proxy (Yosys ALM mapping) confirms the design also maps cleanly to the DE10-Nano: 360 ALUTs and 500 flip-flops, well within the 41,910 ALM capacity of the DE10-Nano.
+Quartus confirms the design maps cleanly to the DE10-Nano: the Tier B loopback wrapper fits in 421 ALM and 1029 registers, well within the 41,910 ALM capacity.
+
+---
+
+## TS-05: Transport
+
+The boundary core is front-end-agnostic. The committed work adds a purpose-built secure link in front of it.
+
+| Alternative | Framing | Integrity | Clock | Status |
+| --- | --- | --- | --- | --- |
+| Direct frame block (Tier A) | Host-driven block | Keyed MAC + freshness | Single | Committed |
+| 8b/10b serial link (Tier B) | K28.5 comma, word lock | Keyed MAC + freshness, plus line coding | Single | Built (simulation loopback) |
+| Async UART | Start/stop bits | Needs an added receiver and sampling | Single | Not built |
+| CDC bridge (Tier C) | Via `cdc_fifo` | Keyed MAC + freshness | Two | Future |
+
+**Decision:** Tier A core plus the Tier B 8b/10b link for the committed secure-communication claim.
+
+**Rationale:**
+Area 04 names TT07 SerDes and CDC FIFO. The Tier B link is the closest match: 8b/10b with running disparity, K28.5 comma framing, word lock, and invalid-code detection, feeding the authenticated core.
+The link is verified in simulation by an internal loopback (clean commit; forgery, replay, and line error rejected); the on-board demonstration is a bootcamp step.
+A second clock domain and the CDC crossing are deferred to Tier C and are not claimed.

@@ -21,7 +21,7 @@ module tb_project ();
     wire [7:0] uio_out;
     wire [7:0] uio_oe;
 
-    tt_um_bokumentation_auth_boundary dut (
+    tt_um_auth_boundary dut (
         .ui_in(ui_in),
         .uo_out(uo_out),
         .uio_in(uio_in),

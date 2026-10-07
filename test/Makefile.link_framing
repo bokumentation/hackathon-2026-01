@@ -1,0 +1,13 @@
+SIM           ?= icarus
+TOPLEVEL_LANG ?= verilog
+SIM_BUILD      = sim_build/link_framing
+SRC_DIR        = $(CURDIR)/../src
+
+VERILOG_SOURCES += $(SRC_DIR)/l1_link_framing.v
+VERILOG_SOURCES += $(CURDIR)/tb_link_framing.v
+COMPILE_ARGS    += -I$(SRC_DIR)
+
+TOPLEVEL = tb_link_framing
+MODULE   = test_link_framing
+
+include $(shell cocotb-config --makefiles)/Makefile.sim

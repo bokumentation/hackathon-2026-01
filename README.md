@@ -1,7 +1,7 @@
-# SALARAS-RX — Authenticated Fail-Closed Ingress Boundary
+# TRI-ARGA - Authenticated Fail-Closed Ingress Boundary
 
 **PERURI Chip Hackathon 2026 · Area 04 Secure Communication**
-Tim *dinotice* · Universitas Telkom
+Tim *Tri Arga* · Universitas Telkom
 
 [![link](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/link.yaml/badge.svg)](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/link.yaml)
 [![lint](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/lint.yaml/badge.svg)](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/lint.yaml)
@@ -18,13 +18,13 @@ Tim *dinotice* · Universitas Telkom
 
 A small, reusable hardware IP block that closes the gap between receiving a serial/RF frame and trusting it.
 
-The problem is measured on a real baseline: the Tiny Tapeout 07 Manchester decoder `tt07-bep-decode` receives a 24-bit integrity field and never checks it, so a corrupt or fault-injected frame still appears valid to the host (CWE-354). The integrity field itself is an undocumented error-correcting code — unsolved.
+The problem is measured on a real baseline: the Tiny Tapeout 07 Manchester decoder `tt07-bep-decode` receives a 24-bit integrity field and never checks it, so a corrupt or fault-injected frame still appears valid to the host (CWE-354). The integrity field itself is an undocumented error-correcting code, unsolved.
 
-SALARAS-RX fixes this with three composable layers:
+TRI-ARGA fixes this with three composable layers:
 
 | Layer | Module | What it does | CWE closed |
 | --- | --- | --- | --- |
-| **L1 serial loader** | `l1_serial_loader.v` | Shift in 64-bit key then 128-bit frame (counter + payload + tag) over a single-bit interface; key-lock prevents second key load | CWE-20 |
+| **L1 serial loader** | `l1_serial_loader.v` | Shift in 64-bit key then 128-bit frame (counter + payload + tag) over a single-bit interface; key-lock, plus framing and timeout watchdogs | CWE-20 |
 | **L2 auth** | `l2_auth.v` | SIMON-32/64 CBC-MAC over `counter + payload`, compare 32-bit tag; counter freshness check | CWE-354, CWE-345, CWE-294 |
 | **L3 commit** | `l3_commit_gatekeeper.v` | Atomic fail-closed commit; sticky fault on any auth or freshness failure | CWE-1264, CWE-1245 |
 
@@ -71,14 +71,34 @@ untrusted link
 | Commit latency | 1 cycle | `make auth` |
 | Forgery rejected | yes | `make l2`, `make auth` |
 | Replay rejected | yes | `make auth` |
-| Formal properties | 5 blocking + 1 non-blocking + 6 L1 | `make formal` |
+| Serial link loopback | clean commit, forgery/replay/line-error rejected | `make link-top` |
+| Serial link ASIC | 2x2 (Tier B), 3220 cells, 0 DRC/LVS, 3.61 mW typical, 2 antenna | `gds.yaml` |
+| Formal verification | 9/9 proofs pass (6 link, 3 RF appendix), see [Formal verification](#formal-verification) | `make formal`, `sby` |
+| FPGA resources | 421 ALM, 1029 FF, 0 M10K, 0 DSP (Cyclone V, Tier B loopback wrapper) | `fpga/de10nano` `make link` |
+| FPGA Fmax | 97.9 MHz (WNS +9.785 ns) | `fpga/de10nano` `make link` |
+| FPGA power | 426.2 mW total, 3.76 mW core dynamic, vector-less | `quartus_pow` |
 | ASIC die area | 0.0756 mm² (2×2 tile, sky130) | `gds.yaml` |
-| ASIC cell count | 2354 cells | `gds.yaml` |
-| ASIC power | 1.87 mW typical | `gds.yaml` |
+| ASIC cell count | 2511 cells | `gds.yaml` |
+| ASIC power | 2.10 mW typical | `gds.yaml` |
 | DRC violations | 0 | `gds.yaml` |
 | LVS violations | 0 | `gds.yaml` |
+| Antenna violations | 0 | `gds.yaml` |
+| ASIC worst setup slack | +10.87 ns | `gds.yaml` |
 
-Full evidence: [`sim/RESULTS.md`](sim/RESULTS.md) · [`synth/area.md`](synth/area.md)
+The ASIC numbers are the signoff at commit `00fc423` (run `37504588955`); see [`synth/area.md`](synth/area.md).
+Full evidence: [`sim/RESULTS.md`](sim/RESULTS.md) · [`synth/area.md`](synth/area.md) · [`docs/evidence.md`](docs/evidence.md) · [`docs/design/quartus-report.md`](docs/design/quartus-report.md)
+
+---
+
+## Formal verification
+
+Formal properties use SymbiYosys (`sby`) over `synth/formal/*.sby`, with the `smtbmc z3` engine. All nine jobs pass.
+
+- Committed link: `auth_top` (fail-closed commit), `auth_data_integrity` (committed data equals the authenticated frame), `l3_commit_core` (committed commit gate), `simon32_64` (exactly 32 rounds), `l1_link` (loader key policy, pulse, framing, and timeout properties), and `link_framing` (8b/10b framing and word lock never rise together with a fault).
+- RF appendix: `l1_framing`, `l2_integrity`, and `l3_commit` verify the archived appendix RTL, not the committed link modules.
+- `auth_data_integrity` is a bounded proof (`mode bmc`, depth 20) with `simon32_64` abstracted by `synth/formal/simon32_64_stub.v`. The data-integrity invariant is independent of the cipher, which is proven separately by `simon32_64.sby`.
+
+`make formal` runs every job and reports a per-file result, so a single failure no longer aborts the suite.
 
 ---
 
@@ -87,7 +107,7 @@ Full evidence: [`sim/RESULTS.md`](sim/RESULTS.md) · [`synth/area.md`](synth/are
 | Tier | Status | Description |
 | --- | --- | --- |
 | **Tier A** | ✅ Committed | Authenticated, replay-resistant, fail-closed boundary. Single clock. Simulation evidence, formal proofs, sky130 2×2 signoff. |
-| **Tier B** | Planned | Attach the boundary to a serial link (`TT_UM_SERDES`, 8b/10b framing). |
+| **Tier B** | ✅ Built (`Security-V3-Serdes`) | 8b/10b serial link with running disparity, K-character comma framing, word lock, and a single-clock loopback through the Tier A core. Simulation only. |
 | **Tier C** | Future | Clock-domain crossing using `tt07_cdc_fifo`. |
 | **Appendix RF** | Archived | Manchester/RF predecessor kept as problem evidence in `appendix/rf/`. |
 
@@ -97,27 +117,36 @@ Full evidence: [`sim/RESULTS.md`](sim/RESULTS.md) · [`synth/area.md`](synth/are
 
 ```
 .
-├── src/                  Committed RTL (l1_serial_loader, simon32_64, l2_auth, l3_commit, top, project)
+├── src/                  Committed RTL (Tier A core plus the Tier B link: link_enc_8b10b, link_dec_10b8b, l1_link_framing, link_tx, link_rx, link_top, project_link)
 ├── test/                 cocotb suites + Windows run_*.py scripts
 ├── synth/
 │   ├── formal/           SymbiYosys properties (.sby + .sv)
 │   └── area.md           Yosys estimates and sky130 signoff numbers
-├── sim/                  RF appendix simulation evidence and RESULTS.md
-├── fpga/de10nano/        Link DE10-Nano project (Quartus)
+├── sim/                  Simulation evidence (boundary + RF appendix), RESULTS.md, and the figures script
+├── fpga/de10nano/        DE10-Nano Quartus project (.qpf/.qsf) and SignalTap script
 ├── appendix/rf/          Archived Manchester/RF design (problem evidence)
 ├── baseline/             Pinned Tiny Tapeout 07 submodules
 ├── docs/
-│   ├── proposal/         Competition proposal (ID + EN) and PDF build
-│   ├── design/           Architecture, threat model, trade study, FMEA
-│   ├── judging/          Proposal audit, judge QnA, feasibility analysis
+│   ├── index.md          Documentation entry point
+│   ├── evidence.md       Claim to artifact to reproduce-command index
+│   ├── glossary.md       Terms, abbreviations, and CWE list
+│   ├── demo.md           On-board demo plan (loopback, control map, cases)
+│   ├── proposal/        Competition proposal (ID + EN) and PDF build
+│   ├── progress/        Progress report source and PDF build
+│   ├── design/           Architecture, threat model, trade study, FMEA, Quartus plan/report, SignalTap
+│   ├── setup/            Host setup and repository workflow (Debian 13)
+│   ├── judging/          Submission audit, judge QnA, feasibility, prior-art analysis
 │   ├── competition/      PERURI Chip Hackathon handbook and rules
-│   ├── deck/             Presentation deck
-│   └── archive/          Earlier drafts
+│   ├── references/       Third-party papers (Markdown; original PDFs not tracked)
+│   ├── datasheet/        Board and device datasheet notes
+│   ├── submission/       Submission checklist and deliverables
+│   └── deck/             Presentation deck sources (builds into output/)
 ├── assets/               SVG figures referenced in README and proposal
+├── output/               Generated PDFs, HTML, and deck (not committed)
 ├── gds/                  Generated ASIC output (not committed; see gds.yaml)
 ├── openlane/             OpenLane entry configuration
 ├── tools/                Integrity-field analysis scripts
-├── .github/workflows/    CI: lint, synth, test, formal, sim, gds, docs
+├── .github/workflows/    CI: link, lint, synth, test, formal, sim, gds, and a docs heading check
 ├── info.yaml             Tiny Tapeout project metadata
 ├── Makefile              Build entry point (`make help` to list all targets)
 └── requirements.txt      Python verification dependencies
@@ -134,7 +163,11 @@ Full evidence: [`sim/RESULTS.md`](sim/RESULTS.md) · [`synth/area.md`](synth/are
 - Verilator (RTL lint)
 - Yosys (synthesis check)
 - SymbiYosys / OSS CAD Suite (formal, optional)
+- Node.js and npm, plus Chromium or Google Chrome (documentation build, optional)
+- Inkscape and LibreOffice (`make docs-all`, optional)
 - Intel Quartus Prime Lite (DE10-Nano FPGA, optional)
+
+See [`docs/setup/debian-13.md`](docs/setup/debian-13.md) for the full Debian 13 setup, and run `make doctor` to list what is installed.
 
 ### 1. Clone
 
@@ -152,24 +185,29 @@ git submodule update --init --recursive
 ### 2. Set up the environment
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate        # Windows: venv\Scripts\activate
-pip install -r requirements.txt
+make env
 ```
 
-Or: `make env && source venv/bin/activate`
+`make env` creates `venv/` and installs `requirements.txt`. The cocotb targets add `venv/bin` to `PATH` automatically, so `source venv/bin/activate` is only needed if you want to run the Python tools by hand.
 
 ### 3. Run the verification stack
 
 ```bash
+make doctor        # check for the required host tools
 make lint          # RTL lint with Verilator
 make synth-check   # Synthesizability check with Yosys
 make simon         # SIMON-32/64 cipher tests (2 tests, 49 vectors)
 make l2            # L2 auth + freshness tests (4 tests, 128 bit-flip checks)
 make auth          # Integrated auth + commit tests (6 tests, 108-cycle latency)
-make wrapper       # Tiny Tapeout wrapper tests (5 tests)
-make formal        # SymbiYosys formal properties (5 blocking + 1 non-blocking)
+make wrapper       # Tiny Tapeout wrapper tests (6 tests)
+make link-codec    # 8b/10b encoder/decoder tests (6 tests)
+make link-framing  # link comma/word-lock/timeout tests (2 tests)
+make link-top      # serial link loopback through the boundary (4 tests)
+make figures       # regenerate the proposal and appendix figures from VCDs
+make docs          # build the proposal PDF into output/
 ```
+
+Formal verification is optional; see [Formal verification](#formal-verification).
 
 On **Windows** (no `make`):
 
@@ -186,6 +224,7 @@ python test/run_project_test.py
 | --- | --- |
 | `make help` | List all available targets |
 | `make env` | Create the Python virtual environment |
+| `make doctor` | Check for the required host tools |
 | `make submodules` | Initialize and update baseline submodules |
 | `make lint` | RTL lint with Verilator |
 | `make synth-check` | Synthesizability check with Yosys |
@@ -193,9 +232,19 @@ python test/run_project_test.py
 | `make simon` | SIMON-32/64 cipher and CBC-MAC tests |
 | `make l2` | L2 authentication and freshness tests |
 | `make auth` | Integrated authentication and commit tests |
+| `make crc` | RF CRC streaming latency (comparison) |
 | `make wrapper` | Tiny Tapeout wrapper tests |
+| `make link-codec` | 8b/10b encoder/decoder tests |
+| `make link-framing` | Link comma/word-lock/timeout tests |
+| `make link-top` | Serial link loopback through the boundary |
+| `make test` | RF appendix cocotb suite |
 | `make formal` | SymbiYosys formal properties |
 | `make sim` | RF appendix simulation evidence |
+| `make figures` | Regenerate the proposal and appendix figures from real VCDs |
+| `make docs` | Build the proposal into `output/` |
+| `make docs-force` | Rebuild the proposal even if unchanged |
+| `make docs-all` | Build the proposal, deck, and progress report into `output/` |
+| `make progress` | Build the progress report into `output/` |
 | `make gds` | Instructions for ASIC hardening |
 | `make fpga` | Instructions for DE10-Nano build |
 | `make clean` | Remove build artifacts |
@@ -210,24 +259,36 @@ Trigger it with a workflow dispatch or push a `v*` tag.
 
 Configuration: [`src/config.tcl`](src/config.tcl), [`src/user_config.tcl`](src/user_config.tcl), [`info.yaml`](info.yaml).
 
-The last passing run: 2×2 tile, 2354 cells, 0 DRC, 0 LVS, WNS +10.79 ns, 1.87 mW typical.
+The last passing run: 2x2 tile, 2511 cells, 0 DRC, 0 LVS, 0 antenna, WNS 0.00, 2.10 mW typical.
 
 ## FPGA build
 
 DE10-Nano flow: [`fpga/de10nano/README.md`](fpga/de10nano/README.md).
 
-Key-load / frame-load protocol uses `SW[0]`: set high to shift the 64-bit key MSB-first; `LEDR[5]` lights when the key is locked. Set `SW[0]` low and shift the 128-bit frame (counter + payload + tag).
+Tier A (`de10nano_top`): `SW[0]` selects key mode (high, shift the 64-bit key MSB-first, `LEDR[5]` lights when locked) or frame mode (low, shift the 128-bit frame counter + payload + tag).
+
+Tier B loopback demo (`link_demo_top`): `make -C fpga/de10nano link`. `SW[1:0]` selects clean (`00`), corrupt (`01`), or replay (`10`); `KEY[1]` sends one frame; `SW[2]` is `fault_ack`. The FPGA generates the 8b/10b stream internally, so no external device is needed.
 
 ## Proposal
 
-- Indonesian: [`docs/proposal/salaras-rx-proposal.id.md`](docs/proposal/salaras-rx-proposal.id.md)
-- English: [`docs/proposal/salaras-rx-proposal.en.md`](docs/proposal/salaras-rx-proposal.en.md)
+- Indonesian: [`docs/proposal/proposal.id.md`](docs/proposal/proposal.id.md)
+- English: [`docs/proposal/proposal.en.md`](docs/proposal/proposal.en.md)
 
-Build HTML and PDF:
+Build the proposal HTML and PDF from the repository root:
 
 ```bash
-cd docs/proposal && npm ci && node build.mjs
+make docs
 ```
+
+Output: `output/pdf/PROPOSAL-TRIARGA-<timestamp>.pdf`, with the intermediate HTML in `output/html/`. The `output/` folder is git-ignored. The timestamp comes from the source mtime, so an unchanged proposal keeps its existing file and an edit stamps a new one.
+
+Build the proposal and the presentation deck:
+
+```bash
+make docs-all
+```
+
+This adds `output/pptx/DECK-TRIARGA-<timestamp>.pptx` and `output/pdf/DECK-TRIARGA-<timestamp>.pdf`.
 
 ---
 
@@ -237,8 +298,8 @@ Two Tier A vulnerabilities were identified and fixed on this branch:
 
 | ID | CWE | Description | Fix |
 | --- | --- | --- | --- |
-| Bug 1 | CWE-1264 | TOCTOU: `salaras_auth_top` passed live input ports to L3 instead of the latched values from L2. Committed data could differ from authenticated data. | `l2_auth` now exposes `counter_q` / `payload_q` latched outputs; `salaras_auth_top` passes these to L3. |
-| Bug 2 | — | Key-path separation: `project.v` and the DE10-Nano wrapper loaded the key from the same 192-bit shift register as the frame. | Separate 64-bit `key_sr` with `key_mode` pin (`SW[0]`) and `key_locked` flag. |
+| Bug 1 | CWE-1264 | TOCTOU: `boundary_top` passed live input ports to L3 instead of the latched values from L2. Committed data could differ from authenticated data. | `l2_auth` now exposes `counter_q` / `payload_q` latched outputs; `boundary_top` passes these to L3. |
+| Bug 2 | - | Key-path separation: `project.v` and the DE10-Nano wrapper loaded the key from the same 192-bit shift register as the frame. | Separate 64-bit `key_sr` with `key_mode` pin (`SW[0]`) and `key_locked` flag. |
 
 See [`SECURITY.md`](SECURITY.md) for the responsible-disclosure policy.
 
@@ -255,6 +316,18 @@ See [`SECURITY.md`](SECURITY.md) for the responsible-disclosure policy.
 All three are Apache-2.0. See [`NOTICE`](NOTICE) for attribution.
 
 ---
+
+## Documentation
+
+- Documentation entry point: [`docs/index.md`](docs/index.md)
+- Evidence index (claims to artifacts to commands): [`docs/evidence.md`](docs/evidence.md)
+- Proposal (ID and EN): [`docs/proposal/`](docs/proposal/)
+- Presentation deck: [`docs/deck/`](docs/deck/)
+- Progress report: [`docs/progress/progress-report.md`](docs/progress/progress-report.md)
+- Setup and workflow on Debian 13: [`docs/setup/debian-13.md`](docs/setup/debian-13.md)
+- Submission checklist: [`docs/submission/checklist.md`](docs/submission/checklist.md)
+- On-board demo and bring-up: [`docs/demo.md`](docs/demo.md)
+- Quartus FPGA report: [`docs/design/quartus-report.md`](docs/design/quartus-report.md)
 
 ## Contributing
 

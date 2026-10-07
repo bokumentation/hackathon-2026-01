@@ -15,7 +15,7 @@ sources = [
     SRC / "simon32_64.v",
     SRC / "l2_auth.v",
     SRC / "l3_commit_gatekeeper.v",
-    SRC / "salaras_auth_top.v",
+    SRC / "boundary_top.v",
     TEST / "tb_auth_top.v",
 ]
 

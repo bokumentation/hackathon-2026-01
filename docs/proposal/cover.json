@@ -1,0 +1,42 @@
+{
+  "id": {
+    "event": "PROPOSAL PESERTA HACKATHON CHIP 2026",
+    "categoryLabel": "Kategori",
+    "category": "04 - Secure Communication",
+    "brand": "TRI-ARGA",
+    "chip": "TRI-ARGA: Authenticated, Replay-Resistant Ingress Boundary for Lightweight Serial Links",
+    "subtitle": "Gerbang ingress tiga lapis yang autentik, anti-replay, dan fail-closed untuk tautan serial ringan",
+    "idHeading": "Identitas Tim",
+    "chipLabel": "Judul Ide Desain Chip",
+    "teamLabel": "Nama Tim",
+    "membersLabel": "Anggota Tim",
+    "advisorLabel": "Dosen Pembimbing",
+    "team": "Tri Arga",
+    "members": [
+      { "role": "Ketua", "name": "Ibrahim Fauzi Rahman", "institution": "Universitas Telkom", "contact": "ibrahimfauzirahman@student.telkomuniversity.ac.id / +62 857-2774-6841" },
+      { "role": "Anggota 1", "name": "Idris Syaifulloh", "institution": "Universitas Telkom", "contact": "idrissyaifulloh@student.telkomuniversity.ac.id / +62 895-3309-78461" }
+    ],
+    "advisor": "Dr. Setia Juli Irzal Ismail, S.T., M.T. - Universitas Telkom",
+    "footer": "TRI-ARGA | PERURI Chip Hackathon 2026 | Universitas Telkom"
+  },
+  "en": {
+    "event": "PROPOSAL PESERTA HACKATHON CHIP 2026",
+    "categoryLabel": "Category",
+    "category": "04 - Secure Communication",
+    "brand": "TRI-ARGA",
+    "chip": "TRI-ARGA: Authenticated, Replay-Resistant Ingress Boundary for Lightweight Serial Links",
+    "subtitle": "A three-layer, authenticated, replay-resistant, and fail-closed ingress boundary for lightweight serial links",
+    "idHeading": "Team Identity",
+    "chipLabel": "Chip Design Idea Title",
+    "teamLabel": "Team Name",
+    "membersLabel": "Team Members",
+    "advisorLabel": "Advisor",
+    "team": "Tri Arga",
+    "members": [
+      { "role": "Lead", "name": "Ibrahim Fauzi Rahman", "institution": "Universitas Telkom", "contact": "ibrahimfauzirahman@student.telkomuniversity.ac.id / +62 857-2774-6841" },
+      { "role": "Member", "name": "Idris Syaifulloh", "institution": "Universitas Telkom", "contact": "idrissyaifulloh@student.telkomuniversity.ac.id / +62 895-3309-78461" }
+    ],
+    "advisor": "Dr. Setia Juli Irzal Ismail, S.T., M.T. - Universitas Telkom",
+    "footer": "TRI-ARGA | PERURI Chip Hackathon 2026 | Universitas Telkom"
+  }
+}

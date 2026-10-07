@@ -1,13 +1,15 @@
 {
-  "name": "salaras-rx-proposal",
+  "name": "tri-arga-proposal",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Build the SALARAS-RX proposal HTML/PDF from the canonical markdown sources.",
+  "description": "Build the TRI-ARGA proposal HTML/PDF from the canonical markdown sources.",
   "scripts": {
     "build": "node build.mjs"
   },
   "dependencies": {
-    "marked": "18.0.14"
+    "marked": "18.0.14",
+    "pdf-lib": "^1.17.1",
+    "puppeteer-core": "^25.12.0"
   }
 }

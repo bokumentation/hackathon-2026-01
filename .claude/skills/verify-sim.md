@@ -1,14 +1,14 @@
 ---
 name: verify-sim
-description: Verify RTL code correctness and simulation results for the SALARAS-RX authenticated ingress boundary. Run when asked to verify code, check simulation results, validate a change, or confirm no regressions.
+description: Verify RTL code correctness and simulation results for the TRI-ARGA authenticated ingress boundary. Run when asked to verify code, check simulation results, validate a change, or confirm no regressions.
 ---
 
-Verify the SALARAS-RX authenticated ingress boundary.
+Verify the TRI-ARGA authenticated ingress boundary.
 Never claim a result that was not actually measured - check real test output before reporting.
 
 ## Step 1 - RTL static checks
 
-For each source file in `src/`: simon32_64.v, l1_serial_loader.v, l2_auth.v, l3_commit_gatekeeper.v, salaras_auth_top.v, project.v:
+For each source file in `src/`: simon32_64.v, l1_serial_loader.v, l2_auth.v, l3_commit_gatekeeper.v, boundary_top.v, project.v:
 
 1. Confirm the file begins with `` `default_nettype none ``.
 2. Confirm every `output` port is driven on all paths (no inferred latches).
@@ -16,11 +16,11 @@ For each source file in `src/`: simon32_64.v, l1_serial_loader.v, l2_auth.v, l3_
 
 Windows:
 ```
-iverilog -g2012 -o NUL -Isrc -Wall src\simon32_64.v src\l1_serial_loader.v src\l2_auth.v src\l3_commit_gatekeeper.v src\salaras_auth_top.v src\project.v
+iverilog -g2012 -o NUL -Isrc -Wall src\simon32_64.v src\l1_serial_loader.v src\l2_auth.v src\l3_commit_gatekeeper.v src\boundary_top.v src\project.v
 ```
 Linux/CI:
 ```
-iverilog -g2012 -o /dev/null -Isrc -Wall src/simon32_64.v src/l1_serial_loader.v src/l2_auth.v src/l3_commit_gatekeeper.v src/salaras_auth_top.v src/project.v
+iverilog -g2012 -o /dev/null -Isrc -Wall src/simon32_64.v src/l1_serial_loader.v src/l2_auth.v src/l3_commit_gatekeeper.v src/boundary_top.v src/project.v
 ```
 
 Report every warning and error.
