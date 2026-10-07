@@ -7,6 +7,8 @@ committed design.
 - `src/` RTL: `sync2`, vendored `edge_detect`/`state_machine`/`data_validate`,
   `frame_capture`, `l1_framing_validator`, `l2_integrity_verify`,
   `l3_commit_gatekeeper`, `salaras_rx_top`, and the Tiny Tapeout wrapper.
+- `docs/` the RF-specific architecture, threat model, and verification plan
+  (`architecture-rf.md`, `threat-model-rf.md`, `verification-plan-rf.md`).
 - `info.yaml`, `config.tcl`, `user_config.tcl` Tiny Tapeout metadata.
 
 Evidence: `sim/RESULTS.md` (E1, E2) and the sky130 1x2 signoff in

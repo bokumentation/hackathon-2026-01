@@ -1,6 +1,13 @@
 @page {
   size: A4;
-  margin: 18mm 18mm 18mm 18mm;
+  margin: 14mm 15mm 14mm 15mm;
+}
+
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  src: url("assets/PlusJakartaSans-ExtraBold.ttf") format("truetype");
+  font-weight: 800;
+  font-display: swap;
 }
 
 /* ---- cover page ---- */
@@ -12,24 +19,26 @@
   break-after: page;
 }
 .cover-top {
-  font-size: 24pt;
+  font-family: "Plus Jakarta Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 26pt;
   font-weight: 700;
   line-height: 1.0;
   letter-spacing: 1px;
-  color: #c2410c;
-  border-bottom: 2.5px solid #c2410c;
+  color: #3e3efe;
+  border-bottom: 2px solid #d1d5db;
   padding-bottom: 8pt;
 }
 .cover-cat {
     margin-top: 9pt;
-    font-size: 16pt;
+    font-size: 14pt;
     color: #666666;
-    padding-bottom: 8pt;
+    /* padding-bottom: 8pt; */
 }
 .cover-hero {
   margin-top: 180pt;
 }
 .cover-title {
+  font-family: "Plus Jakarta Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 46pt;
   line-height: 1;
   margin: 0 0 8pt;
@@ -52,6 +61,7 @@
   padding-top: 12pt;
 }
 .cover-id-h {
+  font-family: "Plus Jakarta Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 13pt;
   font-weight: 700;
   color: #111827;
@@ -77,8 +87,8 @@ html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
 body {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 11.5pt;
-  line-height: 1.5;
+  font-size: 10.5pt;
+  line-height: 1.33;
   color: #111827;
   margin: 0;
 }
@@ -95,8 +105,8 @@ h1 {
 }
 
 h2 {
-  font-size: 16pt;
-  margin: 18pt 0 8pt;
+  font-size: 14pt;
+  margin: 12pt 0 6pt;
   padding-bottom: 3pt;
   border-bottom: 1px solid #d1d5db;
   color: #111827;
@@ -104,27 +114,27 @@ h2 {
 }
 
 h3 {
-  font-size: 13pt;
-  margin: 14pt 0 5pt;
+  font-size: 12pt;
+  margin: 9pt 0 4pt;
   color: #1f2937;
   break-after: avoid;
 }
 
-p { margin: 0 0 8pt; text-align: justify; }
+p { margin: 0 0 6pt; text-align: justify; }
 
-ul, ol { margin: 0 0 8pt; padding-left: 20pt; }
-li { margin: 0 0 3pt; }
+ul, ol { margin: 0 0 6pt; padding-left: 18pt; }
+li { margin: 0 0 2pt; }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  margin: 8pt 0 12pt;
-  font-size: 10.5pt;
+  margin: 6pt 0 9pt;
+  font-size: 9.5pt;
 }
 
 th, td {
   border: 1px solid #cbd5e1;
-  padding: 5pt 7pt;
+  padding: 3pt 5pt;
   vertical-align: top;
   text-align: left;
 }
@@ -153,11 +163,11 @@ pre code { background: none; padding: 0; }
 
 a { color: #1d4ed8; text-decoration: none; word-break: break-all; }
 
-figure { margin: 10pt 0 12pt; text-align: center; break-inside: avoid; }
+figure { margin: 7pt 0 9pt; text-align: center; break-inside: avoid; }
 figure img { max-width: 100%; height: auto; }
-figcaption { font-size: 10pt; color: #6b7280; margin-top: 4pt; }
+figcaption { font-size: 9pt; color: #6b7280; margin-top: 3pt; }
 
-.proto { max-width: 130mm; margin: 8pt auto 12pt; }
+.proto { max-width: 96mm; margin: 6pt auto 9pt; }
 .proto img { width: 100%; height: auto; }
 
 strong { color: #111827; }

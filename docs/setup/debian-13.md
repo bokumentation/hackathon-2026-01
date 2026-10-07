@@ -14,12 +14,13 @@ Install the base tools with apt.
 
 ```bash
 sudo apt update
-sudo apt install -y git make python3 python3-venv python3-pip verilator yosys iverilog gtkwave
+sudo apt install -y git make build-essential python3 python3-venv python3-pip verilator yosys iverilog gtkwave
 ```
 
 - `verilator` is used by `make lint`.
 - `yosys` is used by `make synth-check` and `make area`.
 - `iverilog` is the cocotb simulator for every test target.
+- `build-essential` provides `gcc`/`g++`, which cocotb needs to build the simulator VPI interface; without a compiler every cocotb target fails at build time.
 - `gtkwave` is only for viewing waveforms and is optional.
 - `git` and `make` are required by every target.
 
@@ -33,7 +34,7 @@ Building documentation PDFs is optional and needs Node plus extra tools:
 sudo apt install -y nodejs npm chromium inkscape libreoffice
 ```
 
-- `nodejs` and `npm` are required by the proposal and deck builds.
+- `nodejs` and `npm` are required by the proposal, deck, and progress builds; Debian 13 ships Node 20, which is sufficient (Node 18 or newer). `npm ci` needs network access.
 - `chromium` (or `google-chrome`) renders the HTML to PDF.
 - `inkscape` rasterizes the deck diagrams.
 - `libreoffice` converts the deck pptx to PDF.
@@ -68,7 +69,7 @@ source venv/bin/activate
 ```
 
 `make env` runs `python3 -m venv venv` and `pip install -r requirements.txt`.
-The pinned packages are `cocotb==2.1.0`, `pytest==9.1.1`, `matplotlib`, and `vcdvcd`.
+The pinned packages are `cocotb==2.1.0`, `pytest==9.1.1`, `matplotlib==3.11.2`, and `vcdvcd==2.6.0`.
 Activate the virtual environment in every new shell before running any test target.
 
 ## 4. Smoke check the toolchain
@@ -101,14 +102,22 @@ Run `make help` to list every target.
 | `make auth` | integrated authentication and commit tests | iverilog, cocotb |
 | `make crc` | RF CRC streaming latency comparison | iverilog, cocotb |
 | `make wrapper` | Tiny Tapeout wrapper key-separation and frame tests | iverilog, cocotb |
+| `make link-codec` | 8b/10b encoder/decoder tests | iverilog, cocotb |
+| `make link-framing` | link comma/word-lock/timeout tests | iverilog, cocotb |
+| `make link-top` | serial link loopback through the boundary | iverilog, cocotb |
 | `make test` | archived RF appendix cocotb suite | iverilog, cocotb |
 | `make sim` | archived RF appendix simulation evidence (baseline plus boundary) | iverilog, cocotb |
+| `make figures` | regenerate proposal/appendix figures from VCDs | iverilog, python (matplotlib, vcdvcd) |
+| `make docs` | build the proposal PDF into `output/` | node, chromium |
+| `make docs-force` | rebuild the proposal even if unchanged | node, chromium |
+| `make docs-all` | build the proposal, deck, and progress report | node, chromium, inkscape, libreoffice |
+| `make progress` | build the progress report into `output/` | node, chromium |
 | `make gds` | instructions for the Tiny Tapeout GDS action | none |
 | `make fpga` | instructions for the DE10-Nano build | none |
 | `make clean` | remove build outputs | none |
 
-The committed link is exercised by `simon`, `l2`, `auth`, `crc`, and `wrapper`.
-The archived Manchester/RF problem evidence is exercised by `test` and `sim` and is not the committed design.
+The committed link is exercised by `simon`, `l2`, `auth`, `wrapper`, `link-codec`, `link-framing`, and `link-top`.
+The archived Manchester/RF problem evidence is exercised by `crc`, `test`, and `sim` and is not the committed design.
 
 On a host without `make`, the same cocotb suites can be launched directly with the helpers under `test/`.
 
@@ -174,14 +183,15 @@ JTAG programming from inside a container needs USB passthrough for `/dev/bus/usb
 
 ## 7. FPGA report generation
 
-The Quartus project lives in `fpga/de10nano/`.
+The Quartus projects live in `fpga/de10nano/`.
 
 ```bash
 cd fpga/de10nano
-make
+make        # de10nano_top (Tier A)
+make link   # link_demo_top (Tier B loopback)
 ```
 
-`make` calls `quartus_sh --flow compile de10nano_top`.
+`make` calls `quartus_sh --flow compile de10nano_top`; `make link` compiles `link_demo_top`.
 Reports are written under `output_files/`.
 
 Capture the following numbers for the proposal and for `synth/area.md`.
@@ -191,11 +201,15 @@ Capture the following numbers for the proposal and for `synth/area.md`.
 | Fitter Summary | ALMs, registers, M10K block memory, DSP blocks |
 | Timing Analyzer | Fmax, WNS, TNS, worst setup and hold slack |
 | PowerPlay Power Analyzer | total thermal power, split by clock and enable |
-| SignalTap | `auth_ok`, `fresh_ok`, `done`, `host_full`, `fault` during a frame |
+| SignalTap | `auth_ok`, `fresh_ok`, `done`, `host_full`, `fault`, and `word_lock` (Tier B) or `key_locked` (Tier A) |
 
-The current proposal FPGA table is a Yosys proxy estimate.
-Do not present Yosys numbers as Quartus results.
-Label the estimate as an estimate until the Fitter, Timing, and PowerPlay reports replace it.
+The proposal FPGA rows are measured Quartus results:
+
+- Tier A `de10nano_top`: 242 ALM, 654 registers, Fmax 136.37 MHz, 425.4 mW vector-less.
+- Tier B loopback `link_demo_top`: 421 ALM, 1029 registers, Fmax 97.9 MHz, 426.2 mW vector-less (3.76 mW core dynamic).
+
+Re-run the compile after any RTL change and update `synth/area.md` and the proposal.
+PowerPlay is vector-less, so label it an estimate rather than a measurement.
 
 ## 8. JTAG and USB-Blaster on Debian
 
@@ -225,21 +239,25 @@ jtagconfig
 Program the volatile bitstream over JTAG.
 
 ```bash
-quartus_pgm -m jtag -o "p;output_files/de10nano_top.sof"
+cd fpga/de10nano
+make program        # de10nano_top
+make program-link   # link_demo_top
 ```
+
+These run `quartus_pgm -m jtag -o "p;output_files/<project>.sof"` (`quartus_cpf`, also installed, converts `.sof` to `.rbf`).
 
 A `.sof` loaded over JTAG is lost on power cycle.
 For persistence, convert it to a `.rbf` with `quartus_cpf` and configure it through the HPS or the onboard configuration path.
 
-## 9. Known repository issues
+## 9. Current caveats
 
-These issues affect the FPGA flow and some documentation.
-They are recorded here and are not yet fixed in the tree.
+These are known limitations of the current tree, recorded honestly.
 
-- `fpga/de10nano/de10nano_top.qsf` lists the sources but does not include `src/l1_serial_loader.v`, which the wrapper now instantiates, so `quartus_sh --flow compile` fails until it is added.
-- `fpga/de10nano/` has no `.qpf` project file, which `quartus_sh --flow compile` expects.
-- `synth/area.md` says to reproduce the link estimate with `make area-link`, but no `area-link` target exists, so use `make area`.
-- `docs/design/quartus-plan.md` still describes the old 192-bit single-shift-register loader instead of the current 64-bit key plus 128-bit frame path with `SW[0]` key mode.
+- The Tier B sky130 link signoff (`tt_um_link`) has 2 antenna violations; the core signoff (`tt_um_auth_boundary`) is antenna-clean. The proposal reports both as-is.
+- The on-board demonstration and the SignalTap capture require the DE10-Nano and are a bootcamp deliverable; no on-board result is claimed yet.
+- FPGA power is a Quartus PowerPlay vector-less estimate, not an on-board measurement.
+- The clock-domain crossing (Tier C) and the vendored CDC FIFO are not built; no CDC result is claimed.
+- The RF appendix integrity field is an unsolved error-correcting code and stays as problem evidence (`tools/README.md`).
 
 ## 10. Troubleshooting
 
@@ -252,7 +270,9 @@ They are recorded here and are not yet fixed in the tree.
 
 ## 11. Pointers
 
-- `fpga/de10nano/README.md` for the board pinout and on-board test procedure.
+- `fpga/de10nano/README.md` for the board pinout, the Tier A key/frame procedure, and the Tier B `link_demo_top` loopback demo.
 - `docs/design/quartus-plan.md` for the Fitter, Timing, and PowerPlay capture plan.
+- `docs/design/quartus-report.md` for the measured Quartus results (Tier A and Tier B loopback).
+- `docs/deck/` for the presentation/video-deck sources and `docs/progress/` for the progress report build.
 - `README.md` for the project overview and the results table.
 - `AGENTS.md` for the RTL conventions and the verification gates.

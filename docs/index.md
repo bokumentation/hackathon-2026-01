@@ -23,6 +23,8 @@ Generated PDFs, intermediate HTML, and the presentation are written to the git-i
 
 - Canonical proposal (ID): [`proposal/proposal.id.md`](proposal/proposal.id.md)
 - Canonical proposal (EN): [`proposal/proposal.en.md`](proposal/proposal.en.md)
+- Video demo deck: [`deck/build.mjs`](deck/build.mjs)
+- Progress report: [`progress/progress-report.md`](progress/progress-report.md)
 - Submission checklist: [`submission/checklist.md`](submission/checklist.md)
 - Evidence index: [`evidence.md`](evidence.md)
 - Glossary: [`glossary.md`](glossary.md)

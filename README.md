@@ -71,10 +71,12 @@ untrusted link
 | Commit latency | 1 cycle | `make auth` |
 | Forgery rejected | yes | `make l2`, `make auth` |
 | Replay rejected | yes | `make auth` |
-| Formal verification | 8/8 proofs pass (5 committed link, 3 RF appendix), see [Formal verification](#formal-verification) | `make formal`, `sby` |
-| FPGA resources | 242 ALM, 654 FF, 0 M10K, 0 DSP (Cyclone V) | `fpga/de10nano` `make` |
-| FPGA Fmax | 136.37 MHz (WNS +12.667 ns) | `fpga/de10nano` `make` |
-| FPGA power | 425.4 mW total, 2.42 mW core dynamic, vector-less | `quartus_pow` |
+| Serial link loopback | clean commit, forgery/replay/line-error rejected | `make link-top` |
+| Serial link ASIC | 2x2 (Tier B), 3220 cells, 0 DRC/LVS, 3.61 mW typical, 2 antenna | `gds.yaml` |
+| Formal verification | 9/9 proofs pass (6 link, 3 RF appendix), see [Formal verification](#formal-verification) | `make formal`, `sby` |
+| FPGA resources | 421 ALM, 1029 FF, 0 M10K, 0 DSP (Cyclone V, Tier B loopback wrapper) | `fpga/de10nano` `make link` |
+| FPGA Fmax | 97.9 MHz (WNS +9.785 ns) | `fpga/de10nano` `make link` |
+| FPGA power | 426.2 mW total, 3.76 mW core dynamic, vector-less | `quartus_pow` |
 | ASIC die area | 0.0756 mm² (2×2 tile, sky130) | `gds.yaml` |
 | ASIC cell count | 2511 cells | `gds.yaml` |
 | ASIC power | 2.10 mW typical | `gds.yaml` |
@@ -90,9 +92,9 @@ Full evidence: [`sim/RESULTS.md`](sim/RESULTS.md) · [`synth/area.md`](synth/are
 
 ## Formal verification
 
-Formal properties use SymbiYosys (`sby`) over `synth/formal/*.sby`, with the `smtbmc z3` engine. All eight jobs pass.
+Formal properties use SymbiYosys (`sby`) over `synth/formal/*.sby`, with the `smtbmc z3` engine. All nine jobs pass.
 
-- Committed link: `auth_top` (fail-closed commit), `auth_data_integrity` (committed data equals the authenticated frame), `l3_commit_core` (committed commit gate), `simon32_64` (exactly 32 rounds), and `l1_link` (loader key policy, pulse, framing, and timeout properties).
+- Committed link: `auth_top` (fail-closed commit), `auth_data_integrity` (committed data equals the authenticated frame), `l3_commit_core` (committed commit gate), `simon32_64` (exactly 32 rounds), `l1_link` (loader key policy, pulse, framing, and timeout properties), and `link_framing` (8b/10b framing and word lock never rise together with a fault).
 - RF appendix: `l1_framing`, `l2_integrity`, and `l3_commit` verify the archived appendix RTL, not the committed link modules.
 - `auth_data_integrity` is a bounded proof (`mode bmc`, depth 20) with `simon32_64` abstracted by `synth/formal/simon32_64_stub.v`. The data-integrity invariant is independent of the cipher, which is proven separately by `simon32_64.sby`.
 
@@ -105,7 +107,7 @@ Formal properties use SymbiYosys (`sby`) over `synth/formal/*.sby`, with the `sm
 | Tier | Status | Description |
 | --- | --- | --- |
 | **Tier A** | ✅ Committed | Authenticated, replay-resistant, fail-closed boundary. Single clock. Simulation evidence, formal proofs, sky130 2×2 signoff. |
-| **Tier B** | Planned | Attach the boundary to a serial link (`TT_UM_SERDES`, 8b/10b framing). |
+| **Tier B** | ✅ Built (`Security-V3-Serdes`) | 8b/10b serial link with running disparity, K-character comma framing, word lock, and a single-clock loopback through the Tier A core. Simulation only. |
 | **Tier C** | Future | Clock-domain crossing using `tt07_cdc_fifo`. |
 | **Appendix RF** | Archived | Manchester/RF predecessor kept as problem evidence in `appendix/rf/`. |
 
@@ -115,7 +117,7 @@ Formal properties use SymbiYosys (`sby`) over `synth/formal/*.sby`, with the `sm
 
 ```
 .
-├── src/                  Committed RTL (l1_serial_loader, simon32_64, l2_auth, l3_commit_gatekeeper, boundary_top, project)
+├── src/                  Committed RTL (Tier A core plus the Tier B link: link_enc_8b10b, link_dec_10b8b, l1_link_framing, link_tx, link_rx, link_top, project_link)
 ├── test/                 cocotb suites + Windows run_*.py scripts
 ├── synth/
 │   ├── formal/           SymbiYosys properties (.sby + .sv)
@@ -128,7 +130,7 @@ Formal properties use SymbiYosys (`sby`) over `synth/formal/*.sby`, with the `sm
 │   ├── index.md          Documentation entry point
 │   ├── evidence.md       Claim to artifact to reproduce-command index
 │   ├── glossary.md       Terms, abbreviations, and CWE list
-│   ├── demo.md           On-board demo plan (BOM, wiring, cases)
+│   ├── demo.md           On-board demo plan (loopback, control map, cases)
 │   ├── proposal/        Competition proposal (ID + EN) and PDF build
 │   ├── progress/        Progress report source and PDF build
 │   ├── design/           Architecture, threat model, trade study, FMEA, Quartus plan/report, SignalTap
@@ -197,7 +199,10 @@ make synth-check   # Synthesizability check with Yosys
 make simon         # SIMON-32/64 cipher tests (2 tests, 49 vectors)
 make l2            # L2 auth + freshness tests (4 tests, 128 bit-flip checks)
 make auth          # Integrated auth + commit tests (6 tests, 108-cycle latency)
-make wrapper       # Tiny Tapeout wrapper tests (5 tests)
+make wrapper       # Tiny Tapeout wrapper tests (6 tests)
+make link-codec    # 8b/10b encoder/decoder tests (6 tests)
+make link-framing  # link comma/word-lock/timeout tests (2 tests)
+make link-top      # serial link loopback through the boundary (4 tests)
 make figures       # regenerate the proposal and appendix figures from VCDs
 make docs          # build the proposal PDF into output/
 ```
@@ -229,6 +234,9 @@ python test/run_project_test.py
 | `make auth` | Integrated authentication and commit tests |
 | `make crc` | RF CRC streaming latency (comparison) |
 | `make wrapper` | Tiny Tapeout wrapper tests |
+| `make link-codec` | 8b/10b encoder/decoder tests |
+| `make link-framing` | Link comma/word-lock/timeout tests |
+| `make link-top` | Serial link loopback through the boundary |
 | `make test` | RF appendix cocotb suite |
 | `make formal` | SymbiYosys formal properties |
 | `make sim` | RF appendix simulation evidence |
@@ -251,13 +259,15 @@ Trigger it with a workflow dispatch or push a `v*` tag.
 
 Configuration: [`src/config.tcl`](src/config.tcl), [`src/user_config.tcl`](src/user_config.tcl), [`info.yaml`](info.yaml).
 
-The last passing run: 2×2 tile, 2354 cells, 0 DRC, 0 LVS, WNS +10.79 ns, 1.87 mW typical.
+The last passing run: 2x2 tile, 2511 cells, 0 DRC, 0 LVS, 0 antenna, WNS 0.00, 2.10 mW typical.
 
 ## FPGA build
 
 DE10-Nano flow: [`fpga/de10nano/README.md`](fpga/de10nano/README.md).
 
-Key-load / frame-load protocol uses `SW[0]`: set high to shift the 64-bit key MSB-first; `LEDR[5]` lights when the key is locked. Set `SW[0]` low and shift the 128-bit frame (counter + payload + tag).
+Tier A (`de10nano_top`): `SW[0]` selects key mode (high, shift the 64-bit key MSB-first, `LEDR[5]` lights when locked) or frame mode (low, shift the 128-bit frame counter + payload + tag).
+
+Tier B loopback demo (`link_demo_top`): `make -C fpga/de10nano link`. `SW[1:0]` selects clean (`00`), corrupt (`01`), or replay (`10`); `KEY[1]` sends one frame; `SW[2]` is `fault_ack`. The FPGA generates the 8b/10b stream internally, so no external device is needed.
 
 ## Proposal
 
@@ -311,6 +321,9 @@ All three are Apache-2.0. See [`NOTICE`](NOTICE) for attribution.
 
 - Documentation entry point: [`docs/index.md`](docs/index.md)
 - Evidence index (claims to artifacts to commands): [`docs/evidence.md`](docs/evidence.md)
+- Proposal (ID and EN): [`docs/proposal/`](docs/proposal/)
+- Presentation deck: [`docs/deck/`](docs/deck/)
+- Progress report: [`docs/progress/progress-report.md`](docs/progress/progress-report.md)
 - Setup and workflow on Debian 13: [`docs/setup/debian-13.md`](docs/setup/debian-13.md)
 - Submission checklist: [`docs/submission/checklist.md`](docs/submission/checklist.md)
 - On-board demo and bring-up: [`docs/demo.md`](docs/demo.md)

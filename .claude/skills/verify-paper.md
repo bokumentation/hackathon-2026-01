@@ -23,7 +23,7 @@ PASS: all present with content. WARN: section exists but thin. FAIL: section mis
 Search for violations of the AGENTS.md / VISION.md rules:
 - No cryptographic proof of security (tag 32 bit = ~2^-32 forgery probability, not "cryptographically secure")
 - No real-frame RF detection rate (RF is problem evidence only, field is unsolved ECC)
-- No serial link or CDC result before Tier B/C is built
+- No serial link result beyond the Tier B simulation loopback; no CDC result before Tier C is built
 - No key provisioning, persistent counter, or side-channel resistance
 - No "works with any protocol" - say "reusable core demonstrated on RF appendix plus one synthetic profile"
 - No target portability as result before synthesis
@@ -48,10 +48,11 @@ Cross-check against sim/RESULTS.md and synth/area.md (ground truth):
 | Bit-flip rejection | 128/128 |
 | False reject (20 frames) | 0 |
 | sky130 RF die area (1x2) | 0.0363 mm^2 |
-| sky130 link die area (2x2) | 0.0756 mm^2 |
-| link typical power | 1.87 mW |
-| RF typical power | 1.21 mW |
-| Formal properties passing | 5 (blocking) + 1 (non-blocking) |
+| sky130 core die area (2x2) | 0.0756 mm^2 |
+| Core typical power | 2.10 mW |
+| Tier B link typical power | 3.61 mW (2 antenna) |
+| FPGA Tier B loopback wrapper | 421 ALM, 1029 FF, Fmax 97.9 MHz, 426.2 mW |
+| Formal properties passing | 9 jobs (5 core, 1 Tier B, 3 RF) |
 | DRC violations | 0 |
 
 FAIL for any mismatch. WARN for absent expected numbers.

@@ -11,19 +11,19 @@ Use this when changing anything in this repository.
 
 - TRI-ARGA is the fail-closed Manchester/RF ingress boundary on `tt07-bep-decode`; it is the CWE-354 problem evidence and is kept as an appendix.
 - The committed successor is the authenticated, replay-resistant, fail-closed boundary (Tier A): SIMON-32/64 CBC-MAC plus a freshness counter, single clock.
-- Tier B (next): a purpose-built link layer on `TT_UM_SERDES` (`link_enc_8b10b`, `link_dec_10b8b`, `link_tx`, `link_rx`, `l1_link_framing`).
+- Tier B (built): a purpose-built link layer on `TT_UM_SERDES` (`link_enc_8b10b`, `link_dec_10b8b`, `l1_link_framing`, `link_tx`, `link_rx`, `link_top`, `project_link`), verified by a single-clock loopback through the core.
 - Tier C (future): two-clock operation using the vendored `cdc_fifo`, real hardening, FPGA.
-- Execution is in `PLAN-02.md`; vision and proposal framing are in `PLAN.md`.
+- Execution is in `PLAN.md`; vision and proposal framing are in `VISION.md`.
 
 ## Repository map
 
-- `src/` committed link RTL: `simon32_64`, `l2_auth`, `l3_commit_gatekeeper`, `boundary_top`, `project.v`, plus the Tiny Tapeout config.
-- `appendix/rf/` archived Manchester/RF design, its FPGA project, and the ESP32 replay.
-- `test/` cocotb suites (link tests plus the RF unit suite).
-- `sim/` simulation evidence harness and results (`make sim`), plus `RESULTS.md`.
+- `src/` committed RTL: the Tier A core (`simon32_64`, `l2_auth`, `l3_commit_gatekeeper`, `boundary_top`, `l1_serial_loader`, `project.v`) plus the Tier B link (`link_*`, `l1_link_framing`, `link_top`, `project_link.v`), and the Tiny Tapeout config.
+- `appendix/rf/` archived Manchester/RF design, its FPGA project, the ESP32 replay, and its design docs under `docs/`.
+- `test/` cocotb suites (core, link, plus the RF unit suite).
+- `sim/` RF appendix simulation evidence harness and results (`make sim`), plus `RESULTS.md`.
 - `synth/` formal proofs (`synth/formal/*.sby`) and the area report (`synth/area.md`).
 - `tools/` integrity-field analysis (`crc_reveng.py`, `affine_field.py`).
-- `fpga/` DE10-Nano link project.
+- `fpga/de10nano/` DE10-Nano Quartus projects (`de10nano_top`, `link_demo_top`).
 - `baseline/` pinned Tiny Tapeout 07 submodules; `docs/` is tracked (generated HTML is ignored).
 
 ## Commands
@@ -37,6 +37,10 @@ Use this when changing anything in this repository.
 - `make l2` L2 authentication and freshness tests.
 - `make auth` integrated authentication and commit tests.
 - `make crc` RF CRC streaming latency (comparison).
+- `make wrapper` Tiny Tapeout wrapper tests.
+- `make link-codec` 8b/10b encoder/decoder tests.
+- `make link-framing` comma/word-lock/timeout tests.
+- `make link-top` serial link loopback through the boundary.
 - `make sim` RF appendix simulation evidence suites (baseline + boundary).
 - `.opencode/skill/project-workflow/scripts/verify.sh` runs all gates and reports a pass/fail summary.
 
@@ -59,7 +63,7 @@ Use this when changing anything in this repository.
 
 - No cryptographic proof of security; a 32-bit tag gives about 2^-32 forgery probability.
 - No real-frame RF detection rate; the RF field is unsolved, so RF is problem evidence only.
-- No serial link or CDC result until Tier B or Tier C is built.
+- No serial link result beyond the Tier B simulation loopback; no CDC result until Tier C is built.
 - No key provisioning, persistent counter, or side-channel resistance.
 - No "works with any protocol"; say "reusable core demonstrated on the RF appendix plus one synthetic profile".
 - No target portability (ASIC plus FPGA) as a result until synthesis.

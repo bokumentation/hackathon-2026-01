@@ -13,7 +13,7 @@ Always-on conventions for this repository.
 ## Design program
 
 - Tier A (committed): `simon32_64`, `l2_auth`, `l3_commit_gatekeeper`, integration, simulation evidence, and formal invariants. Single clock.
-- Tier B (next): the link layer, rewritten cleanly for the secure frame and for cocotb: `link_enc_8b10b`, `link_dec_10b8b`, `link_tx`, `link_rx`, `l1_link_framing`.
+- Tier B (built on `Security-V3-Serdes`): the link layer `link_enc_8b10b`, `link_dec_10b8b`, `l1_link_framing`, `link_tx`, `link_rx`, `link_top`, and the `tt_um_link` wrapper, with a single-clock loopback demonstration through the Tier A core.
 - Tier C (future): two-clock operation using the vendored `cdc_fifo`, real hardening, and FPGA.
 - Headline: a reusable, fail-closed authenticated ingress boundary for serial/RF links.
 - Execution lives in `PLAN.md`; vision and proposal framing live in `VISION.md`.
@@ -31,9 +31,9 @@ Always-on conventions for this repository.
 
 ## Toolchain and commands
 
-- Use the top-level Makefile: `make lint`, `make synth-check`, `make area`, `make formal`, `make test`, `make simon`, `make l2`, `make auth`, `make crc`, `make sim`.
-- `make lint` uses Verilator; `make synth-check` and `make area` use Yosys; `make formal` uses SymbiYosys; `make test`, `make simon`, `make l2`, `make auth`, `make crc`, and `make sim` use cocotb with Icarus.
-- `make test` and `make sim` exercise the archived RF appendix; `make simon`, `make l2`, `make auth`, and `make crc` exercise the committed link.
+- Use the top-level Makefile: `make lint`, `make synth-check`, `make area`, `make formal`, `make test`, `make simon`, `make l2`, `make auth`, `make crc`, `make sim`, `make link-codec`, `make link-framing`, `make link-top`.
+- `make lint` uses Verilator; `make synth-check` and `make area` use Yosys; `make formal` uses SymbiYosys; `make test`, `make simon`, `make l2`, `make auth`, `make crc`, `make sim`, `make link-codec`, `make link-framing`, and `make link-top` use cocotb with Icarus.
+- `make test` and `make sim` exercise the archived RF appendix; `make simon`, `make l2`, `make auth`, and `make crc` exercise the committed Tier A link; `make link-codec`, `make link-framing`, and `make link-top` exercise the Tier B serial link.
 - `make gds` documents the Tiny Tapeout GDS action; the generated GDS is not committed.
 
 ## RTL conventions
@@ -56,7 +56,7 @@ Always-on conventions for this repository.
 
 - No cryptographic proof of security; a 32-bit tag gives about 2^-32 forgery probability, and CBC-MAC with a fixed key is not authenticated encryption.
 - No real-frame RF detection rate; the RF integrity field is an unsolved error-correcting code, so RF stays as problem evidence only.
-- No serial link or CDC result until Tier B or Tier C is built.
+- No CDC result until Tier C is built; the Tier B serial-link result is simulation-only on the loopback.
 - No key provisioning, persistent replay counter across power cycles, or side-channel resistance.
 - No "works with any protocol"; say "reusable core demonstrated on the RF appendix plus one synthetic profile".
 - No target portability (ASIC plus FPGA) as a result until synthesis.

@@ -13,3 +13,6 @@ Design-level documents for TRI-ARGA.
 | [`quartus-report.md`](quartus-report.md) | Measured Quartus synthesis, fit, timing, and power results |
 | [`signaltap-plan.md`](signaltap-plan.md) | On-board SignalTap capture procedure for the fail-closed cases |
 | [`ideas/`](ideas/) | Earlier design explorations and alternatives |
+
+The architecture, threat model, and verification plan describe the committed Tier A core and Tier B link.
+The archived RF versions live under [`appendix/rf/docs/`](../../appendix/rf/docs/).

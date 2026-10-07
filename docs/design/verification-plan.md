@@ -1,25 +1,21 @@
 # Verification plan
 
+Verification plan for the committed Tier A authenticated boundary and the Tier B 8b/10b serial link. The archived RF appendix plan is in `appendix/rf/docs/verification-plan-rf.md`.
+
 ## Goals
 
-- Prove the fail-closed invariant: no corrupt or malformed frame is ever committed to the host.
-- Measure detection rate, false-reject rate, and commit latency.
+- Prove the fail-closed invariant: no corrupt, forged, replayed, or malformed frame is committed to the host.
+- Measure detection, false-reject, and latency behavior.
 
 ## Paths
 
 ### S1, simulation (CI)
 
-cocotb drives `digital_in` from captured vectors.
-Single-bit-flip fault injection happens at the vector level.
-Detection rate and latency metrics are computed automatically.
-This path is fully deterministic and runs in CI.
+cocotb drives the RTL directly. The core suites cover SIMON vectors, L2 authentication and freshness, the integrated commit, and the Tiny Tapeout wrapper. The link suites cover the 8b/10b codec, comma/word lock/timeout, and a full loopback through the boundary. Fault injection and latency metrics are computed automatically. This path is deterministic and runs in CI.
 
-### S2, wired hardware-in-the-loop
+### S2, hardware-in-the-loop
 
-An ESP32 replays a capture in real time into the DE10-Nano `digital_in` pin.
-The host reads `host_full`, `fault`, and `host_data` over USB-UART.
-Fault injection flips bits in the replay buffer before transmission.
-See `fpga/replay/README.md`.
+On the DE10-Nano the `link_demo_top` wrapper closes the loop internally: `link_tx` drives `link_rx` into `boundary_top`, so no external source or second clock is needed. A switch selects clean, corrupt, or replay. The on-board capture (SignalTap on `auth_ok`, `fresh_ok`, `done`, `host_full`, `fault`, `word_lock`) runs at the bootcamp.
 
 ## Checks
 
@@ -28,38 +24,35 @@ See `fpga/replay/README.md`.
 | RTL lint | Verilator | `make lint` |
 | Synthesizability | Yosys | `make synth-check` |
 | Resource estimate | Yosys | `make area` |
-| Functional tests | cocotb | `make test` |
-| Simulation evidence | cocotb | `make sim` |
+| Core tests | cocotb | `make simon`, `make l2`, `make auth`, `make wrapper` |
+| Link tests | cocotb | `make link-codec`, `make link-framing`, `make link-top` |
 | Formal properties | SymbiYosys | `make formal` |
 | ASIC hardening | Tiny Tapeout GDS action | `make gds` |
-| FPGA build | Quartus Prime | `make fpga` |
+| FPGA build | Quartus Prime | `make fpga`, `cd fpga/de10nano && make link` |
 
 ## Formal properties
 
-`synth/formal/l1_framing.sby`, `synth/formal/l2_integrity.sby`, and `synth/formal/l3_commit.sby` prove:
+Nine `.sby` jobs pass under `synth/formal/`:
 
-- L1: `framing_ok` implies neither `timing_fault` nor `timeout_fault` is set.
-- L2: a frame start reloads the LFSR register to its seed.
-- L3: `host_full` implies a frame was accepted, and a rejected frame sets `fault`.
+- Core: `auth_top` (fail-closed commit), `auth_data_integrity` (committed data equals the authenticated frame), `l3_commit_core` (committed commit gate), `simon32_64` (exactly 32 rounds), `l1_link` (loader key policy, pulses, framing, and timeout).
+- Tier B: `link_framing` (framing and word lock never rise together with a fault).
+- RF appendix: `l1_framing`, `l2_integrity`, `l3_commit` verify the archived appendix RTL, not the committed link modules.
+
+`auth_data_integrity` is a bounded proof (`mode bmc`, depth 20) with the cipher abstracted.
 
 ## Acceptance criteria
 
 | Criterion | Target | Evidence |
 | --- | --- | --- |
-| Corrupt payload detection | 100% of injected single-bit faults rejected | S1 and S2 fault injection |
-| False reject | 0 clean frames rejected | S1 golden vectors |
-| Commit latency | 1 clock cycle | Boundary simulation (`sim/`) |
-| Area | 1x2 tile (1x1 overflows) | OpenLane report |
+| Single-bit fault detection | 128/128 injected flips rejected | `make l2` |
+| False reject | 0 of 20 clean frames | `make l2` |
+| Forgery, wrong key, replay, stale counter | Rejected | `make l2`, `make auth` |
+| Serial link loopback | clean commit; forgery/replay/line error rejected | `make link-top` |
+| Commit latency | 1 clock cycle | `make auth` |
+| End-to-end latency | 108 clock cycles | `make auth` |
+| Fail-closed invariant | 9 formal jobs pass | `make formal` |
+| FPGA timing | Fmax at least 50 MHz (97.9 MHz measured on the loopback wrapper) | Quartus Timing Analyzer |
 
 ## Status and known risk
 
-S1 evidence is in place: the baseline accepts corrupted payload and integrity
-field (`full=1`, CWE-354), and the boundary is fail-closed (reject, sticky
-fault, 1-cycle commit). Detection rate on real captures is not yet claimed.
-
-The integrity field is affine over GF(2) but does not match any standard CRC-24
-(exhaustive search in `tools/crc_reveng.py`). With the 7 available pairs the
-delta rank is only 5, so the full map is not recoverable
-(`tools/affine_field.py`); the baseline author reports the same and suspects an
-error-correcting code. L2 is parameterized until more `(payload, tail)` pairs
-are collected.
+S1 evidence is in place for the core and the link. The link result is simulation loopback only until the bootcamp; the on-board capture and the real on-board power measurement are pending. No real-frame RF detection rate is claimed, because the RF integrity field is an unsolved error-correcting code (`tools/README.md`).

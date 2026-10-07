@@ -1,0 +1,39 @@
+set_global_assignment -name FAMILY "Cyclone V"
+set_global_assignment -name DEVICE 5CSEBA6U23I7
+set_global_assignment -name TOP_LEVEL_ENTITY link_demo_top
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
+set_global_assignment -name NUM_PARALLEL_PROCESSORS 4
+
+set_global_assignment -name VERILOG_FILE link_demo_top.v
+set_global_assignment -name VERILOG_FILE ../../src/link_enc_8b10b.v
+set_global_assignment -name VERILOG_FILE ../../src/link_dec_10b8b.v
+set_global_assignment -name VERILOG_FILE ../../src/l1_link_framing.v
+set_global_assignment -name VERILOG_FILE ../../src/link_tx.v
+set_global_assignment -name VERILOG_FILE ../../src/link_rx.v
+set_global_assignment -name VERILOG_FILE ../../src/link_top.v
+set_global_assignment -name VERILOG_FILE ../../src/simon32_64.v
+set_global_assignment -name VERILOG_FILE ../../src/l2_auth.v
+set_global_assignment -name VERILOG_FILE ../../src/l3_commit_gatekeeper.v
+set_global_assignment -name VERILOG_FILE ../../src/boundary_top.v
+set_global_assignment -name SEARCH_PATH ../../src
+set_global_assignment -name SDC_FILE link_demo_top.sdc
+
+set_location_assignment PIN_V11 -to CLOCK_50
+set_location_assignment PIN_AH17 -to KEY[0]
+set_location_assignment PIN_AH16 -to KEY[1]
+
+set_location_assignment PIN_Y24 -to SW[0]
+set_location_assignment PIN_W24 -to SW[1]
+set_location_assignment PIN_W21 -to SW[2]
+set_location_assignment PIN_W20 -to SW[3]
+
+set_location_assignment PIN_W15 -to LEDR[0]
+set_location_assignment PIN_AA24 -to LEDR[1]
+set_location_assignment PIN_V16 -to LEDR[2]
+set_location_assignment PIN_V15 -to LEDR[3]
+set_location_assignment PIN_AF26 -to LEDR[4]
+set_location_assignment PIN_AE26 -to LEDR[5]
+set_location_assignment PIN_Y16 -to LEDR[6]
+set_location_assignment PIN_AA23 -to LEDR[7]
+
+set_global_assignment -name LAST_QUARTUS_VERSION "25.1std.0 Lite Edition"

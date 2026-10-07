@@ -118,7 +118,7 @@ frames we define).
 
 | Sense | Meaning | Evidence status |
 | ----- | ------- | --------------- |
-| Front-end / transport | One boundary core attaches to Manchester/RF, SerDes, UART | Reusable core demonstrated on the RF appendix (L1 framing and L3 commit, L2 honest-scoped) plus one synthetic profile (MAC path). SerDes is Tier B; UART is unbuilt. |
+| Front-end / transport | One boundary core attaches to Manchester/RF, SerDes, UART | Reusable core demonstrated on the RF appendix (L1 framing and L3 commit, L2 honest-scoped) plus one synthetic profile (MAC path). SerDes is the built Tier B link (simulation loopback); UART is unbuilt. |
 | Frame-schema | Parameterized frame descriptor; pluggable integrity engine | Demonstrated on a synthetic fixed-shape profile only; no real legacy protocol is modeled. |
 | Target | One RTL source for sky130 ASIC and Cyclone V FPGA | Design intent only. The prior sky130 1x2 result belongs to the RF appendix and does not transfer to the MAC module set until it is synthesized. |
 

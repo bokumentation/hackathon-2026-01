@@ -43,9 +43,9 @@ Status is against `docs/proposal/proposal.id.md`.
 
 ## Open items
 
-- Team identity is recorded (name, expertise, role); NIM/institution are omitted by the chosen three-column format.
+- Team identity is recorded in `docs/identity/identity.md` (name, expertise, role, contact); NIM is not used.
 - On-board results and SignalTap capture require the DE10-Nano at bootcamp.
-- Tier B (serial link) and Tier C (CDC) are future work and are not claimed.
+- Tier B (serial link) is built and claimed as simulation loopback plus sky130 signoff; Tier C (CDC) is future work and is not claimed.
 
 ## Notes
 

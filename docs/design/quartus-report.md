@@ -142,6 +142,32 @@ Record the SignalTap-enabled Fitter numbers as a separate line.
 
 The full procedure and the test cases are in `docs/design/signaltap-plan.md`.
 
+## Tier B link loopback wrapper (link_demo_top)
+
+The on-board demonstration uses a separate wrapper, `fpga/de10nano/link_demo_top.v`, that instantiates `link_tx` and `link_top` (`link_rx` + `boundary_top`) with an internal serial loopback. A switch selects the clean, corrupt, or replay case. The demo key is loaded at reset, so no external device is needed.
+
+```bash
+cd fpga/de10nano
+quartus_sh --flow compile link_demo_top
+quartus_pow link_demo_top
+```
+
+| Metric | Value |
+| --- | --- |
+| Top entity | `link_demo_top` |
+| Logic utilization (ALMs) | 421 |
+| Registers (FF) | 1029 |
+| Block memory bits / M10K | 0 / 0 |
+| DSP blocks | 0 |
+| PLLs | 0 |
+| Fmax (Slow 1100mV 100C) | 97.9 MHz |
+| Worst-case setup slack (WNS) | +9.785 ns |
+| Total thermal power | 426.19 mW |
+| Core dynamic thermal power | 3.76 mW |
+| Power estimation confidence | Low (vector-less) |
+
+The wrapper closes timing at 50 MHz with a large margin. Power remains a vector-less estimate dominated by device static power.
+
 ## See also
 
 - `docs/design/quartus-plan.md` for the original capture plan.

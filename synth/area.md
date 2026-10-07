@@ -60,7 +60,9 @@ The committed successor is the authenticated boundary (`simon32_64`, `l2_auth`,
 | DSP blocks | 0 |
 
 This is a pre-integration estimate: it does not yet include the Tier B link
-layer or the Tier C CDC FIFO.
+layer or the Tier C CDC FIFO. The Tier B link (`tt_um_link`) and its FPGA
+loopback wrapper are measured separately (see the sky130 link signoff below and
+`docs/design/quartus-report.md`).
 
 ### Real sky130 signoff (link, 2x2)
 
@@ -84,6 +86,28 @@ Signoff run `37504588955` at commit `00fc423` (OpenLane 2024.04.22, sky130A).
 | Power, typical | 2.10 mW |
 | Power, fastest | 2.47 mW |
 | Power, slowest | 1.65 mW |
+
+### Real sky130 signoff (serial link, Tier B, 2x2)
+
+Hardened through `.github/workflows/gds.yaml` on the Tier B serial link
+(`tt_um_link`): the Tier A core behind the 8b/10b link.
+
+Signoff run `37511052813` at commit `9bbb2e0`.
+
+| Metric | Value |
+| --- | --- |
+| Tile | 2x2 |
+| Die area | 334.88 x 225.76 um = 0.0756 mm^2 |
+| Synthesis cells | 3220 |
+| Magic DRC | 0 violations |
+| LVS | 0 errors |
+| Antenna | 2 violations (u_l2.u_simon.x[3], u_rx.frame_sr[30]) |
+| Setup WNS / TNS | 0.00 / 0.00 (timing met) |
+| Worst setup slack | +9.28 ns |
+| Worst hold slack | +0.11 ns |
+| Power, typical | 3.61 mW |
+| Power, fastest | 4.23 mW |
+| Power, slowest | 2.84 mW |
 
 ## ASIC (sky130) estimate
 

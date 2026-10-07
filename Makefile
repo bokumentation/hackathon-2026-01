@@ -59,7 +59,7 @@ env:
 .PHONY: doctor
 doctor:
 	@echo "Checking repository tools"
-	@for t in git make python3 verilator yosys iverilog; do \
+	@for t in git make python3 gcc g++ verilator yosys iverilog; do \
 		if command -v $$t >/dev/null 2>&1; then echo "  ok      $$t"; else echo "  MISSING $$t"; fi; \
 	done
 	@for t in sby node npm chromium chromium-browser google-chrome inkscape soffice; do \
@@ -102,7 +102,7 @@ formal:
 	if [ $$fail -ne 0 ]; then echo "formal: one or more jobs FAILED"; exit 1; fi; \
 	echo "formal: all jobs passed"
 
-COCOTB_TARGETS := test simon l2 auth crc wrapper sim
+COCOTB_TARGETS := test simon l2 auth crc wrapper sim link-codec link-framing link-top
 $(COCOTB_TARGETS): export PATH := $(CURDIR)/$(VENV)/bin:$(PATH)
 
 .PHONY: test
@@ -124,6 +124,18 @@ auth:
 .PHONY: crc
 crc:
 	$(MAKE) -C $(TEST_DIR) -f Makefile.crc
+
+.PHONY: link-codec
+link-codec:
+	$(MAKE) -C $(TEST_DIR) -f Makefile.link_codec
+
+.PHONY: link-framing
+link-framing:
+	$(MAKE) -C $(TEST_DIR) -f Makefile.link_framing
+
+.PHONY: link-top
+link-top:
+	$(MAKE) -C $(TEST_DIR) -f Makefile.link_top
 
 .PHONY: wrapper
 wrapper:
