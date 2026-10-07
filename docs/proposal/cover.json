@@ -13,8 +13,8 @@
     "advisorLabel": "Dosen Pembimbing",
     "team": "Tri Arga",
     "members": [
-      { "role": "Ketua", "name": "Ibrahim Fauzi Rahman", "institution": "Universitas Telkom", "contact": "" },
-      { "role": "Anggota 1", "name": "Idris Syaifulloh", "institution": "Universitas Telkom", "contact": "" }
+      { "role": "Ketua", "name": "Ibrahim Fauzi Rahman", "institution": "Universitas Telkom", "contact": "ibrahimfauzirahman@student.telkomuniversity.ac.id / +62 857-2774-6841" },
+      { "role": "Anggota 1", "name": "Idris Syaifulloh", "institution": "Universitas Telkom", "contact": "idrissyaifulloh@student.telkomuniversity.ac.id / +62 895-3309-78461" }
     ],
     "advisor": "Dr. Setia Juli Irzal Ismail, S.T., M.T. - Universitas Telkom",
     "runningHead": "TRI-ARGA: A three-layer, authenticated, replay-resistant, and fail-closed ingress boundary for lightweight serial links"
@@ -33,8 +33,8 @@
     "advisorLabel": "Advisor",
     "team": "Tri Arga",
     "members": [
-      { "role": "Lead", "name": "Ibrahim Fauzi Rahman", "institution": "Universitas Telkom", "contact": "" },
-      { "role": "Member", "name": "Idris Syaifulloh", "institution": "Universitas Telkom", "contact": "" }
+      { "role": "Lead", "name": "Ibrahim Fauzi Rahman", "institution": "Universitas Telkom", "contact": "ibrahimfauzirahman@student.telkomuniversity.ac.id / +62 857-2774-6841" },
+      { "role": "Member", "name": "Idris Syaifulloh", "institution": "Universitas Telkom", "contact": "idrissyaifulloh@student.telkomuniversity.ac.id / +62 895-3309-78461" }
     ],
     "advisor": "Dr. Setia Juli Irzal Ismail, S.T., M.T. - Universitas Telkom",
     "runningHead": "TRI-ARGA: A three-layer, authenticated, replay-resistant, and fail-closed ingress boundary for lightweight serial links"

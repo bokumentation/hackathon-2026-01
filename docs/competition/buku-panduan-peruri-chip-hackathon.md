@@ -83,7 +83,7 @@ Gunakan referensi berikut untuk mempercepat perancangan Anda.
 
 1. Tiny Tapeout 7: rujukan untuk gerbang logika, UART, automasi pengujian, hingga arsitektur dasar seperti CPU/RISC-V dan kriptografi (https://tinytapeout.com/digital_design/).
 2. Peruri Chip Design: datasheet *baseline* resmi yang bisa Anda optimasi atau integrasikan dengan blok buatan Anda (https://chip.peruri.co.id/datasheet.pdf).
-3. Panduan FPGA DE1-Nano - Cyclone V, dengan tautan Spesifikasi dan Manual Guide menuju https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=167&No=1046&PartNo=1#contents
+3. Panduan FPGA DE10-Nano - Cyclone V, dengan tautan Spesifikasi dan Manual Guide menuju https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=167&No=1046&PartNo=1#contents
 
 ## Ketentuan Proposal
 

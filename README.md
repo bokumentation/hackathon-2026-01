@@ -73,10 +73,10 @@ untrusted link
 | Replay rejected | yes | `make auth` |
 | Serial link loopback | clean commit, forgery/replay/line-error rejected | `make link-top` |
 | Serial link ASIC | 2x2 (Tier B), 3220 cells, 0 DRC/LVS, 3.61 mW typical, 2 antenna | `gds.yaml` |
-| Formal verification | 8/8 proofs pass (5 committed link, 3 RF appendix), see [Formal verification](#formal-verification) | `make formal`, `sby` |
-| FPGA resources | 242 ALM, 654 FF, 0 M10K, 0 DSP (Cyclone V) | `fpga/de10nano` `make` |
-| FPGA Fmax | 136.37 MHz (WNS +12.667 ns) | `fpga/de10nano` `make` |
-| FPGA power | 425.4 mW total, 2.42 mW core dynamic, vector-less | `quartus_pow` |
+| Formal verification | 9/9 proofs pass (6 link, 3 RF appendix), see [Formal verification](#formal-verification) | `make formal`, `sby` |
+| FPGA resources | 421 ALM, 1029 FF, 0 M10K, 0 DSP (Cyclone V, Tier B loopback wrapper) | `fpga/de10nano` `make link` |
+| FPGA Fmax | 97.9 MHz (WNS +9.785 ns) | `fpga/de10nano` `make link` |
+| FPGA power | 426.2 mW total, 3.76 mW core dynamic, vector-less | `quartus_pow` |
 | ASIC die area | 0.0756 mm² (2×2 tile, sky130) | `gds.yaml` |
 | ASIC cell count | 2511 cells | `gds.yaml` |
 | ASIC power | 2.10 mW typical | `gds.yaml` |
@@ -92,9 +92,9 @@ Full evidence: [`sim/RESULTS.md`](sim/RESULTS.md) · [`synth/area.md`](synth/are
 
 ## Formal verification
 
-Formal properties use SymbiYosys (`sby`) over `synth/formal/*.sby`, with the `smtbmc z3` engine. All eight jobs pass.
+Formal properties use SymbiYosys (`sby`) over `synth/formal/*.sby`, with the `smtbmc z3` engine. All nine jobs pass.
 
-- Committed link: `auth_top` (fail-closed commit), `auth_data_integrity` (committed data equals the authenticated frame), `l3_commit_core` (committed commit gate), `simon32_64` (exactly 32 rounds), and `l1_link` (loader key policy, pulse, framing, and timeout properties).
+- Committed link: `auth_top` (fail-closed commit), `auth_data_integrity` (committed data equals the authenticated frame), `l3_commit_core` (committed commit gate), `simon32_64` (exactly 32 rounds), `l1_link` (loader key policy, pulse, framing, and timeout properties), and `link_framing` (8b/10b framing and word lock never rise together with a fault).
 - RF appendix: `l1_framing`, `l2_integrity`, and `l3_commit` verify the archived appendix RTL, not the committed link modules.
 - `auth_data_integrity` is a bounded proof (`mode bmc`, depth 20) with `simon32_64` abstracted by `synth/formal/simon32_64_stub.v`. The data-integrity invariant is independent of the cipher, which is proven separately by `simon32_64.sby`.
 
@@ -259,7 +259,7 @@ Trigger it with a workflow dispatch or push a `v*` tag.
 
 Configuration: [`src/config.tcl`](src/config.tcl), [`src/user_config.tcl`](src/user_config.tcl), [`info.yaml`](info.yaml).
 
-The last passing run: 2×2 tile, 2354 cells, 0 DRC, 0 LVS, WNS +10.79 ns, 1.87 mW typical.
+The last passing run: 2x2 tile, 2511 cells, 0 DRC, 0 LVS, 0 antenna, WNS 0.00, 2.10 mW typical.
 
 ## FPGA build
 

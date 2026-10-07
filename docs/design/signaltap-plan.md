@@ -21,7 +21,9 @@ Intel recommends against hand-editing the file, and a hand-authored file is ofte
 | `auth_ok` | MAC tag matched | `CLOCK_50` |
 | `fresh_ok` | counter freshness passed | `CLOCK_50` |
 | `done` | frame processing finished | `CLOCK_50` |
-| `key_locked` | key loaded once and locked | `CLOCK_50` |
+| `word_lock` | 8b/10b link word alignment achieved | `CLOCK_50` |
+
+These are the signals kept in the `link_demo_top` wrapper. The Tier A `de10nano_top` wrapper keeps `key_locked` instead of `word_lock`.
 
 The wrapper declares these wires with `(* preserve, noprune *)` so they survive synthesis and appear in Node Finder.
 
@@ -83,8 +85,8 @@ The same capture can also be run from the SignalTap GUI with the Run Analysis bu
 1. Clean frame with the correct tag and a fresh counter: `host_full` high, `fault` low.
 2. Corrupt frame with a wrong tag: `host_full` low, `fault` high.
 3. Replay with an equal counter: `host_full` low, `fresh_ok` low, `fault` high.
-4. Key load before any frame: `key_locked` high after 64 bits.
-5. A second key-load attempt after lock: `key_locked` stays high and the frame path is unaffected.
+4. Word lock achieved after the comma symbol: `word_lock` high.
+5. A clean frame after `fault_ack`: `fault` returns low and `host_full` rises again.
 
 ## Evidence to keep
 

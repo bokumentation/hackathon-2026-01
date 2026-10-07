@@ -60,7 +60,9 @@ The committed successor is the authenticated boundary (`simon32_64`, `l2_auth`,
 | DSP blocks | 0 |
 
 This is a pre-integration estimate: it does not yet include the Tier B link
-layer or the Tier C CDC FIFO.
+layer or the Tier C CDC FIFO. The Tier B link (`tt_um_link`) and its FPGA
+loopback wrapper are measured separately (see the sky130 link signoff below and
+`docs/design/quartus-report.md`).
 
 ### Real sky130 signoff (link, 2x2)
 
