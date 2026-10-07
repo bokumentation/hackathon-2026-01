@@ -11,8 +11,9 @@ Terms, abbreviations, and weakness identifiers used across the documentation.
 | L2 | Authentication: keyed MAC plus freshness counter |
 | L3 | Commit gatekeeper: atomic fail-closed commit with a sticky fault |
 | Tier A | Committed single-clock core with simulation, formal, and ASIC evidence |
-| Tier B | Planned serial link on `TT_UM_SERDES` (8b/10b framing) |
+| Tier B | Built secure serial link on `TT_UM_SERDES` (8b/10b framing, word lock) |
 | Tier C | Future clock-domain crossing with the vendored CDC FIFO |
+| Link | Tier B serial transport: `link_tx` -> `link_rx` -> `boundary_top` |
 
 ## Cryptographic terms
 
@@ -40,6 +41,9 @@ Terms, abbreviations, and weakness identifiers used across the documentation.
 | WNS / WHS | Worst Negative Setup / Hold Slack |
 | SignalTap | Quartus on-chip logic analyzer for on-board capture |
 | RD+/RD- | Running disparity states in 8b/10b line coding |
+| 8b/10b | Line coding that maps 8-bit bytes to 10-bit symbols for DC balance and error detection |
+| K-character | A special 8b/10b control symbol, here K28.5 used as a comma |
+| Word lock | The state where the link has aligned to 10-bit symbol boundaries |
 
 ## Weakness identifiers (MITRE CWE)
 

@@ -2,6 +2,11 @@
 
 Synthesis and hardware-in-the-loop target for the authenticated ingress boundary.
 
+Two wrappers are provided:
+
+- `de10nano_top` (Tier A): the L1 serial loader plus `boundary_top`, with an external bit-serial key/frame source.
+- `link_demo_top` (Tier B): an internal 8b/10b loopback, `link_tx` -> `link_rx` -> `boundary_top`, with the FPGA generating the wire traffic itself.
+
 ## Board
 
 Terasic DE10-Nano, Intel Cyclone V SoC `5CSEBA6U23I7`. Quartus Prime is required.
@@ -10,6 +15,27 @@ Terasic DE10-Nano, Intel Cyclone V SoC `5CSEBA6U23I7`. Quartus Prime is required
 
 The core runs directly on `CLOCK_50` (50 MHz). One clock domain in the
 committed scope.
+
+## Tier B loopback demo (link_demo_top)
+
+```bash
+make link          # quartus_sh --flow compile link_demo_top
+make program-link  # quartus_pgm over JTAG
+```
+
+Control map:
+
+| Resource | Function |
+| --- | --- |
+| `KEY[0]` | Reset (active low) |
+| `KEY[1]` | Send one frame |
+| `SW[1:0]` | Mode: `00` clean, `01` corrupt (tag bit flipped), `10` replay (resend last clean frame) |
+| `SW[2]` | `fault_ack` (clears the sticky fault) |
+| `LEDR[0..5]` | `done`, `host_full`, `fault`, `auth_ok`, `fresh_ok`, `word_lock` |
+| `LEDR[6]` | `tx_busy` |
+| `LEDR[7]` | clean-mode indicator |
+
+The demo key and four pre-computed valid frames are held in `link_demo_top.v`; the key is loaded once at reset. Expected: clean commits (`host_full` high), corrupt and replay are rejected (`fault` high, sticky until `SW[2]`). Measured post-fit: 421 ALM, 1029 registers, Fmax 97.9 MHz, 426.2 mW vector-less.
 
 ## Key loading
 

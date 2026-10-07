@@ -57,6 +57,9 @@ fi
 mkdir -p "$DIR/assets" "$OUT_PPTX" "$OUT_PDF"
 echo "Rasterizing diagrams..."
 inkscape "$SVG_DIR/block-diagram.svg" -o "$DIR/assets/block-diagram.png" -w 1600 >/dev/null 2>&1
+inkscape "$SVG_DIR/frame-link.svg" -o "$DIR/assets/frame-link.png" -w 1600 >/dev/null 2>&1
+cp "$SVG_DIR/sim-auth-commit.png" "$DIR/assets/sim-auth-commit.png"
+cp "$SVG_DIR/sim-baseline-vulnerability.png" "$DIR/assets/sim-baseline-vulnerability.png"
 
 (cd "$DIR" && DECK_OUT_DIR="$OUT_PPTX" DECK_BASE="$BASE" node build.mjs)
 

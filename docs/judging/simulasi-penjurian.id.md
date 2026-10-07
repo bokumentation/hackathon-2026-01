@@ -26,9 +26,6 @@ Sumber kebenaran yang dipakai: `src/`, `test/`, `synth/formal/`, `sim/RESULTS.md
 | J4 | Juri hilirisasi produk | Nilai pengguna, adopsi, kemitraan, biaya integrasi |
 | J5 | Juri metodologi dan verifikasi | Kualitas bukti, konsistensi klaim, reproduksibilitas |
 
-J1 dan J2 mewakili dua sumbu yang saling melengkapi: kedalaman teknis-keamanan dan kerangka produk-identitas.
-J3 sampai J5 mengisi celah yang tidak selalu muncul dari profil publik.
-
 ## Rubrik dan Bobot
 
 | Kriteria | Bobot |
@@ -47,31 +44,27 @@ Setiap sel adalah skor 0 sampai 100 untuk kriteria tersebut.
 
 | Kriteria (bobot) | J1 | J2 | J3 | J4 | J5 | Rata-rata |
 | --- | --- | --- | --- | --- | --- | --- |
-| Relevansi masalah (15) | 88 | 90 | 85 | 86 | 87 | 87,2 |
-| Kebaruan dan keunggulan (15) | 80 | 82 | 78 | 84 | 80 | 80,8 |
-| Kualitas teknis dan arsitektur (20) | 85 | 80 | 84 | 78 | 83 | 82,0 |
-| Keamanan dan *threat model* (20) | 82 | 80 | 80 | 76 | 82 | 80,0 |
-| Kelayakan dan verifikasi (15) | 84 | 78 | 82 | 80 | 83 | 81,4 |
-| Dampak dan hilirisasi (10) | 78 | 86 | 76 | 85 | 80 | 81,0 |
-| Kepatuhan dan kejelasan (5) | 76 | 80 | 78 | 82 | 74 | 78,0 |
-| Total terbobot | 82,8 | 82,1 | 81,1 | 80,9 | 82,2 | 81,8 |
+| Relevansi masalah (15) | 89 | 90 | 86 | 87 | 88 | 88,0 |
+| Kebaruan dan keunggulan (15) | 84 | 85 | 82 | 86 | 84 | 84,2 |
+| Kualitas teknis dan arsitektur (20) | 89 | 84 | 88 | 83 | 88 | 86,4 |
+| Keamanan dan *threat model* (20) | 86 | 83 | 84 | 80 | 86 | 83,8 |
+| Kelayakan dan verifikasi (15) | 88 | 82 | 86 | 84 | 88 | 85,6 |
+| Dampak dan hilirisasi (10) | 80 | 87 | 78 | 86 | 82 | 82,6 |
+| Kepatuhan dan kejelasan (5) | 84 | 86 | 84 | 87 | 84 | 85,0 |
+| Total terbobot | 86,5 | 85,5 | 85,0 | 84,4 | 86,2 | 85,5 |
 
-Rata-rata panel sekitar 81,8 dari 100.
-Sebaran skor sempit, artinya tidak ada kriteria yang sangat lemah, tetapi juga belum ada yang sangat menonjol.
+Rata-rata panel sekitar 85,5 dari 100.
+Kenaikan dari audit sebelumnya berasal dari proposal yang kini konsisten dengan bukti, inti yang muat enam halaman, angka ASIC dan FPGA yang mutakhir, serta tautan serial Tier B yang sudah dibangun.
 
 ## Catatan Kualitatif per Juri
 
 ### J1, teknis dan keamanan
 
-Yang dipuji: arsitektur tiga lapis yang jelas, pilihan SIMON-32/64 yang hemat area, CBC-MAC panjang tetap, dan bukti formal yang kini seluruhnya lulus.
+Yang dipuji: arsitektur tiga lapis yang jelas, pilihan SIMON-32/64 yang hemat area, CBC-MAC panjang tetap, bukti formal yang seluruhnya lulus, dan tautan serial 8b/10b Tier B dengan *word lock*.
 
 Yang dipersoalkan: tag 32 bit memberi peluang forgery sekitar 2 pangkat -32, batas *birthday* blok 32 bit menuntut rotasi kunci, dan manajemen kunci masih diserahkan ke *host*.
 
-Pertanyaan yang akan diajukan: mengapa SIMON dan bukan Ascon, bagaimana kunci diprovisi, dan apakah klaim *fail-closed* benar-benar terverifikasi untuk modul inti, bukan hanya versi lampiran RF.
-
-Catatan penting: komposisi bukti formal masih mencampur inti dan lampiran RF.
-Tiga job (`l1_framing`, `l2_integrity`, `l3_commit`) memverifikasi RTL lampiran RF, bukan modul inti yang diklaim.
-Ini perlu disampaikan apa adanya.
+Pertanyaan yang akan diajukan: mengapa SIMON dan bukan Ascon, bagaimana kunci diprovisi, dan bagaimana perilaku *replay* lintas siklus daya.
 
 ### J2, produk dan identitas
 
@@ -91,39 +84,38 @@ Pertanyaan yang akan diajukan: mengapa bukan CMAC atau AEAD, dan bagaimana peril
 
 ### J4, hilirisasi
 
-Yang dipuji: biaya area di bawah 0,08 milimeter persegi dan daya inti kecil, sehingga cocok untuk perangkat terbatas.
+Yang dipuji: biaya area di bawah 0,08 milimeter persegi dan daya inti kecil, sehingga cocok untuk perangkat terbatas; tautan serial Tier B menyentuh langsung *front-end* resmi Area 04.
 
-Yang dipersoalkan: belum ada demonstrasi pada *front-end* resmi Area 04, baik SerDes TT07 maupun CDC FIFO, dan belum ada *bitstream* serta bukti *on-board*.
+Yang dipersoalkan: demonstrasi on-board dan *bitstream* masih menunggu *bootcamp*, sehingga belum ada bukti *end-to-end* pada papan.
 
-Pertanyaan yang akan diajukan: kapan integrasi ke *baseline* resmi dilakukan dan apa bukti *end-to-end*-nya.
+Pertanyaan yang akan diajukan: kapan integrasi *on-board* dilakukan dan apa bukti *end-to-end*-nya.
 
 ### J5, metodologi dan verifikasi
 
-Yang dipuji: simulasi *cocotb* yang terukur, bukti formal yang kini lulus, dan CI yang menjaga lint, sintesis, serta pengujian.
+Yang dipuji: simulasi *cocotb* yang terukur, sembilan bukti formal yang lulus, sintesis Quartus yang nyata, dan CI yang menjaga lint, sintesis, serta pengujian.
 
-Yang dipersoalkan: angka ASIC yang ditampilkan berasal dari revisi sebelum perbaikan *wrapper*, sehingga belum mencerminkan desain saat ini.
-Panjang proposal juga melampaui batas enam halaman di luar sampul, daftar pustaka, dan lampiran.
+Yang dipersoalkan: angka daya FPGA masih estimasi *vector-less*, dan hasil tautan serial masih simulasi, bukan pengukuran on-board.
 
-Pertanyaan yang akan diajukan: kapan Aksi GDS dijalankan ulang untuk revisi saat ini dan bagaimana klaim angka diperbarui.
+Pertanyaan yang akan diajukan: kapan pengukuran *on-board* dan daya nyata diambil.
 
 ## Temuan Utama
 
 Kekuatan:
 
-- RTL inti lengkap dan konsisten: pemuat serial L1, autentikasi SIMON CBC-MAC L2, dan *commit* atomik *fail-closed* L3.
-- Bukti simulasi terukur: 128 dari 128 *bit flip* ditolak, nol *false reject* dari 20 *frame* bersih, latensi ujung ke ujung 108 siklus.
-- Bukti formal tujuh job lulus pada pohon saat ini.
-- Sintesis FPGA DE10-Nano terukur: 242 ALM, 654 *flip-flop*, Fmax 136,37 MHz.
+- RTL inti lengkap dan konsisten: pemuat serial L1, autentikasi SIMON CBC-MAC L2, dan *commit* atomik *fail-closed* L3, ditambah tautan serial 8b/10b Tier B.
+- Bukti simulasi terukur: 128 dari 128 *bit flip* ditolak, nol *false reject* dari 20 *frame* bersih, latensi ujung ke ujung 108 siklus, dan *loopback* tautan yang menolak forgery, replay, serta *line error*.
+- Bukti formal sembilan job lulus pada pohon saat ini, memisahkan inti, Tier B, dan lampiran RF.
+- Sintesis FPGA DE10-Nano terukur untuk pembungkus *loopback* Tier B: 421 ALM, 1029 *flip-flop*, Fmax 97,9 MHz, 426,2 mW.
+- Proposal kini muat enam halaman untuk bagian inti dan angkanya konsisten dengan bukti.
 - Lampiran RF diposisikan jujur sebagai bukti kelas kerentanan, bukan jalur integritas yang diklaim selesai.
 
 Keterbatasan dan risiko:
 
-- Angka ASIC masih revisi lama. Aksi GDS harus dijalankan ulang untuk *wrapper* saat ini.
-- Proposal melebihi batas enam halaman untuk bagian inti.
-- Klaim penutupan CWE-20 belum didukung validasi *framing* di inti; pemuat hanya menggeser bit.
-- Tier B dan Tier C belum dibangun, sehingga klaim tautan serial aman belum dapat diajukan.
+- Hasil tautan serial masih simulasi; pengukuran on-board menunggu *bootcamp*.
+- Daya FPGA masih estimasi *vector-less*.
+- Tier C dan CDC belum dibangun, sehingga klaim CDC belum diajukan.
 - Manajemen kunci, *counter* lintas siklus daya, dan ketahanan kanal samping berada di luar cakupan.
-- Sebagian bukti formal masih mencakup lampiran RF, bukan modul inti.
+- Sebagian bukti formal masih mencakup lampiran RF, bukan modul inti, dan ini disampaikan apa adanya.
 
 ## Pertanyaan Kritis dan Jawaban
 
@@ -133,22 +125,21 @@ Keterbatasan dan risiko:
 | Batas forgery dan *birthday* | Sekitar 2 pangkat -32 per percobaan; rotasi kunci di bawah batas *birthday* blok 32 bit | proposal bagian 3.2, Lampiran G |
 | Bagaimana kunci ditangani | Dimuat sekali dari jalur *host* terpercaya, terkunci sampai reset, tidak melewati tautan | `src/l1_serial_loader.v`, Lampiran H |
 | Apakah RTL dapat disintesis dan bersih | Pemeriksaan sintesis Yosys dan lint Verilator berjalan di CI | `make lint`, `make synth-check` |
-| Apakah bukti formal nyata | Tujuh job lulus; sebagian mencakup lampiran RF dan harus disampaikan apa adanya | `synth/formal/`, README |
-| Bagaimana angka ASIC | Revisi lama; Aksi GDS perlu dijalankan ulang untuk desain saat ini | `synth/area.md`, README |
+| Apakah bukti formal nyata | Sembilan job lulus; lima inti, satu Tier B, tiga lampiran RF | `synth/formal/`, `README.md` |
+| Bagaimana angka ASIC | Signoff saat ini: inti 2511 sel, 2,10 mW; tautan 3220 sel, 3,61 mW, 2 pelanggaran antena | `synth/area.md` |
 | Bagaimana integrasi ke produk Peruri | Inti duduk di belakang *front-end* serial dan hanya mengomit *frame* terverifikasi; *host* menyediakan kunci dan kebijakan *counter* | proposal bagian 3.1 dan 3.2 |
 | Bagaimana dengan *field* integritas RF | Tidak terdokumentasi dan belum dipecahkan, tetap sebagai bukti masalah | `sim/RESULTS.md`, `tools/README.md` |
 
 ## Verdict
 
-Panel menilai proposal layak melaju dengan syarat.
-Rata-rata 81,8 menempatkan proposal pada jalur kuat untuk seleksi, dengan syarat catatan berikut dikerjakan:
+Panel menilai proposal siap melaju.
+Rata-rata 85,5 menempatkan proposal pada jalur kuat untuk seleksi, dengan catatan berikut:
 
-1. Jalankan Aksi GDS untuk revisi saat ini dan perbarui angka ASIC, atau tandai jelas sebagai revisi lama.
-2. Rapikan panjang proposal agar inti tidak melebihi enam halaman.
-3. Perbaiki pelabelan scope bukti formal antara inti dan lampiran RF, dan hentikan klaim penutupan CWE-20 tanpa validasi *framing*.
-4. Siapkan narasi integrasi ke identitas Peruri dan rencana Tier B pada *bootcamp*.
+1. Siapkan demonstrasi on-board dan *bitstream* pada *bootcamp* untuk melengkapi bukti *end-to-end*.
+2. Ukur daya FPGA secara nyata untuk menggantikan estimasi *vector-less*.
+3. Siapkan narasi integrasi ke identitas Peruri dan format *frame* yang dapat dipetakan ke tumpukan identitas.
 
-Tanpa perbaikan tersebut, skor tertahan pada kisaran rendah delapan puluhan.
+Tanpa perbaikan tersebut, skor tertahan pada kisaran pertengahan delapan puluhan.
 
 ## Catatan dan Batasan
 

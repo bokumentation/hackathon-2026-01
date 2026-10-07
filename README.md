@@ -130,7 +130,7 @@ Formal properties use SymbiYosys (`sby`) over `synth/formal/*.sby`, with the `sm
 │   ├── index.md          Documentation entry point
 │   ├── evidence.md       Claim to artifact to reproduce-command index
 │   ├── glossary.md       Terms, abbreviations, and CWE list
-│   ├── demo.md           On-board demo plan (BOM, wiring, cases)
+│   ├── demo.md           On-board demo plan (loopback, control map, cases)
 │   ├── proposal/        Competition proposal (ID + EN) and PDF build
 │   ├── progress/        Progress report source and PDF build
 │   ├── design/           Architecture, threat model, trade study, FMEA, Quartus plan/report, SignalTap
@@ -199,10 +199,10 @@ make synth-check   # Synthesizability check with Yosys
 make simon         # SIMON-32/64 cipher tests (2 tests, 49 vectors)
 make l2            # L2 auth + freshness tests (4 tests, 128 bit-flip checks)
 make auth          # Integrated auth + commit tests (6 tests, 108-cycle latency)
-make wrapper       # Tiny Tapeout wrapper tests (5 tests)
-make link-codec    # 8b/10b encoder/decoder tests
-make link-framing  # link comma/word-lock/timeout tests
-make link-top      # serial link loopback through the boundary
+make wrapper       # Tiny Tapeout wrapper tests (6 tests)
+make link-codec    # 8b/10b encoder/decoder tests (6 tests)
+make link-framing  # link comma/word-lock/timeout tests (2 tests)
+make link-top      # serial link loopback through the boundary (4 tests)
 make figures       # regenerate the proposal and appendix figures from VCDs
 make docs          # build the proposal PDF into output/
 ```
@@ -265,7 +265,9 @@ The last passing run: 2x2 tile, 2511 cells, 0 DRC, 0 LVS, 0 antenna, WNS 0.00, 2
 
 DE10-Nano flow: [`fpga/de10nano/README.md`](fpga/de10nano/README.md).
 
-Key-load / frame-load protocol uses `SW[0]`: set high to shift the 64-bit key MSB-first; `LEDR[5]` lights when the key is locked. Set `SW[0]` low and shift the 128-bit frame (counter + payload + tag).
+Tier A (`de10nano_top`): `SW[0]` selects key mode (high, shift the 64-bit key MSB-first, `LEDR[5]` lights when locked) or frame mode (low, shift the 128-bit frame counter + payload + tag).
+
+Tier B loopback demo (`link_demo_top`): `make -C fpga/de10nano link`. `SW[1:0]` selects clean (`00`), corrupt (`01`), or replay (`10`); `KEY[1]` sends one frame; `SW[2]` is `fault_ack`. The FPGA generates the 8b/10b stream internally, so no external device is needed.
 
 ## Proposal
 
@@ -319,6 +321,9 @@ All three are Apache-2.0. See [`NOTICE`](NOTICE) for attribution.
 
 - Documentation entry point: [`docs/index.md`](docs/index.md)
 - Evidence index (claims to artifacts to commands): [`docs/evidence.md`](docs/evidence.md)
+- Proposal (ID and EN): [`docs/proposal/`](docs/proposal/)
+- Presentation deck: [`docs/deck/`](docs/deck/)
+- Progress report: [`docs/progress/progress-report.md`](docs/progress/progress-report.md)
 - Setup and workflow on Debian 13: [`docs/setup/debian-13.md`](docs/setup/debian-13.md)
 - Submission checklist: [`docs/submission/checklist.md`](docs/submission/checklist.md)
 - On-board demo and bring-up: [`docs/demo.md`](docs/demo.md)

@@ -38,13 +38,13 @@ Weaknesses to probe: no hardware key protection, session-only replay resistance,
 
 **Juri 2 - Pakar RTL dan ASIC**
 Focuses on: correct SIMON-32/64 implementation (32 rounds, 16-bit words, Z0 sequence), CBC-MAC correctness (3 blocks, IV=0), Verilog-2001 style, Yosys synthesizability, real sky130 signoff numbers.
-Strengths to credit: 49 vector validation, 0 DRC/LVS, WNS +10.79 ns margin, 2354 cells in 2x2 tile.
-Weaknesses to probe: no partial unrolling discussed, FPGA numbers are Yosys estimates not Quartus.
+Strengths to credit: 49 vector validation, 0 DRC/LVS on the core, WNS 0.00 (+10.87 ns setup slack), 2511 cells in a 2x2 tile, and a real quartus fit/timing/power report for the Tier B loopback wrapper.
+Weaknesses to probe: no partial unrolling discussed; the Tier B link signoff has 2 antenna violations (reported honestly).
 
 **Juri 3 - Pakar sistem dan FPGA**
 Focuses on: DE10-Nano prototype feasibility, key-load vs frame-load protocol (SW[0]), 50 MHz clock, SignalTap plan.
-Strengths to credit: pinout documented, key-locked flag (LEDR[5]), GPIO protocol specified.
-Weaknesses to probe: no Quartus Fitter report yet, FPGA demo is "rencana bootcamp" not done.
+Strengths to credit: pinout documented, key-locked flag (LEDR[5]), GPIO protocol specified, real Quartus fit/timing/power numbers, and a Tier B on-chip loopback demo (`link_demo_top`).
+Weaknesses to probe: the FPGA demo is planned for bootcamp, not yet captured on-board; FPGA power is still vector-less.
 
 **Juri 4 - Juri produk dan hilirisasi**
 Focuses on: relevance to Peruri (identity/payment systems), adoption potential, honest product scope, separation of prototype vs product.

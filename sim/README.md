@@ -3,6 +3,11 @@
 Simulation harness and evidence for the TRI-ARGA proposal. Runs with cocotb
 and Icarus Verilog.
 
+This folder holds the RF appendix simulation evidence. The committed link
+evidence lives in the cocotb suites under `test/` (run with `make simon`, `make
+l2`, `make auth`, `make wrapper`, `make link-codec`, `make link-framing`, `make
+link-top`) and in the formal proofs under `synth/formal/`.
+
 ## Layout
 
 | File | Purpose |

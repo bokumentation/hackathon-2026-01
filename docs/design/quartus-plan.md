@@ -13,6 +13,10 @@ The board project lives in `fpga/de10nano/`:
 - `de10nano_top.v` instantiates `l1_serial_loader` and `boundary_top`;
   the 64-bit key and the 128-bit frame (counter + payload + tag) are shifted over
   GPIO, with `SW[0]` selecting key mode or frame mode.
+- `link_demo_top.v` is the Tier B loopback wrapper: it instantiates `link_tx` and
+  `link_top` (`link_rx` plus `boundary_top`) and closes the serial wire internally.
+  `SW[1:0]` selects clean, corrupt, or replay; `KEY[1]` sends; `SW[2]` clears the
+  fault. Build it with `make link` in `fpga/de10nano/`.
 - `de10nano_top.sdc` constrains `CLOCK_50` at 20 ns and marks the reset
   and GPIO inputs as false paths.
 - `de10nano_top.qsf` lists the sources and pin assignments, using the
