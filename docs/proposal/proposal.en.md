@@ -290,8 +290,8 @@ Advisor: Dr. Setia Juli Irzal Ismail, S.T., M.T.
 
 - Verilog RTL, cocotb testbench scripts, and SymbiYosys formal properties.
 - sky130 hardening results (GDS, DRC/LVS/timing/power reports).
-- FPGA bitstream (.sof/.rbf) and on-board demo (bootcamp).
-- Source repository and a short technical report.
+- FPGA bitstream (.sof/.rbf), buildable from this repository.
+- Source repository: https://github.com/bokumentation/hackathon-2026-01, and a short technical report.
 
 ### Appendix C. Bootcamp Plan (18-20 October 2026)
 

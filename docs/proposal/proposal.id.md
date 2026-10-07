@@ -290,8 +290,8 @@ Dosen Pembimbing: Dr. Setia Juli Irzal Ismail, S.T., M.T.
 
 - Kode RTL Verilog, *testbench* cocotb, dan properti formal SymbiYosys.
 - Hasil *hardening* sky130 (GDS, laporan DRC/LVS/timing/daya).
-- Bitstream FPGA (.sof/.rbf) dan demo on-board (bootcamp).
-- Repositori sumber dan laporan teknis singkat.
+- Bitstream FPGA (.sof/.rbf) yang dapat dibangun dari repositori ini.
+- Repositori sumber: https://github.com/bokumentation/hackathon-2026-01, dan laporan teknis singkat.
 
 ### Lampiran C. Rencana Bootcamp (18-20 Oktober 2026)
 
