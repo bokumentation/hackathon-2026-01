@@ -1,0 +1,18 @@
+SIM           ?= icarus
+TOPLEVEL_LANG ?= verilog
+SIM_BUILD      = sim_build/project
+SRC_DIR        = $(CURDIR)/../src
+
+VERILOG_SOURCES += $(SRC_DIR)/l1_serial_loader.v
+VERILOG_SOURCES += $(SRC_DIR)/simon32_64.v
+VERILOG_SOURCES += $(SRC_DIR)/l2_auth.v
+VERILOG_SOURCES += $(SRC_DIR)/l3_commit_gatekeeper.v
+VERILOG_SOURCES += $(SRC_DIR)/boundary_top.v
+VERILOG_SOURCES += $(SRC_DIR)/project.v
+VERILOG_SOURCES += $(CURDIR)/tb_project.v
+COMPILE_ARGS    += -I$(SRC_DIR)
+
+TOPLEVEL = tb_project
+MODULE   = test_project
+
+include $(shell cocotb-config --makefiles)/Makefile.sim

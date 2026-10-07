@@ -1,0 +1,14 @@
+SIM           ?= icarus
+TOPLEVEL_LANG ?= verilog
+SIM_BUILD      = sim_build/link_codec
+SRC_DIR        = $(CURDIR)/../src
+
+VERILOG_SOURCES += $(SRC_DIR)/link_enc_8b10b.v
+VERILOG_SOURCES += $(SRC_DIR)/link_dec_10b8b.v
+VERILOG_SOURCES += $(CURDIR)/tb_link_codec.v
+COMPILE_ARGS    += -I$(SRC_DIR)
+
+TOPLEVEL = tb_link_codec
+MODULE   = test_link_codec
+
+include $(shell cocotb-config --makefiles)/Makefile.sim

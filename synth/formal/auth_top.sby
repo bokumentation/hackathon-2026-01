@@ -12,7 +12,7 @@ smtbmc z3
 read_verilog -sv -formal simon32_64.v
 read_verilog -sv -formal l2_auth.v
 read_verilog -sv -formal l3_commit_gatekeeper.v
-read_verilog -sv -formal salaras_auth_top.v
+read_verilog -sv -formal boundary_top.v
 read_verilog -sv -formal auth_formal.sv
 prep -top auth_formal
 flatten
@@ -21,6 +21,6 @@ flatten
 src/simon32_64.v
 src/l2_auth.v
 src/l3_commit_gatekeeper.v
-src/salaras_auth_top.v
-src/salaras_rx_defs.svh
+src/boundary_top.v
+src/defs.svh
 synth/formal/auth_formal.sv

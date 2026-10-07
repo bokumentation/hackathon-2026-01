@@ -38,6 +38,10 @@ results.xml
 # FPGA / Quartus outputs
 output_files/
 incremental_db/
+fpga/de10nano/db/
+fpga/de10nano/c5_pin_model_dump.txt
+*.stp
+*.stp.bak
 *.summary
 *.rpt
 *.qws
@@ -47,6 +51,13 @@ incremental_db/
 
 # Documentation build output (markdown and PDF are canonical)
 docs/**/*.html
+output/
+
+# Judge profile analysis (public-data research, kept local)
+docs/judging/judge-profiles.md
+
+# Third-party reference papers (converted to markdown; original PDFs not tracked)
+docs/references/*.pdf
 
 # SymbiYosys work directories
 /synth/formal/*/

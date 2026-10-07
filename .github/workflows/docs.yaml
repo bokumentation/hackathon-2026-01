@@ -1,0 +1,38 @@
+name: docs
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check-bold-headings:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Check subheadings are bold in ID proposal
+        run: |
+          for pattern in "Masalah yang Diangkat" "Solusi" "Arsitektur" "Chip yang Dirancang" "Target Pengguna" "Hasil Terukur" "Dampak" "Latar Belakang"; do
+            if grep -qP "^\*\*${pattern}" docs/proposal/proposal.id.md; then
+              echo "OK (bold): $pattern"
+            elif grep -qP "^${pattern}" docs/proposal/proposal.id.md; then
+              echo "WARN: '$pattern' appears as plain text (not bold **) in proposal.id.md"
+            else
+              echo "INFO: '$pattern' not found in proposal.id.md"
+            fi
+          done
+
+      - name: Check subheadings are bold in EN proposal
+        run: |
+          for pattern in "Problem" "Solution" "Architecture" "Chip Design" "Target" "Results" "Impact" "Background"; do
+            if grep -qP "^\*\*${pattern}" docs/proposal/proposal.en.md; then
+              echo "OK (bold): $pattern"
+            elif grep -qP "^${pattern}" docs/proposal/proposal.en.md; then
+              echo "WARN: '$pattern' appears as plain text (not bold **) in proposal.en.md"
+            else
+              echo "INFO: '$pattern' not found in proposal.en.md"
+            fi
+          done

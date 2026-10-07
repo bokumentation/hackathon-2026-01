@@ -1,0 +1,26 @@
+[tasks]
+bmc
+
+[options]
+mode bmc
+depth 20
+
+[engines]
+smtbmc z3
+
+[script]
+read_verilog -sv -formal simon32_64_stub.v
+read_verilog -sv -formal l2_auth.v
+read_verilog -sv -formal l3_commit_gatekeeper.v
+read_verilog -sv -formal boundary_top.v
+read_verilog -sv -formal auth_data_integrity.sv
+prep -top auth_data_integrity
+flatten
+
+[files]
+synth/formal/simon32_64_stub.v
+src/l2_auth.v
+src/l3_commit_gatekeeper.v
+src/boundary_top.v
+src/defs.svh
+synth/formal/auth_data_integrity.sv

@@ -21,8 +21,8 @@ Apply these to every `.v` / `.sv` change.
 
 - Keep modules small and single-purpose; one file per module.
 - Vendor baseline modules (`edge_detect`, `state_machine`, `data_validate`) verbatim; do not rewrite them.
-- Put shared constants in `src/salaras_rx_defs.svh`.
-- The committed Tiny Tapeout top module must start with `tt_um_` (`tt_um_bokumentation_auth_boundary` in `src/project.v`).
+- Put shared constants in `src/defs.svh`.
+- The committed Tiny Tapeout top module must start with `tt_um_` (`tt_um_auth_boundary` in `src/project.v`).
 - The archived Manchester/RF design lives under `appendix/rf/src/`.
 - List every `src/` file in `info.yaml` `source_files`.
 

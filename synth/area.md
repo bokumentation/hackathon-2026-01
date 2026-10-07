@@ -1,7 +1,7 @@
 # Synthesis area estimate
 
-Preliminary, technology-independent estimate of the SALARAS-RX top
-(`tt_um_bokumentation_salaras_rx`). Reproduce with `make area`; raw Yosys logs
+Preliminary, technology-independent estimate of the TRI-ARGA top
+(`tt_um_auth_boundary`). Reproduce with `make area`; raw Yosys logs
 are written to `synth/area/` (not tracked).
 
 - Revision: `main` (Phase B integration)
@@ -37,16 +37,16 @@ are written to `synth/area/` (not tracked).
 | Resource | Estimate | DE10-Nano capacity |
 | --- | --- | --- |
 | Logic elements / LUT | about 508 LUT equivalent | 41,910 ALMs |
-| Registers / flip-flops | 360 | 415,000 |
+| Registers / flip-flops | 360 | 166,542 |
 | Block RAM (M10K) | 0 (no buffer) | 5,570 Kbits |
 | DSP blocks | 0 (LFSR-based CRC) | 112 DSP |
 
 Quartus Fitter numbers replace these once the integrated design is synthesized.
 
-## Tier A link estimate (salaras_auth_top)
+## Tier A link estimate (boundary_top)
 
 The committed successor is the authenticated boundary (`simon32_64`, `l2_auth`,
-`l3_commit_gatekeeper`, `salaras_auth_top`). Reproduce with `make area-link`.
+`l3_commit_gatekeeper`, `boundary_top`). Reproduce with `make area`.
 
 | Resource | Value |
 | --- | --- |
@@ -60,32 +60,59 @@ The committed successor is the authenticated boundary (`simon32_64`, `l2_auth`,
 | DSP blocks | 0 |
 
 This is a pre-integration estimate: it does not yet include the Tier B link
-layer or the Tier C CDC FIFO.
+layer or the Tier C CDC FIFO. The Tier B link (`tt_um_link`) and its FPGA
+loopback wrapper are measured separately (see the sky130 link signoff below and
+`docs/design/quartus-report.md`).
 
 ### Real sky130 signoff (link, 2x2)
 
 Hardened through `.github/workflows/gds.yaml` on the link
-(`tt_um_bokumentation_auth_boundary`). The 1x2 tile does not fit (GPL-0302 at
+(`tt_um_auth_boundary`). The 1x2 tile does not fit (GPL-0302 at
 density 0.6 and 0.8), so a 2x2 tile is used.
+
+Signoff run `37504588955` at commit `00fc423` (OpenLane 2024.04.22, sky130A).
 
 | Metric | Value |
 | --- | --- |
 | Tile | 2x2 |
 | Die area | 334.88 x 225.76 um = 0.0756 mm^2 |
-| Synthesis cells | 2354 |
+| Synthesis cells | 2511 |
 | Magic DRC | 0 violations |
 | LVS | 0 errors |
+| Antenna | 0 violations |
 | Setup WNS / TNS | 0.00 / 0.00 (timing met) |
-| Worst setup slack | +10.79 ns |
+| Worst setup slack | +10.87 ns |
 | Worst hold slack | +0.12 ns |
-| Power, typical | 1.87 mW |
-| Power, fastest | 2.20 mW |
-| Power, slowest | 1.46 mW |
+| Power, typical | 2.10 mW |
+| Power, fastest | 2.47 mW |
+| Power, slowest | 1.65 mW |
+
+### Real sky130 signoff (serial link, Tier B, 2x2)
+
+Hardened through `.github/workflows/gds.yaml` on the Tier B serial link
+(`tt_um_link`): the Tier A core behind the 8b/10b link.
+
+Signoff run `37511052813` at commit `9bbb2e0`.
+
+| Metric | Value |
+| --- | --- |
+| Tile | 2x2 |
+| Die area | 334.88 x 225.76 um = 0.0756 mm^2 |
+| Synthesis cells | 3220 |
+| Magic DRC | 0 violations |
+| LVS | 0 errors |
+| Antenna | 2 violations (u_l2.u_simon.x[3], u_rx.frame_sr[30]) |
+| Setup WNS / TNS | 0.00 / 0.00 (timing met) |
+| Worst setup slack | +9.28 ns |
+| Worst hold slack | +0.11 ns |
+| Power, typical | 3.61 mW |
+| Power, fastest | 4.23 mW |
+| Power, slowest | 2.84 mW |
 
 ## ASIC (sky130) estimate
 
 Technology-independent gate count is 1352 cells with 352 flip-flops. The
-baseline `tt07-bep-decode` occupies a single 1x1 Tiny Tapeout tile; SALARAS-RX
+baseline `tt07-bep-decode` occupies a single 1x1 Tiny Tapeout tile; TRI-ARGA
 adds a 24-bit CRC LFSR, a comparator, timing and timeout counters, and a small
 commit register.
 

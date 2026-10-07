@@ -26,7 +26,7 @@ baseline:
 	$(MAKE) TOPLEVEL=tb_serial_baseline MODULE=test_baseline_vuln
 boundary:
 	$(MAKE) clean
-	$(MAKE) TOPLEVEL=tb_boundary MODULE=test_salaras_boundary
+	$(MAKE) TOPLEVEL=tb_boundary MODULE=test_boundary
 
 .PHONY: clean
 clean::

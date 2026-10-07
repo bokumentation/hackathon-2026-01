@@ -1,0 +1,20 @@
+[tasks]
+prove
+
+[options]
+mode prove
+depth 40
+
+[engines]
+smtbmc z3
+
+[script]
+read_verilog -sv -formal l3_commit_gatekeeper.v
+read_verilog -sv -formal l3_formal_core.sv
+prep -top l3_formal_core
+flatten
+
+[files]
+src/l3_commit_gatekeeper.v
+src/defs.svh
+synth/formal/l3_formal_core.sv

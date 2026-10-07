@@ -1,0 +1,18 @@
+[tasks]
+bmc
+
+[options]
+mode bmc
+depth 40
+
+[engines]
+smtbmc z3
+
+[script]
+read -formal l1_link_framing.v
+read -formal link_framing_formal.sv
+prep -top link_framing_formal
+
+[files]
+src/l1_link_framing.v
+synth/formal/link_framing_formal.sv

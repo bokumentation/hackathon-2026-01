@@ -38,7 +38,7 @@ module simon32_64 (
     wire [15:0] kp_tmp = kp_a ^ prev3;
     wire [15:0] kp_r = {kp_tmp[0], kp_tmp[15:1]};
 
-    wire [4:0] z_idx = i[4:0] - 5'd4;
+    wire [5:0] z_idx = i - 6'd4;
     wire [15:0] z_bit = {15'b0, Z0[z_idx]};
 
     reg [15:0] rkey;

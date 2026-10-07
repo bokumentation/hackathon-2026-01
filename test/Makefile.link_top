@@ -1,0 +1,22 @@
+SIM           ?= icarus
+TOPLEVEL_LANG ?= verilog
+SIM_BUILD      = sim_build/link_top
+SRC_DIR        = $(CURDIR)/../src
+
+VERILOG_SOURCES += $(SRC_DIR)/link_enc_8b10b.v
+VERILOG_SOURCES += $(SRC_DIR)/link_dec_10b8b.v
+VERILOG_SOURCES += $(SRC_DIR)/l1_link_framing.v
+VERILOG_SOURCES += $(SRC_DIR)/link_tx.v
+VERILOG_SOURCES += $(SRC_DIR)/link_rx.v
+VERILOG_SOURCES += $(SRC_DIR)/link_top.v
+VERILOG_SOURCES += $(SRC_DIR)/boundary_top.v
+VERILOG_SOURCES += $(SRC_DIR)/l2_auth.v
+VERILOG_SOURCES += $(SRC_DIR)/l3_commit_gatekeeper.v
+VERILOG_SOURCES += $(SRC_DIR)/simon32_64.v
+VERILOG_SOURCES += $(CURDIR)/tb_link_top.v
+COMPILE_ARGS    += -I$(SRC_DIR)
+
+TOPLEVEL = tb_link_top
+MODULE   = test_link_top
+
+include $(shell cocotb-config --makefiles)/Makefile.sim

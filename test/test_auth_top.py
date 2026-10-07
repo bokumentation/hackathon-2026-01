@@ -60,7 +60,18 @@ async def run_frame(dut, counter, payload, tag):
         to_done += 1
         if to_done > 512:
             raise AssertionError("auth top did not finish")
-    await RisingEdge(dut.clk)
+
+    hf_before = int(dut.host_full.value)
+    fault_before = int(dut.fault.value)
+    to_full = to_done
+    for _ in range(16):
+        await RisingEdge(dut.clk)
+        to_full += 1
+        hf = int(dut.host_full.value)
+        flt = int(dut.fault.value)
+        if (hf == 1 and hf_before == 0) or (flt == 1 and fault_before == 0):
+            break
+
     return {
         "auth": int(dut.auth_ok.value),
         "fresh": int(dut.fresh_ok.value),
@@ -68,7 +79,7 @@ async def run_frame(dut, counter, payload, tag):
         "fault": int(dut.fault.value),
         "data": int(dut.host_data_q.value),
         "to_done": to_done,
-        "to_full": to_done + 1,
+        "to_full": to_full,
     }
 
 
@@ -135,6 +146,45 @@ async def test_commit_latency(dut):
             {"to_done_cycles": res["to_done"], "to_full_cycles": res["to_full"], "commit_cycles": commit},
             handle,
         )
+
+
+@cocotb.test()
+async def test_inputs_changed_mid_frame_not_committed(dut):
+    await reset(dut)
+    await load_key(dut, KEY)
+
+    counter_orig  = 1
+    payload_orig  = 0x1122334455667788
+    tag_orig      = tag_of(counter_orig, payload_orig)
+
+    counter_other = 0xDEADBEEF
+    payload_other = 0xCAFECAFECAFECAFE
+
+    dut.counter.value = counter_orig
+    dut.payload.value = payload_orig
+    dut.tag_in.value  = tag_orig
+    dut.start.value   = 1
+    await RisingEdge(dut.clk)
+    dut.start.value = 0
+
+    for _ in range(10):
+        await RisingEdge(dut.clk)
+
+    dut.counter.value = counter_other
+    dut.payload.value = payload_other
+
+    to_done = 0
+    while int(dut.done.value) == 0:
+        await RisingEdge(dut.clk)
+        to_done += 1
+        if to_done > 512:
+            raise AssertionError("auth top did not finish")
+    await RisingEdge(dut.clk)
+
+    assert int(dut.host_full.value) == 1, "frame should be accepted (valid tag for original inputs)"
+    expected = (counter_orig << 64) | payload_orig
+    assert int(dut.host_data_q.value) == expected, \
+        f"host_data_q={int(dut.host_data_q.value):#x} expected={expected:#x}; committed data not authenticated data (TOCTOU)"
 
 
 @cocotb.test()

@@ -1,0 +1,15 @@
+{
+  "name": "tri-arga-progress",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Build the TRI-ARGA progress report HTML/PDF from the canonical markdown source.",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "dependencies": {
+    "marked": "18.0.14",
+    "pdf-lib": "^1.17.1",
+    "puppeteer-core": "^25.12.0"
+  }
+}

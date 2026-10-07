@@ -11,6 +11,6 @@ COMPILE_ARGS    += -I$(SRC_DIR)
 VERILOG_SOURCES += $(CURDIR)/tb.v
 
 TOPLEVEL = tb
-MODULE   = test_salaras_rx
+MODULE   = test_rf_boundary
 
 include $(shell cocotb-config --makefiles)/Makefile.sim

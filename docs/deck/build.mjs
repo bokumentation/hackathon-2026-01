@@ -1,24 +1,33 @@
 import pptxgen from "pptxgenjs";
+import { readFileSync } from "node:fs";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const cover = JSON.parse(
+  readFileSync(join(dirname(fileURLToPath(import.meta.url)), "..", "proposal", "cover.json"), "utf8")
+).id;
 
 const ACCENT = "C2410C";
 const INK = "111827";
 const GRAY = "6B7280";
 const LIGHT = "F1F5F9";
-const GREEN = "166534";
 const RED = "B91C1C";
 const LINE = "E5E7EB";
 
+const BRAND = cover.brand;
+const TAGLINE = cover.subtitle;
+
 const pptx = new pptxgen();
 pptx.layout = "LAYOUT_16x9";
-pptx.author = "dinotice";
+pptx.author = "Tri Arga";
 pptx.company = "Universitas Telkom";
-pptx.title = "SALARAS-RX - PERURI Chip Hackathon 2026";
+pptx.title = `${BRAND} - Video Demo PERURI Chip Hackathon 2026`;
 
-const TOTAL = 14;
+const TOTAL = 11;
 let pageNo = 0;
 
 function footer(slide) {
-  slide.addText("SALARAS-RX  |  PERURI Chip Hackathon 2026  |  dinotice", {
+  slide.addText(`${BRAND}  |  PERURI Chip Hackathon 2026  |  Universitas Telkom`, {
     x: 0.55, y: 5.2, w: 7.5, h: 0.3, fontSize: 8.5, color: GRAY, fontFace: "Arial",
   });
   slide.addText(`${pageNo} / ${TOTAL}`, {
@@ -43,7 +52,7 @@ function contentSlide(title, notes) {
 }
 
 function bulletList(items, opts = {}) {
-  const arr = items.map((t, i) => ({
+  return items.map((t) => ({
     text: t,
     options: {
       bullet: true,
@@ -53,15 +62,30 @@ function bulletList(items, opts = {}) {
       paraSpaceAfter: opts.paraSpaceAfter ?? 6,
     },
   }));
-  return arr;
 }
 
-function table(rows, opts = {}) {
+function table(rows) {
   const head = rows[0].map((c) => ({
     text: c, options: { bold: true, fill: { color: LIGHT }, color: INK },
   }));
   const body = rows.slice(1).map((r) => r.map((c) => ({ text: c, options: { color: INK } })));
   return [...[head], ...body];
+}
+
+function flowBox(slide, y, text, fill) {
+  slide.addShape(pptx.ShapeType.roundRect, {
+    x: 1.55, y, w: 6.9, h: 0.55, rectRadius: 0.06,
+    fill: { color: fill }, line: { color: "CBD5E1", width: 1 },
+  });
+  slide.addText(text, {
+    x: 1.55, y, w: 6.9, h: 0.55, fontSize: 13, color: INK, align: "center", valign: "middle", fontFace: "Arial",
+  });
+}
+
+function flowArrow(slide, y) {
+  slide.addText("\u25BC", {
+    x: 4.75, y, w: 0.5, h: 0.2, fontSize: 10, color: GRAY, align: "center", valign: "middle", fontFace: "Arial",
+  });
 }
 
 /* ---------------- 1. Title ---------------- */
@@ -70,26 +94,29 @@ function table(rows, opts = {}) {
   const s = pptx.addSlide();
   s.background = { color: "FFFFFF" };
   s.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: 10, h: 0.22, fill: { color: ACCENT } });
-  s.addText("PERURI CHIP HACKATHON 2026", {
+  s.addText(cover.event, {
     x: 0.7, y: 0.85, w: 8.6, h: 0.4, fontSize: 14, bold: true, color: ACCENT, charSpacing: 2, fontFace: "Arial",
   });
-  s.addText("SALARAS-RX", {
-    x: 0.7, y: 1.35, w: 8.6, h: 1.1, fontSize: 54, bold: true, color: INK, fontFace: "Arial",
+  s.addText(BRAND, {
+    x: 0.7, y: 1.3, w: 8.6, h: 1.1, fontSize: 54, bold: true, color: INK, fontFace: "Arial",
   });
-  s.addText("A Hardware-Enforced Secure Ingress Barrier for Manchester/RF Serial Links", {
-    x: 0.72, y: 2.5, w: 7.6, h: 0.7, fontSize: 17, color: GRAY, fontFace: "Arial",
+  s.addText(TAGLINE, {
+    x: 0.72, y: 2.45, w: 8.2, h: 0.7, fontSize: 17, color: GRAY, fontFace: "Arial",
   });
+  const teamLines = cover.members.map((m) => ({
+    text: `${m.role}: ${m.name} - ${m.institution}`,
+    options: { color: GRAY, fontSize: 12, breakLine: true },
+  }));
+  teamLines.push({ text: `${cover.advisorLabel}: ${cover.advisor}`, options: { color: GRAY, fontSize: 12 } });
   s.addText(
     [
       { text: "Area Fokus 04 - Secure Communication", options: { bold: true, color: INK, fontSize: 13, breakLine: true } },
-      { text: "Tim dinotice - Universitas Telkom", options: { color: INK, fontSize: 13, breakLine: true } },
-      { text: "Ibrahim Fauzi Rahman, Idris Syaifulloh", options: { color: GRAY, fontSize: 12, breakLine: true } },
-      { text: "Pembimbing: Dr. Setia Jul Ismail, S.T., M.T.", options: { color: GRAY, fontSize: 12 } },
+      ...teamLines,
     ],
-    { x: 0.72, y: 3.4, w: 7.6, h: 1.4, fontFace: "Arial" }
+    { x: 0.72, y: 3.4, w: 8.2, h: 1.4, fontFace: "Arial" }
   );
   s.addNotes(
-    "Perkenalan singkat: tim dinotice dari Universitas Telkom. SALARAS-RX adalah boundary verifikasi integritas berbasis hardware untuk jalur ingress Manchester/RF. Area fokus 04, Secure Communication."
+    "[0:00-0:10] Kami tim Tri Arga dari Universitas Telkom. TRI-ARGA adalah gerbang ingress berbasis hardware yang memastikan host hanya melihat frame yang terautentikasi dan segar, pada area fokus 04 Secure Communication."
   );
 }
 
@@ -97,268 +124,210 @@ function table(rows, opts = {}) {
 {
   const s = contentSlide(
     "Masalah",
-    "Masalah utama: receiver ringan men-decode bitstream tak tepercaya tanpa validasi lapis tautan. Tiga kelas kelemahan dipetakan ke CWE. Tekankan bahwa data korup tetap tampak valid bagi host."
+    "[0:10-0:35] Penerima serial dan RF ringan memparsing bitstream tak tepercaya tanpa autentikasi. Tiga kelas kegagalan: integritas tak divalidasi, replay, dan commit tak atomik. Akibatnya frame korup, palsu, atau lama tetap tampak sah bagi host. Verifikasi di software berjalan setelah data melewati batas kepercayaan."
   );
   s.addText(
     bulletList([
-      "Penerima serial/RF ringan men-decode bitstream tak tepercaya langsung ke shift register tanpa validasi lapis tautan.",
-      "FSM pemrosesan rapuh terhadap transisi tak terduga dan timing (CWE-1245).",
-      "Sinyal kendali (full, latch enable) rentan de-sinkronisasi dari data (CWE-1264).",
-      "Field integritas yang sudah dikirim tidak pernah diverifikasi (CWE-354).",
-      "Akibatnya payload korup atau hasil fault injection tetap tampil valid bagi host.",
+      "Penerima serial/RF ringan memparsing bitstream tak tepercaya langsung ke register, tanpa memeriksa integritas.",
+      "Integritas tidak divalidasi: CRC/ECC tanpa kunci dapat dihitung ulang penyerang (CWE-354, CWE-345).",
+      "Replay: frame lama yang sah dapat diputar ulang tanpa penanda kesegaran (CWE-294).",
+      "Commit tidak atomik dan FSM rapuh: data dan kendali dapat terlepas (CWE-1264, CWE-1245).",
     ]),
     { x: 0.7, y: 1.2, w: 8.6, h: 3.9, fontFace: "Arial", valign: "top" }
   );
 }
 
-/* ---------------- 3. Baseline gap ---------------- */
+/* ---------------- 3. Baseline evidence ---------------- */
 {
   const s = contentSlide(
-    "Celah pada Baseline tt07-bep-decode",
-    "Baseline adalah decoder Manchester Tiny Tapeout 07. Field tail_1..3 (diduga CRC-24) diekspos ke host tetapi tidak pernah dicek, ditandai komentar '// CRC?' pada RTL. Frame rusak bisa terlanjur di-latch sebagai sah."
+    "Bukti pada Baseline tt07-bep-decode",
+    "[0:35-1:00] Baseline Manchester Tiny Tapeout 07 menerima field integritas 24 bit dan tidak pernah memeriksanya. Simulasi kami menunjukkan payload korup dan field korup tetap di-latch dengan full sama dengan satu, yaitu CWE-354 yang terukur. Field-nya belum dipecahkan, jadi kasus RF ini bukti kelas kerentanan, bukan jalur integritas kami."
   );
   s.addText(
     bulletList([
-      "Decoder Manchester Tiny Tapeout 07 (433 MHz, 1x1 tile).",
-      "Field integritas 24-bit (tail_1..3) diambil dan diekspos ke host.",
-      "Tidak pernah dicek pada RTL baseline; ditandai \"// CRC?\".",
-      "Frame data rusak atau tidak selaras dapat terlanjur di-latch sebagai data sah.",
-    ]),
-    { x: 0.7, y: 1.2, w: 8.6, h: 3.9, fontFace: "Arial", valign: "top" }
+      "Decoder Manchester Tiny Tapeout 07 (`tt07-bep-decode`), contoh pola penerima ringan.",
+      "Field integritas 24 bit diterima dan diteruskan ke host tanpa pemeriksaan.",
+      "Terukur: payload korup dan field korup tetap di-latch dengan `full=1` (CWE-354).",
+    ], { fontSize: 13 }),
+    { x: 0.7, y: 1.25, w: 5.2, h: 3.6, fontFace: "Arial", valign: "top" }
   );
-}
-
-/* ---------------- 4. Threat model ---------------- */
-{
-  const s = contentSlide(
-    "Threat Model & Attack Surface",
-    "Penyerang diasumsikan punya akses pada jalur ingress RF. Host dan bus register dipercaya setelah commit. Empat ancaman utama dipetakan ke CWE."
-  );
-  s.addTable(
-    table([
-      ["Kode", "Ancaman", "CWE"],
-      ["T1", "Payload korup oleh noise/jitter di jalur RF", "CWE-354"],
-      ["T2", "Fault injection single-bit flip pada payload/integritas", "CWE-354"],
-      ["T3", "Glitch/timing menyebabkan desinkronisasi kontrol/data", "CWE-1264"],
-      ["T4", "Input tak wajar membuat FSM macet/transisi tak sah", "CWE-1245"],
-    ]),
-    {
-      x: 0.7, y: 1.2, w: 8.6, colW: [1.0, 5.6, 2.0], fontSize: 12.5,
-      border: { type: "solid", color: "CBD5E1", pt: 1 }, align: "left", valign: "middle",
-      fontFace: "Arial", rowH: 0.5, autoPage: false,
-    }
-  );
-}
-
-/* ---------------- 5. Solution overview ---------------- */
-{
-  const s = contentSlide(
-    "Solusi: SALARAS-RX Boundary",
-    "SALARAS-RX disisipkan antara decoder Manchester dan register host. Tiga layer: L1 framing/FSM, L2 integrity verify, L3 atomic commit. Fail-closed, tanpa mengubah format frame."
-  );
-  s.addText("Boundary verifikasi integritas fail-closed: L1 (framing & FSM), L2 (integritas), L3 (atomic commit).", {
-    x: 0.7, y: 1.15, w: 8.6, h: 0.5, fontSize: 14, color: INK, fontFace: "Arial",
-  });
-  s.addImage({ path: "assets/block-diagram.png", x: 1.25, y: 1.75, w: 7.5, h: 2.63 });
-}
-
-/* ---------------- 6. L1 ---------------- */
-{
-  const s = contentSlide(
-    "L1 - Framing & FSM Validator",
-    "L1 memperluas data_validate. Memanfaatkan timer half_period (9 tick) yang sudah ada; validasi window sendiri logika baru. Ditambah timeout dan recovery branch. Timing window hanya pada edge di dalam frame."
-  );
-  s.addText(
-    bulletList([
-      "Reuse dan perluas data_validate (preamble/type/constant).",
-      "Timing window memanfaatkan timer half_period 9 tick yang sudah ada; validator window adalah logika baru.",
-      "Default/recovery branch untuk transisi FSM tak terduga.",
-      "Timeout counter agar FSM tidak macet.",
-      "Timing window diterapkan pada edge di dalam frame (setelah preamble valid), bukan hard-reject pada edge awal: start termutilasi yang valid tetap diterima.",
-    ]),
-    { x: 0.7, y: 1.2, w: 8.6, h: 3.9, fontFace: "Arial", valign: "top" }
-  );
-}
-
-/* ---------------- 7. L2 ---------------- */
-{
-  const s = contentSlide(
-    "L2 - Integrity Verify",
-    "L2 menghitung nilai integritas secara streaming lewat LFSR dan membandingkan dengan tail_1..3. Hasil analisis: field bersifat affine tetapi bukan CRC-24 standar, sehingga L2 diparameterisasi."
-  );
-  s.addText(
-    bulletList([
-      "LFSR streaming menghitung nilai integritas dari byte payload.",
-      "Dibandingkan dengan tail_1..3 yang diterima sebelum commit.",
-      "Tanpa buffer besar; kompleksitas O(n) terhadap jumlah bit frame.",
-      "Field affine (delta satu bit konstan) tetapi tidak cocok CRC-24 standar; penulis baseline menduga kode koreksi galat (ECC).",
-    ]),
-    { x: 0.7, y: 1.2, w: 8.6, h: 2.7, fontFace: "Arial", valign: "top" }
-  );
-  s.addText(
-    "Catatan: hanya 7 pasangan tersedia (rank delta 5), sehingga pemetaan penuh belum dapat direkonstruksi; L2 menunggu pasangan tambahan saat bootcamp.",
-    { x: 0.7, y: 4.05, w: 8.6, h: 1.0, fontSize: 12, color: RED, italic: true, fontFace: "Arial", valign: "top" }
-  );
-}
-
-/* ---------------- 8. L3 ---------------- */
-{
-  const s = contentSlide(
-    "L3 - Atomic Commit Gatekeeper",
-    "L3 menggerbangi full dan latch enable secara bersamaan. Jika verifikasi gagal, full ditahan rendah dan fault sticky diangkat. Inilah inti fail-closed."
-  );
-  s.addText(
-    bulletList([
-      "Gerbang atomik pada sinyal full dan latch enable.",
-      "Data dan kendali dikomit bersamaan hanya saat frame sah.",
-      "Jika verifikasi gagal: full tetap rendah dan fault flag diangkat ke host.",
-      "Fault bersifat sticky hingga di-acknowledge host.",
-      "Fail-closed: kegagalan menahan data, bukan meloloskannya.",
-    ]),
-    { x: 0.7, y: 1.2, w: 8.6, h: 3.9, fontFace: "Arial", valign: "top" }
-  );
-}
-
-/* ---------------- 9. Security-by-design ---------------- */
-{
-  const s = contentSlide(
-    "Security-by-design: CWE ke Mitigasi",
-    "Setiap CWE dipetakan ke satu layer mitigasi. Ini menunjukkan security-by-design, bukan fitur tempelan."
-  );
-  s.addTable(
-    table([
-      ["CWE", "Kelemahan", "Mitigasi SALARAS-RX"],
-      ["CWE-354", "Integritas tidak divalidasi", "L2 verifikasi sebelum commit"],
-      ["CWE-1245", "FSM rapuh", "L1 recovery branch + timeout + konsistensi transisi"],
-      ["CWE-1264", "Desinkronisasi kontrol/data", "L3 atomic commit + fail-closed"],
-    ]),
-    {
-      x: 0.7, y: 1.25, w: 8.6, colW: [1.4, 3.0, 4.2], fontSize: 12.5,
-      border: { type: "solid", color: "CBD5E1", pt: 1 }, align: "left", valign: "middle",
-      fontFace: "Arial", rowH: 0.6, autoPage: false,
-    }
-  );
-  s.addText("Attack surface dikelola: pin digital_in, timing half-period, handshake full, bus uo_out.", {
-    x: 0.7, y: 4.2, w: 8.6, h: 0.6, fontSize: 12, color: GRAY, italic: true, fontFace: "Arial",
+  s.addImage({
+    path: "assets/sim-baseline-vulnerability.png",
+    x: 6.05, y: 1.35, w: 3.35, h: 3.3,
+    sizing: { type: "contain", w: 3.35, h: 3.3 },
   });
 }
 
-/* ---------------- 10. Architecture & I/O ---------------- */
+/* ---------------- 4. Solution & architecture ---------------- */
 {
   const s = contentSlide(
-    "Arsitektur & Interface",
-    "Clock domain tunggal. Front-end baseline (edge_detect, state_machine, data_validate) dengan shift register pada frame_capture; tanpa block RAM. Interface host 8-bit dengan address 4-bit, handshake full dan fault."
+    "Solusi: TRI-ARGA, Tiga Lapis",
+    "[1:00-1:30] TRI-ARGA duduk di antara front-end yang tak tepercaya dan host. Tiga lapis: L1 pemuat key dan frame, L2 autentikasi dengan CBC-MAC dan pemeriksaan kesegaran, dan L3 commit atomik fail-closed. Kunci masuk dari host lewat jalur terpisah dan tidak pernah melewati tautan. Transport dapat diganti; Tier B menambahkan tautan serial 8b/10b dengan word lock."
   );
-  s.addText(
-    bulletList([
-      "Jalur digital clock domain tunggal.",
-      "Front-end baseline: edge_detect, state_machine, data_validate (dipakai di frame_capture).",
-      "Output: uo_out[7:0], full, fault (sinyal baru).",
-      "Tanpa block RAM: payload pada shift register frame_capture; state tambahan LFSR, flag, counter timing.",
-      "LFSR tanpa DSP. Latency commit 1 siklus clock (terukur pada simulasi boundary).",
-    ]),
-    { x: 0.7, y: 1.2, w: 8.6, h: 3.9, fontFace: "Arial", valign: "top" }
-  );
-}
-
-/* ---------------- 11. Verification S1 + S2 ---------------- */
-{
-  const s = contentSlide(
-    "Verifikasi & Prototype (S1 + S2)",
-    "Dua jalur memakai golden vector yang sama. S1 simulasi cocotb untuk CI. S2 wired: ESP32 replay ke DE10-Nano, host membaca hasil via USB-UART. Fault injection single-bit flip. Target detection 100 persen, false-reject 0 persen."
-  );
-  s.addText(
-    bulletList([
-      "S1 (simulasi, jalur CI): cocotb mem-drive digital_in dari capture CSV; fault injection pada level vektor; metrik otomatis.",
-      "S2 (wired hardware-in-the-loop): ESP32 (RMT) replay capture ke pin digital_in DE10-Nano; 3.3 V, tanpa level shifter; host membaca uo_out/full/fault via USB-UART.",
-      "Fault injection: single-bit flip pada payload dan field integritas, plus gangguan timing/jitter.",
-      "Corner-case: start termutilasi valid tetap diterima; glitch dalam frame dan noise ditolak.",
-      "Metrik target: detection rate 100%, false-reject 0%, latency 1 siklus.",
-    ]),
-    { x: 0.7, y: 1.2, w: 8.6, h: 3.9, fontFace: "Arial", valign: "top", fontSize: 13.5 }
-  );
-}
-
-/* ---------------- 12. Target platform + prototype ---------------- */
-{
-  const s = contentSlide(
-    "Target Platform & Prototype",
-    "Target ASIC Tiny Tapeout pada sky130; hasil hardening menempati tile 1x2. Target FPGA DE10-Nano Cyclone V. Prototype wired tanpa RF agar deterministik."
-  );
-  s.addText("ASIC: 1x2 tile, 0.0363 mm^2, WNS 0.00 ns, 1.21 mW (sky130).   FPGA: DE10-Nano (Cyclone V SoC).", {
-    x: 0.7, y: 1.12, w: 8.6, h: 0.4, fontSize: 13, color: INK, fontFace: "Arial",
+  s.addText("L1 Arga Kunci (pemuat), L2 Arga Auth (CBC-MAC + kesegaran), L3 Arga Commit (fail-closed). Kunci dari host lewat jalur terpisah.", {
+    x: 0.7, y: 1.1, w: 8.6, h: 0.75, fontSize: 13.5, color: INK, fontFace: "Arial",
   });
-  s.addImage({ path: "assets/prototype-s1.png", x: 1.7, y: 1.5, w: 6.6, h: 1.03 });
-  s.addImage({ path: "assets/prototype-s2.png", x: 1.7, y: 2.72, w: 6.6, h: 1.32 });
+  s.addImage({
+    path: "assets/block-diagram.png",
+    x: 1.9, y: 1.95, w: 6.2, h: 3.0,
+    sizing: { type: "contain", w: 6.2, h: 3.0 },
+  });
 }
 
-/* ---------------- 12b. Hasil ---------------- */
+/* ---------------- 5. Workflow ---------------- */
 {
   const s = contentSlide(
-    "Hasil Sementara",
-    "Bukti simulasi (S1) dan hasil sintesis sky130 sudah tersedia."
+    "Alur Kerja",
+    "[1:30-2:05] Ini alur kerja dari kunci sampai data terlihat host. Pertama host memuat kunci 64 bit sekali, bersifat write-once. Lalu frame 128 bit digeser: counter, payload, dan tag. L1 memvalidasi batas frame dan menaikkan framing_ok. L2 menghitung CBC-MAC dan membandingkan tag, lalu memeriksa counter harus naik. Jika autentikasi dan kesegaran lulus, L3 melepas data dan host_full bersamaan. Jika gagal, host_full tetap rendah dan fault menyala lengket sampai di-acknowledge."
+  );
+  const boxes = [
+    "Host memuat kunci 64 bit (write-once)",
+    "Frame 128 bit digeser: counter + payload + tag",
+    "L1: framing_ok, batas frame tervalidasi",
+    "L2: CBC-MAC cocok + counter naik",
+    "L3: commit atomik -> host_full; gagal -> fault lengket",
+  ];
+  const ys = [1.05, 1.72, 2.39, 3.06, 3.73];
+  boxes.forEach((t, i) => {
+    flowBox(s, ys[i], t, i === 4 ? "FEF3C7" : LIGHT);
+    if (i < boxes.length - 1) flowArrow(s, ys[i] + 0.57);
+  });
+  s.addText("Jalur tolak: tag salah, counter basi, atau framing rusak -> host_full rendah + fault lengket.", {
+    x: 0.7, y: 4.5, w: 8.6, h: 0.5, fontSize: 11.5, color: RED, italic: true, fontFace: "Arial",
+  });
+}
+
+/* ---------------- 6. Auth & freshness ---------------- */
+{
+  const s = contentSlide(
+    "Autentikasi & Kesegaran",
+    "[2:05-2:35] L2 memakai SIMON-32/64 sebagai CBC-MAC panjang tetap atas tiga blok, dengan tag 32 bit dan IV nol. Tag hasil hitung dibandingkan dengan tag yang diterima. Counter harus lebih besar dari yang terakhir diterima, sehingga replay dan counter basi ditolak. Kami jujur soal batas: peluang forgery sekitar dua pangkat minus tiga puluh dua, dan CBC-MAC hanya aman untuk panjang tetap, jadi kunci disarankan dirotasi."
+  );
+  s.addText(
+    bulletList([
+      "SIMON-32/64 terserialisasi, satu ronde per siklus; 33 siklus per blok.",
+      "CBC-MAC panjang tetap atas tiga blok, IV = 0, tag 32 bit.",
+      "Tag hasil hitung dibandingkan dengan tag yang diterima.",
+      "Counter harus naik ketat; replay dan counter basi ditolak (CWE-294).",
+    ], { fontSize: 14 }),
+    { x: 0.7, y: 1.15, w: 4.9, h: 3.6, fontFace: "Arial", valign: "top" }
+  );
+  s.addImage({
+    path: "assets/frame-link.png",
+    x: 5.75, y: 1.35, w: 3.65, h: 2.7,
+    sizing: { type: "contain", w: 3.65, h: 2.7 },
+  });
+  s.addText("Tag 32 bit: peluang forgery sekitar 2^-32 per percobaan.", {
+    x: 0.7, y: 4.5, w: 8.6, h: 0.5, fontSize: 11.5, color: RED, italic: true, fontFace: "Arial",
+  });
+}
+
+/* ---------------- 7. Reject cases ---------------- */
+{
+  const s = contentSlide(
+    "Kasus Tolak: Forgery, Replay, Line Error",
+    "[2:35-3:05] Ini hasil simulasi yang menunjukkan fungsionalitas fail-closed. Frame bersih dikomit: host_full naik. Sebaliknya, tiga kasus ditolak. Forgery, saat payload diubah tetapi tag lama, membuat auth_ok rendah. Replay, saat counter sama, membuat fresh_ok rendah. Line error pada tautan serial memicu fault. Pada semua kasus gagal, host_full tetap rendah dan fault menyala lengket sampai di-acknowledge."
+  );
+  s.addText(
+    bulletList([
+      "Bersih: `host_full=1`, data tercommit.",
+      "Forgery (payload diubah, tag lama): `auth_ok=0`, `fault=1`.",
+      "Replay (counter sama): `fresh_ok=0`, `fault=1`.",
+      "Line error (bit tautan rusak): fault pada tautan.",
+      "Fault lengket sampai `fault_ack`.",
+    ], { fontSize: 12.5 }),
+    { x: 0.7, y: 1.2, w: 4.7, h: 3.8, fontFace: "Arial", valign: "top" }
+  );
+  s.addImage({
+    path: "assets/sim-auth-commit.png",
+    x: 5.55, y: 1.4, w: 3.85, h: 3.0,
+    sizing: { type: "contain", w: 3.85, h: 3.0 },
+  });
+}
+
+/* ---------------- 8. Verification ---------------- */
+{
+  const s = contentSlide(
+    "Verifikasi & Bukti",
+    "[3:05-3:30] Kami memverifikasi dengan tiga cara. Simulasi cocotb mencakup suite simon, l2, auth, wrapper, link-codec, link-framing, dan link-top. Fault injection menolak 128 dari 128 single-bit flip, dengan false reject nol dari dua puluh frame bersih. Properti formal SymbiYosys: sembilan job lolos, yaitu lima inti, satu Tier B, dan tiga lampiran RF. Angka yang kami laporkan hanya yang terukur."
+  );
+  s.addText(
+    bulletList([
+      "Simulasi cocotb: suite simon, l2, auth, wrapper, link-codec, link-framing, link-top lolos.",
+      "Fault injection: 128/128 single-bit flip ditolak; false reject 0 dari 20 frame bersih.",
+      "Formal SymbiYosys: 9 job lolos (5 inti, 1 Tier B, 3 lampiran RF).",
+    ], { fontSize: 13.5 }),
+    { x: 0.7, y: 1.25, w: 8.6, h: 3.8, fontFace: "Arial", valign: "top" }
+  );
+}
+
+/* ---------------- 9. Measured results ---------------- */
+{
+  const s = contentSlide(
+    "Hasil Terukur",
+    "[3:30-3:55] Ringkasan hasil. Simulasi: 128 dari 128 bit flip ditolak, false reject nol, dan latensi 108 siklus. Formal: sembilan job lolos. Hardening sky130 inti: tile dua kali dua, 0,0756 milimeter persegi, 2511 sel, tanpa DRC, LVS, atau antena, dan 2,10 miliwatt. Tautan Tier B: 3220 sel dan 3,61 miliwatt. FPGA DE10-Nano: 421 ALM, 1029 flip-flop, Fmax 97,9 megahertz."
   );
   s.addTable(
     table([
       ["Aspek", "Hasil"],
-      ["Vulnerabilitas baseline", "Payload dan field integritas korup tetap di-latch (full=1, CWE-354)"],
-      ["Boundary SALARAS-RX", "Fail-closed: menolak, fault lengket, commit 1 siklus"],
-      ["Hardening sky130", "Tile 1x2 (1x1 melampaui 105.57%), 0.0363 mm^2, 0 DRC"],
-      ["Timing & daya", "WNS 0.00 ns; daya tipikal 1.21 mW"],
-      ["Gate-level", "Simulasi netlist lolos (3/3)"],
+      ["Simulasi", "128/128 bit flip ditolak; false reject 0; 108 siklus ujung ke ujung"],
+      ["Loopback Tier B", "frame bersih dikomit; forgery, replay, dan line error ditolak"],
+      ["Formal", "9 job lolos (5 inti, 1 Tier B, 3 lampiran RF)"],
+      ["ASIC sky130 (inti)", "2x2, 0,0756 mm^2, 2511 sel, 0 DRC/LVS/antena, 2,10 mW"],
+      ["ASIC sky130 (Tier B)", "2x2, 3220 sel, 2 pelanggaran antena, 3,61 mW"],
+      ["FPGA DE10-Nano", "421 ALM, 1029 FF, 0 M10K, 0 DSP, Fmax 97,9 MHz"],
     ]),
     {
-      x: 0.7, y: 1.2, w: 8.6, colW: [2.6, 6.0], fontSize: 12.5,
+      x: 0.7, y: 1.2, w: 8.6, colW: [2.4, 6.2], fontSize: 11.5,
       border: { type: "solid", color: "CBD5E1", pt: 1 }, align: "left", valign: "middle",
-      fontFace: "Arial", rowH: 0.55, autoPage: false,
+      fontFace: "Arial", rowH: 0.56, autoPage: false,
     }
   );
 }
 
-/* ---------------- 13. Roadmap ---------------- */
+/* ---------------- 10. Outputs & repository ---------------- */
 {
   const s = contentSlide(
-    "Roadmap & Bootcamp (18-20 Oktober 2026)",
-    "Rencana tiga hari bootcamp. Hari 1 finalisasi RTL dan integrasi. Hari 2 fault injection dan verifikasi. Hari 3 sintesis, SignalTap, demo dan presentasi Top 5 menuju Top 3."
+    "Luaran dan Repositori",
+    "[3:55-4:10] Luaran yang kami serahkan: sumber RTL inti Tier A dan tautan Tier B, suite testbench cocotb, sembilan properti formal, hasil hardening sky130 beserta laporan DRC, LVS, timing, dan daya, bitstream FPGA beserta demo on-board di bootcamp, serta dokumen teknis dan repositori sumber."
   );
   s.addTable(
     table([
-      ["Hari", "Fokus", "Deliverable"],
-      ["Hari 1 (18 Okt)", "Finalisasi RTL L1-L3 + integrasi baseline", "RTL dapat disimulasikan"],
-      ["Hari 2 (19 Okt)", "Fault injection + verifikasi cocotb", "Laporan detection rate & latency"],
-      ["Hari 3 (20 Okt)", "Sintesis Quartus, SignalTap, demo DE10-Nano", "Bitstream + demo + presentasi Top 5"],
+      ["Luaran", "Isi"],
+      ["Sumber RTL", "`src/` inti Tier A dan tautan Tier B (8b/10b)"],
+      ["Testbench", "Suite cocotb: simon, l2, auth, wrapper, link-codec, link-framing, link-top"],
+      ["Formal", "9 job SymbiYosys lolos"],
+      ["ASIC", "GDS sky130 dan laporan DRC/LVS/timing/daya"],
+      ["FPGA", "Bitstream (.sof) dan demo on-board (bootcamp)"],
+      ["Dokumen", "Proposal, laporan teknis (quartus-report, area), dan repositori sumber"],
     ]),
     {
-      x: 0.7, y: 1.3, w: 8.6, colW: [1.9, 3.6, 3.1], fontSize: 12.5,
-      border: { type: "solid", color: "CBD5E1", pt: 1 }, align: "left", valign: "middle",
-      fontFace: "Arial", rowH: 0.62, autoPage: false,
-    }
-  );
-}
-
-/* ---------------- 14. Team ---------------- */
-{
-  const s = contentSlide(
-    "Tim & Peran",
-    "Pembagian peran: RTL, verifikasi, dan pembimbing. Penutup: terima kasih."
-  );
-  s.addTable(
-    table([
-      ["Nama", "Peran"],
-      ["Ibrahim Fauzi Rahman", "RTL Designer: desain L1-L3 (SALARAS-RX) + integrasi baseline"],
-      ["Idris Syaifulloh", "Verification: cocotb, fault injection, metrik"],
-      ["Dr. Setia Jul Ismail, S.T., M.T.", "Pembimbing: review arsitektur dan metodologi verifikasi"],
-    ]),
-    {
-      x: 0.7, y: 1.3, w: 8.6, colW: [3.0, 5.6], fontSize: 13,
+      x: 0.7, y: 1.2, w: 8.6, colW: [2.0, 6.6], fontSize: 12.5,
       border: { type: "solid", color: "CBD5E1", pt: 1 }, align: "left", valign: "middle",
       fontFace: "Arial", rowH: 0.6, autoPage: false,
     }
   );
-  s.addText("Terima kasih.", {
-    x: 0.7, y: 4.35, w: 8.6, h: 0.6, fontSize: 20, bold: true, color: ACCENT, fontFace: "Arial",
+}
+
+/* ---------------- 11. Closing ---------------- */
+{
+  const s = contentSlide(
+    "Terima Kasih",
+    "[4:10-4:15] Demikian TRI-ARGA: gerbang ingress yang autentik, anti-replay, dan fail-closed, dengan tautan serial Tier B. Terima kasih."
+  );
+  s.addText(BRAND, {
+    x: 0.7, y: 2.0, w: 8.6, h: 0.9, fontSize: 40, bold: true, color: ACCENT, fontFace: "Arial",
+  });
+  s.addText("Autentik, anti-replay, dan fail-closed; tautan serial 8b/10b (Tier B).", {
+    x: 0.72, y: 2.95, w: 8.6, h: 0.5, fontSize: 16, color: GRAY, fontFace: "Arial",
+  });
+  s.addText(`${cover.members[0].name}  \u00B7  ${cover.members[1].name}  \u00B7  Universitas Telkom`, {
+    x: 0.72, y: 3.5, w: 8.6, h: 0.5, fontSize: 13, color: INK, fontFace: "Arial",
   });
 }
 
-await pptx.writeFile({ fileName: "salaras-rx-deck.pptx" });
-console.log(`wrote salaras-rx-deck.pptx (${pageNo} slides)`);
+const outDir = process.env.DECK_OUT_DIR || ".";
+const base = process.env.DECK_BASE || "tri-arga-deck";
+const outPath = join(outDir, `${base}.pptx`);
+await pptx.writeFile({ fileName: outPath });
+console.log(`wrote ${outPath} (${pageNo} slides)`);
