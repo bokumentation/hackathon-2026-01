@@ -59,7 +59,7 @@ env:
 .PHONY: doctor
 doctor:
 	@echo "Checking repository tools"
-	@for t in git make python3 verilator yosys iverilog; do \
+	@for t in git make python3 gcc g++ verilator yosys iverilog; do \
 		if command -v $$t >/dev/null 2>&1; then echo "  ok      $$t"; else echo "  MISSING $$t"; fi; \
 	done
 	@for t in sby node npm chromium chromium-browser google-chrome inkscape soffice; do \
