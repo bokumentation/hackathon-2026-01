@@ -17,7 +17,7 @@
       { "role": "Anggota 1", "name": "Idris Syaifulloh", "institution": "Universitas Telkom", "contact": "idrissyaifulloh@student.telkomuniversity.ac.id / +62 895-3309-78461" }
     ],
     "advisor": "Dr. Setia Juli Irzal Ismail, S.T., M.T. - Universitas Telkom",
-    "runningHead": "TRI-ARGA: A three-layer, authenticated, replay-resistant, and fail-closed ingress boundary for lightweight serial links"
+    "footer": "TRI-ARGA | PERURI Chip Hackathon 2026 | Universitas Telkom"
   },
   "en": {
     "event": "PROPOSAL PESERTA HACKATHON CHIP 2026",
@@ -37,6 +37,6 @@
       { "role": "Member", "name": "Idris Syaifulloh", "institution": "Universitas Telkom", "contact": "idrissyaifulloh@student.telkomuniversity.ac.id / +62 895-3309-78461" }
     ],
     "advisor": "Dr. Setia Juli Irzal Ismail, S.T., M.T. - Universitas Telkom",
-    "runningHead": "TRI-ARGA: A three-layer, authenticated, replay-resistant, and fail-closed ingress boundary for lightweight serial links"
+    "footer": "TRI-ARGA | PERURI Chip Hackathon 2026 | Universitas Telkom"
   }
 }

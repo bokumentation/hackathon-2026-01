@@ -3,6 +3,13 @@
   margin: 14mm 15mm 14mm 15mm;
 }
 
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  src: url("assets/PlusJakartaSans-ExtraBold.ttf") format("truetype");
+  font-weight: 800;
+  font-display: swap;
+}
+
 /* ---- cover page ---- */
 .cover {
   height: 261mm;
@@ -12,24 +19,26 @@
   break-after: page;
 }
 .cover-top {
-  font-size: 24pt;
+  font-family: "Plus Jakarta Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 26pt;
   font-weight: 700;
   line-height: 1.0;
   letter-spacing: 1px;
-  color: #c2410c;
-  border-bottom: 2.5px solid #c2410c;
+  color: #3e3efe;
+  border-bottom: 2px solid #d1d5db;
   padding-bottom: 8pt;
 }
 .cover-cat {
     margin-top: 9pt;
-    font-size: 16pt;
+    font-size: 14pt;
     color: #666666;
-    padding-bottom: 8pt;
+    /* padding-bottom: 8pt; */
 }
 .cover-hero {
   margin-top: 180pt;
 }
 .cover-title {
+  font-family: "Plus Jakarta Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 46pt;
   line-height: 1;
   margin: 0 0 8pt;
@@ -52,6 +61,7 @@
   padding-top: 12pt;
 }
 .cover-id-h {
+  font-family: "Plus Jakarta Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 13pt;
   font-weight: 700;
   color: #111827;
