@@ -1,4 +1,4 @@
-# TRI-ARGA - Authenticated Fail-Closed Ingress Boundary
+# TRI-ARGA - Gerbang Keamanan Data Portabel Tiga Lapis (Fail-Closed) untuk Tautan Serial Ringan
 
 **PERURI Chip Hackathon 2026 · Area 04 Secure Communication**
 Tim *Tri Arga* · Universitas Telkom
