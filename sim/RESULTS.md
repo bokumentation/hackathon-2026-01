@@ -59,8 +59,25 @@ path; the commit and host visibility stages are added in M3.
 
 The Tier A end-to-end latency is 108 cycles: 107 for MAC plus freshness, plus 1
 for the commit. The RF appendix boundary commit was also 1 cycle, so the shared
-gate adds the same single cycle. Figure: `docs/proposal/assets/sim-auth-commit.png` shows a clean
+gate adds the same single cycle. Figure: `docs/proposal/assets/gtkwave.png` shows a clean
 accept and a rejected frame side by side.
+
+## M4 - Tier B serial link loopback
+
+`link_top` wraps the Tier A core with the 8b/10b link and an internal loopback. Measured
+with `make link-top`.
+
+| Case | Result |
+| --- | --- |
+| Clean frame | committed, `host_full=1`, `fault=0`, data matches |
+| Forgery | rejected, `host_full=0`, `fault=1` |
+| Replay | rejected, `host_full=0`, `fault=1` |
+| Line error | rejected, `host_full=0`, `fault=1` |
+| Single-bit flips | 128 of 128 rejected |
+| End-to-end latency (tx_send to done) | 288 clock cycles |
+
+The 288-cycle figure includes the 8b/10b framing and the shared 108-cycle core; the
+SIMON, CBC-MAC, and commit latencies are the Tier A core values.
 
 ## Comparison: CRC vs MAC vs MAC+counter
 
@@ -88,7 +105,7 @@ interface with a 192-bit frame.
 | Integrity field bit flipped | 1 | tail becomes `0x14AE16` (corrupted), payload unchanged |
 
 The baseline has no error output and never checks the integrity field, so both
-corrupted frames are latched as valid. Figure: `docs/proposal/assets/sim-baseline-vulnerability.png`.
+corrupted frames are latched as valid. Figure: `docs/proposal/assets/gtkwave-tb-serial-baseline.png`.
 
 ## E2 - TRI-ARGA fail-closed boundary
 
@@ -104,7 +121,7 @@ Stimulus drives L1 (timing/timeout) and L3 (atomic commit) directly, with
 | No-edge timeout (4096 cycles) | `timeout_fault=1`, `framing_ok=0` |
 | Commit latency | 1 clock cycle |
 
-Figure: `docs/proposal/assets/sim-auth-commit.png` and `appendix/rf/figures/sim-boundary-timeout.png`.
+Figure: `docs/proposal/assets/gtkwave.png` and `appendix/rf/figures/sim-boundary-timeout.png`.
 
 ## Not yet covered
 

@@ -291,7 +291,7 @@ Hasil *hardening* sky130 desain pada Lampiran F (*front-end baseline* ditambah L
 - Demonstrasi: *wrapper loopback* menginstansiasi `link_tx` dan `link_top` (`link_rx` + `boundary_top`). Saklar memilih kasus bersih, korup, atau *replay*; `fault_ack` mereset *fault* yang bersifat lengket.
 - SignalTap (disiapkan, menunggu papan): *taps* `host_full`, `fault`, `auth_ok`, `fresh_ok`, `done`, `key_locked`; *sample clock* `CLOCK_50`, kedalaman 2048, posisi *pre-trigger*; pemicu tepi naik `host_full` untuk kasus terima dan `fault` untuk kasus tolak. Berkas `.stp` dibuat di GUI Quartus, kemudian `quartus_stp ... --enable` menambah *wiring* SLD dan kompilasi diulang; skrip akuisisi dan prosedur tersedia di repositori.
 - Skenario uji: *frame* bersih dikomit (`host_full` naik); *frame* korup ditolak (`host_full` tetap rendah, `fault` naik); *replay* tidak dikomit; *fault* bersifat lengket sampai di-*acknowledge*.
-- Laporan *wrapper loopback* Tier B (`link_demo_top`): Fitter 421 ALM/1029 FF, Timing Analyzer Fmax 97,9 MHz (WNS +9,785 ns), PowerPlay 426,2 mW *vector-less* (3,76 mW dinamis inti).
+- Laporan *wrapper loopback* Tier B (`link_demo_top`): Fitter 421 ALM/1029 FF, Timing Analyzer Fmax 97,9 MHz (WNS +9,785 ns), PowerPlay 426,19 mW *vector-less* (3,76 mW dinamis inti).
 - Sebagai pembanding, *wrapper* Tier A (`de10nano_top`, pemuat serial L1) sebelumnya terukur 242 ALM/654 FF, Fmax 136,37 MHz.
 - Fasilitas: FPGA/*sandbox* penyelenggara saat *bootcamp*.
 

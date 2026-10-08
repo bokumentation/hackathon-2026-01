@@ -1,95 +1,513 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 540" font-family="Helvetica, Arial, sans-serif">
-  <rect x="0" y="0" width="900" height="540" fill="#ffffff"/>
-
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 900 540"
+   font-family="Helvetica, Arial, sans-serif"
+   version="1.1"
+   id="svg32"
+   sodipodi:docname="block-diagram.svg"
+   inkscape:version="1.4 (e7c3feb100, 2024-10-09)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview32"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="1.4814815"
+     inkscape:cx="382.725"
+     inkscape:cy="197.1"
+     inkscape:window-width="1920"
+     inkscape:window-height="1011"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg32" />
+  <rect
+     x="0"
+     y="0"
+     width="900"
+     height="540"
+     fill="#ffffff"
+     id="rect1"
+     sodipodi:insensitive="true" />
   <!-- title -->
-  <text x="450" y="30" font-size="13" font-weight="700" fill="#111827" text-anchor="middle">TRI-ARGA — only authenticated and fresh frames reach the host</text>
-
+  <text
+     x="446.46124"
+     y="33.654594"
+     font-size="13px"
+     font-weight="700"
+     fill="#111827"
+     text-anchor="middle"
+     id="text1">TRI-ARGA - only authenticated and fresh frames reach the host</text>
   <!-- trust boundary dashed line -->
-  <text x="310" y="55" font-size="11" fill="#94a3b8" text-anchor="middle">trust boundary</text>
-  <line x1="310" y1="62" x2="310" y2="480" stroke="#94a3b8" stroke-width="1" stroke-dasharray="5 4"/>
-
+  <text
+     x="273.88748"
+     y="79.457962"
+     font-size="11px"
+     fill="#94a3b8"
+     text-anchor="middle"
+     id="text2">Trust Boundary</text>
+  <line
+     x1="273.54999"
+     y1="91.953903"
+     x2="273.54999"
+     y2="477.97501"
+     stroke="#94a3b8"
+     stroke-width="0.960986"
+     stroke-dasharray="5, 4"
+     id="line2" />
   <!-- untrusted label -->
-  <text x="155" y="80" font-size="11" fill="#94a3b8" text-anchor="middle">Untrusted</text>
-
+  <text
+     x="130.18056"
+     y="80"
+     font-size="11px"
+     fill="#94a3b8"
+     text-anchor="middle"
+     id="text3">Untrusted</text>
   <!-- trusted label -->
-  <text x="810" y="80" font-size="11" fill="#94a3b8" text-anchor="middle">Trusted</text>
-
+  <text
+     x="786.61243"
+     y="81.431892"
+     font-size="11px"
+     fill="#94a3b8"
+     text-anchor="middle"
+     id="text4">Trusted</text>
   <!-- ===== FRONT-END box (left) ===== -->
-  <rect x="40" y="95" width="170" height="110" rx="10" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>
-  <text x="125" y="120" font-size="13" font-weight="700" text-anchor="middle" fill="#1e293b">Front-end</text>
-  <text x="125" y="140" font-size="11" text-anchor="middle" fill="#475569">TT07 SerDes</text>
-  <text x="125" y="156" font-size="11" text-anchor="middle" fill="#475569">Manchester / RF</text>
-  <text x="125" y="172" font-size="11" text-anchor="middle" fill="#475569">UART</text>
-
+  <rect
+     x="40"
+     y="95"
+     width="170"
+     height="110"
+     rx="10"
+     fill="#f8fafc"
+     stroke="#94a3b8"
+     stroke-width="1.5"
+     id="rect4" />
+  <text
+     x="125"
+     y="120"
+     font-size="13"
+     font-weight="700"
+     text-anchor="middle"
+     fill="#1e293b"
+     id="text5">Front-end</text>
+  <text
+     x="125"
+     y="140"
+     font-size="11"
+     text-anchor="middle"
+     fill="#475569"
+     id="text6">TT07 SerDes</text>
+  <text
+     x="125"
+     y="156"
+     font-size="11"
+     text-anchor="middle"
+     fill="#475569"
+     id="text7">Manchester / RF</text>
+  <text
+     x="125"
+     y="172"
+     font-size="11"
+     text-anchor="middle"
+     fill="#475569"
+     id="text8">UART</text>
   <!-- ===== ATTACKER box (red, bottom-left) ===== -->
-  <rect x="40" y="310" width="170" height="90" rx="10" fill="#fee2e2" stroke="#b91c1c" stroke-width="1.5"/>
-  <text x="125" y="338" font-size="13" font-weight="700" text-anchor="middle" fill="#7f1d1d">Attacker</text>
-  <text x="125" y="357" font-size="11" text-anchor="middle" fill="#991b1b">insert, modify, delete,</text>
-  <text x="125" y="373" font-size="11" text-anchor="middle" fill="#991b1b">replay frames</text>
-
+  <rect
+     x="40"
+     y="310"
+     width="170"
+     height="90"
+     rx="10"
+     fill="#fee2e2"
+     stroke="#b91c1c"
+     stroke-width="1.5"
+     id="rect8" />
+  <text
+     x="125"
+     y="338"
+     font-size="13"
+     font-weight="700"
+     text-anchor="middle"
+     fill="#7f1d1d"
+     id="text9">Attacker</text>
+  <text
+     x="125"
+     y="357"
+     font-size="11"
+     text-anchor="middle"
+     fill="#991b1b"
+     id="text10">insert, modify, delete,</text>
+  <text
+     x="125"
+     y="373"
+     font-size="11"
+     text-anchor="middle"
+     fill="#991b1b"
+     id="text11">replay frames</text>
   <!-- arrow attacker → front-end (red, upward) -->
-  <line x1="125" y1="310" x2="125" y2="207" stroke="#b91c1c" stroke-width="1.5" marker-end="url(#ar)"/>
-
+  <line
+     x1="125"
+     y1="310"
+     x2="125"
+     y2="207"
+     stroke="#b91c1c"
+     stroke-width="1.5"
+     marker-end="url(#ar)"
+     id="line11" />
   <!-- ===== TRI-ARGA CORE outer box ===== -->
-  <rect x="330" y="70" width="330" height="410" rx="12" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
-  <text x="495" y="97" font-size="12" font-weight="700" text-anchor="middle" fill="#334155">TRI-ARGA core: single clock, no block RAM</text>
-
+  <rect
+     x="330"
+     y="70"
+     width="330"
+     height="410"
+     rx="12"
+     fill="#f1f5f9"
+     stroke="#94a3b8"
+     stroke-width="1.5"
+     id="rect11" />
+  <text
+     x="495"
+     y="97"
+     font-size="12"
+     font-weight="700"
+     text-anchor="middle"
+     fill="#334155"
+     id="text12">TRI-ARGA core: single clock, no block RAM</text>
   <!-- L1 Frame loader -->
-  <rect x="355" y="112" width="280" height="80" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.2"/>
-  <text x="495" y="140" font-size="13" font-weight="700" text-anchor="middle" fill="#1e293b">L1 — Frame loader</text>
-  <text x="495" y="159" font-size="11" text-anchor="middle" fill="#475569">counter 32 + payload 64 + tag 32</text>
-  <text x="495" y="175" font-size="11" text-anchor="middle" fill="#475569">l1_serial_loader · write-once key lock</text>
-
+  <rect
+     x="355"
+     y="112"
+     width="280"
+     height="80"
+     rx="8"
+     fill="#ffffff"
+     stroke="#94a3b8"
+     stroke-width="1.2"
+     id="rect12" />
+  <text
+     x="495"
+     y="140"
+     font-size="13"
+     font-weight="700"
+     text-anchor="middle"
+     fill="#1e293b"
+     id="text13">L1 - Frame loader</text>
+  <text
+     x="495"
+     y="159"
+     font-size="11"
+     text-anchor="middle"
+     fill="#475569"
+     id="text14">counter 32 + payload 64 + tag 32</text>
+  <text
+     x="495"
+     y="175"
+     font-size="11"
+     text-anchor="middle"
+     fill="#475569"
+     id="text15">l1_serial_loader · write-once key lock</text>
   <!-- arrow L1 → L2 -->
-  <line x1="495" y1="192" x2="495" y2="222" stroke="#475569" stroke-width="1.5" marker-end="url(#a)"/>
-
+  <line
+     x1="495"
+     y1="192"
+     x2="495"
+     y2="222"
+     stroke="#475569"
+     stroke-width="1.5"
+     marker-end="url(#a)"
+     id="line15" />
   <!-- L2 Auth -->
-  <rect x="355" y="222" width="280" height="90" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.2"/>
-  <text x="495" y="250" font-size="13" font-weight="700" text-anchor="middle" fill="#1e293b">L2 — Auth</text>
-  <text x="495" y="269" font-size="11" text-anchor="middle" fill="#475569">SIMON-32/64 CBC-MAC, tag check</text>
-  <text x="495" y="285" font-size="11" text-anchor="middle" fill="#475569">counter must increase strictly</text>
-  <text x="495" y="301" font-size="11" text-anchor="middle" fill="#475569">auth_ok, fresh_ok</text>
-
+  <rect
+     x="355"
+     y="222"
+     width="280"
+     height="90"
+     rx="8"
+     fill="#ffffff"
+     stroke="#94a3b8"
+     stroke-width="1.2"
+     id="rect15" />
+  <text
+     x="495"
+     y="250"
+     font-size="13"
+     font-weight="700"
+     text-anchor="middle"
+     fill="#1e293b"
+     id="text16">L2 - Auth</text>
+  <text
+     x="495"
+     y="269"
+     font-size="11"
+     text-anchor="middle"
+     fill="#475569"
+     id="text17">SIMON-32/64 CBC-MAC, tag check</text>
+  <text
+     x="495"
+     y="285"
+     font-size="11"
+     text-anchor="middle"
+     fill="#475569"
+     id="text18">counter must increase strictly</text>
+  <text
+     x="495"
+     y="301"
+     font-size="11"
+     text-anchor="middle"
+     fill="#475569"
+     id="text19">auth_ok, fresh_ok</text>
   <!-- arrow label -->
-  <text x="515" y="328" font-size="10" fill="#64748b">auth_ok, fresh_ok</text>
+  <text
+     x="508.25"
+     y="329.35001"
+     font-size="10px"
+     fill="#64748b"
+     id="text20">auth_ok, fresh_ok</text>
   <!-- arrow L2 → L3 -->
-  <line x1="495" y1="312" x2="495" y2="345" stroke="#475569" stroke-width="1.5" marker-end="url(#a)"/>
-
+  <line
+     x1="495"
+     y1="312"
+     x2="495"
+     y2="345"
+     stroke="#475569"
+     stroke-width="1.5"
+     marker-end="url(#a)"
+     id="line20" />
   <!-- L3 Commit -->
-  <rect x="355" y="345" width="280" height="100" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
-  <text x="495" y="372" font-size="13" font-weight="700" text-anchor="middle" fill="#1e3a8a">L3 — Commit (fail-closed)</text>
-  <text x="495" y="391" font-size="11" text-anchor="middle" fill="#1e40af">data + host_full released atomically</text>
-  <text x="495" y="407" font-size="11" text-anchor="middle" fill="#1e40af">on fail: sticky fault, data withheld</text>
-  <text x="495" y="423" font-size="11" text-anchor="middle" fill="#1e40af">l3_commit_gatekeeper</text>
-
+  <rect
+     x="355"
+     y="345"
+     width="280"
+     height="100"
+     rx="8"
+     fill="#eff6ff"
+     stroke="#2563eb"
+     stroke-width="2"
+     id="rect20" />
+  <text
+     x="495"
+     y="372"
+     font-size="13"
+     font-weight="700"
+     text-anchor="middle"
+     fill="#1e3a8a"
+     id="text21">L3 - Commit (fail-closed)</text>
+  <text
+     x="495"
+     y="391"
+     font-size="11"
+     text-anchor="middle"
+     fill="#1e40af"
+     id="text22">data + host_full released atomically</text>
+  <text
+     x="495"
+     y="407"
+     font-size="11"
+     text-anchor="middle"
+     fill="#1e40af"
+     id="text23">on fail: sticky fault, data withheld</text>
+  <text
+     x="495"
+     y="423"
+     font-size="11"
+     text-anchor="middle"
+     fill="#1e40af"
+     id="text24">l3_commit_gatekeeper</text>
   <!-- ===== HOST box (right) ===== -->
-  <rect x="740" y="185" width="140" height="160" rx="10" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>
-  <text x="810" y="212" font-size="13" font-weight="700" text-anchor="middle" fill="#1e293b">Host</text>
-  <text x="810" y="232" font-size="11" text-anchor="middle" fill="#475569">loads session key</text>
-  <text x="810" y="250" font-size="11" text-anchor="middle" fill="#475569">reads data</text>
-  <text x="810" y="268" font-size="11" text-anchor="middle" fill="#475569">ack fault</text>
-
+  <rect
+     x="739.97937"
+     y="184.97935"
+     width="140.04131"
+     height="151.2663"
+     rx="10.00295"
+     fill="#f8fafc"
+     stroke="#94a3b8"
+     stroke-width="1.4587"
+     id="rect24" />
+  <text
+     x="810"
+     y="212"
+     font-size="13"
+     font-weight="700"
+     text-anchor="middle"
+     fill="#1e293b"
+     id="text25">Host</text>
+  <text
+     x="810"
+     y="232"
+     font-size="11"
+     text-anchor="middle"
+     fill="#475569"
+     id="text26">loads session key</text>
+  <text
+     x="810"
+     y="250"
+     font-size="11"
+     text-anchor="middle"
+     fill="#475569"
+     id="text27">reads data</text>
+  <text
+     x="810"
+     y="268"
+     font-size="11"
+     text-anchor="middle"
+     fill="#475569"
+     id="text28">ack fault</text>
   <!-- arrow front-end → L1 (frame in) -->
-  <line x1="210" y1="150" x2="353" y2="150" stroke="#475569" stroke-width="1.5" marker-end="url(#a)"/>
-
+  <line
+     x1="210"
+     y1="150"
+     x2="353"
+     y2="150"
+     stroke="#475569"
+     stroke-width="1.5"
+     marker-end="url(#a)"
+     id="line28" />
   <!-- key arrow Host → L2 -->
-  <line x1="738" y1="235" x2="637" y2="260" stroke="#475569" stroke-width="1.5" marker-end="url(#a)"/>
-  <text x="690" y="240" font-size="10" fill="#64748b" text-anchor="middle">key</text>
-
+  <text
+     x="687.55975"
+     y="269.13086"
+     font-size="10px"
+     fill="#64748b"
+     text-anchor="middle"
+     id="text29">key</text>
   <!-- arrow L3 → Host: data, full -->
-  <line x1="635" y1="370" x2="738" y2="295" stroke="#475569" stroke-width="1.5" marker-end="url(#a)"/>
-  <text x="690" y="330" font-size="10" fill="#64748b" text-anchor="middle">data, full</text>
-
+  <text
+     x="699.31915"
+     y="387.31787"
+     font-size="10px"
+     fill="#64748b"
+     text-anchor="middle"
+     id="text30">data, full</text>
   <!-- arrow L3 → Host: fault -->
-  <line x1="635" y1="415" x2="738" y2="345" stroke="#475569" stroke-width="1.5" marker-end="url(#a)"/>
-  <text x="690" y="408" font-size="10" fill="#64748b" text-anchor="middle">fault</text>
-
-  <defs>
-    <marker id="a" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
-      <path d="M0,0 L7,3 L0,6 z" fill="#475569"/>
+  <text
+     x="690.34985"
+     y="417.90158"
+     font-size="10px"
+     fill="#64748b"
+     text-anchor="middle"
+     id="text31">fault</text>
+  <defs
+     id="defs32">
+    <marker
+       style="overflow:visible"
+       id="Triangle"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       inkscape:stockid="Triangle arrow"
+       markerWidth="1"
+       markerHeight="1"
+       viewBox="0 0 1 1"
+       inkscape:isstock="true"
+       inkscape:collect="always"
+       preserveAspectRatio="xMidYMid">
+      <path
+         transform="scale(0.5)"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
+         d="M 5.77,0 -2.88,5 V -5 Z"
+         id="path135" />
     </marker>
-    <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
-      <path d="M0,0 L7,3 L0,6 z" fill="#b91c1c"/>
+    <marker
+       style="overflow:visible"
+       id="marker40"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       inkscape:stockid="Triangle arrow"
+       markerWidth="1"
+       markerHeight="1"
+       viewBox="0 0 1 1"
+       inkscape:isstock="true"
+       inkscape:collect="always"
+       preserveAspectRatio="xMidYMid">
+      <path
+         transform="scale(0.5)"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
+         d="M 5.77,0 -2.88,5 V -5 Z"
+         id="path40" />
+    </marker>
+    <marker
+       style="overflow:visible"
+       id="marker38"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       inkscape:stockid="Triangle arrow"
+       markerWidth="1"
+       markerHeight="1"
+       viewBox="0 0 1 1"
+       inkscape:isstock="true"
+       inkscape:collect="always"
+       preserveAspectRatio="xMidYMid">
+      <path
+         transform="scale(0.5)"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
+         d="M 5.77,0 -2.88,5 V -5 Z"
+         id="path38" />
+    </marker>
+    <marker
+       id="a"
+       markerWidth="7"
+       markerHeight="6"
+       refX="7"
+       refY="3"
+       orient="auto"
+       viewBox="0 0 7 6"
+       preserveAspectRatio="xMidYMid">
+      <path
+         d="M0,0 L7,3 L0,6 z"
+         fill="#475569"
+         id="path31" />
+    </marker>
+    <marker
+       id="ar"
+       markerWidth="9"
+       markerHeight="9"
+       refX="7"
+       refY="3"
+       orient="auto">
+      <path
+         d="M0,0 L7,3 L0,6 z"
+         fill="#b91c1c"
+         id="path32" />
+    </marker>
+    <marker
+       id="a-3"
+       markerWidth="9"
+       markerHeight="9"
+       refX="7"
+       refY="3"
+       orient="auto">
+      <path
+         d="M 0,0 7,3 0,6 Z"
+         fill="#475569"
+         id="path31-6" />
     </marker>
   </defs>
+  <path
+     style="display:inline;fill:none;fill-rule:evenodd;stroke:#475569;stroke-width:1.00804px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker38)"
+     d="M 636.14689,393.51658 H 799.43651 V 339.3715"
+     id="path36"
+     inkscape:connector-type="orthogonal"
+     inkscape:connector-curvature="0" />
+  <path
+     style="display:inline;fill:none;fill-rule:evenodd;stroke:#475569;stroke-width:1.00722px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker40)"
+     d="M 636.38741,424.30397 H 820.20285 V 338.89315"
+     id="path37"
+     inkscape:connector-type="orthogonal"
+     inkscape:connector-curvature="0" />
+  <path
+     style="fill:none;fill-rule:evenodd;stroke:#475569;stroke-width:0.992376px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Triangle)"
+     d="m 739.06065,274.04285 -99.56143,0.34477"
+     id="path41"
+     inkscape:connector-type="polyline"
+     inkscape:connector-curvature="0" />
 </svg>

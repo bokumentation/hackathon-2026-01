@@ -53,5 +53,6 @@ Terms, abbreviations, and weakness identifiers used across the documentation.
 | CWE-294 | Authentication Bypass by Capture-replay | L2 strict freshness counter |
 | CWE-345 | Insufficient Verification of Data Authenticity | L2 keyed CBC-MAC |
 | CWE-354 | Improper Validation of Integrity Check Value | Baseline problem; L2 closes it |
+| CWE-1224 | Improper Restriction of Write-Once Bit Fields | L1 write-once key register |
 | CWE-1245 | Improper Finite State Machines in Hardware Logic | Data-validated FSM |
 | CWE-1264 | Hardware Logic with Insecure De-Synchronization between Control and Data | L3 atomic commit of latched data |

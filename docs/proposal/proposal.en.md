@@ -298,7 +298,7 @@ sky130 hardening result for the Appendix F design (baseline front-end plus L1 fr
 - Demonstration: the loopback wrapper instantiates `link_tx` and `link_top` (`link_rx` + `boundary_top`). A switch selects the clean, corrupt, or replay case; `fault_ack` clears the sticky fault.
 - SignalTap (prepared, awaiting board): taps `host_full`, `fault`, `auth_ok`, `fresh_ok`, `done`, `key_locked`; sample clock `CLOCK_50`, depth 2048, pre-trigger; trigger on `host_full` rising edge for the accept case and `fault` for the reject case. The `.stp` is created in the Quartus GUI, then `quartus_stp ... --enable` adds the SLD wiring and the design is recompiled; the acquisition script and procedure are in the repository.
 - Test scenarios: clean frame committed (`host_full` high); corrupt frame rejected (`host_full` low, `fault` high); replay not committed; fault sticky until acknowledged.
-- Reports for the Tier B loopback wrapper (`link_demo_top`): Fitter 421 ALM / 1029 FF, Timing Analyzer Fmax 97.9 MHz (WNS +9.785 ns), PowerPlay 426.2 mW vector-less (3.76 mW core dynamic).
+- Reports for the Tier B loopback wrapper (`link_demo_top`): Fitter 421 ALM / 1029 FF, Timing Analyzer Fmax 97.9 MHz (WNS +9.785 ns), PowerPlay 426.19 mW vector-less (3.76 mW core dynamic).
 - For reference, the Tier A wrapper (`de10nano_top`, L1 serial loader) was previously measured at 242 ALM / 654 FF, Fmax 136.37 MHz.
 - Facility: organizer's FPGA/sandbox at bootcamp.
 

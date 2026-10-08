@@ -1,5 +1,14 @@
 # Security Policy
 
+## Disclaimer
+
+This repository is the team submission for the PERURI Chip Design Hackathon
+2026, Topic Area 04 - Secure Communication. It is a research prototype, not a
+certified secure element. Known limits: no payload confidentiality, no
+side-channel or glitch resistance, and the RF integrity field remains an
+unsolved error-correcting code. Results apply only to the artifacts described
+in the repository.
+
 ## Scope
 
 This repository contains hardware description languages and documentation. It

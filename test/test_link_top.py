@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 
@@ -8,6 +9,8 @@ from cocotb.triggers import RisingEdge
 HERE = os.path.dirname(__file__)
 sys.path.insert(0, HERE)
 import simon_ref as ref
+
+OUT = os.path.join(HERE, "..", "sim", "out")
 
 KEY = 0x1918111009080100
 
@@ -80,6 +83,7 @@ async def send_frame(dut, frame, corrupt_cycle=None):
         "auth_ok": int(dut.auth_ok.value),
         "fresh_ok": int(dut.fresh_ok.value),
         "data": int(dut.host_data_q.value),
+        "cycles": cycles,
     }
 
 
@@ -90,7 +94,10 @@ async def test_clean_frame_committed(dut):
     res = await send_frame(dut, frame_of(counter, payload, tag_of(counter, payload)))
     assert res["host_full"] == 1 and res["fault"] == 0, "clean frame rejected"
     assert res["data"] == ((counter << 64) | payload), "committed data mismatch"
-    dut._log.info("clean frame committed over the serial link")
+    dut._log.info("clean frame committed over the serial link; latency=%d cycles", res["cycles"])
+    os.makedirs(OUT, exist_ok=True)
+    with open(os.path.join(OUT, "link_latency.json"), "w") as handle:
+        json.dump({"end_to_end_cycles": res["cycles"]}, handle)
 
 
 @cocotb.test()
@@ -123,3 +130,18 @@ async def test_line_error_rejected(dut):
     res = await send_frame(dut, frame_of(counter, payload, tag_of(counter, payload)), corrupt_cycle=60)
     assert res["host_full"] == 0 and res["fault"] == 1, "corrupt line did not fail closed"
     dut._log.info("line error failed closed over the serial link")
+
+
+@cocotb.test()
+async def test_bit_flip_rejected(dut):
+    await setup(dut)
+    counter, payload = 5, 0x0F1E2D3C4B5A6978
+    base = frame_of(counter, payload, tag_of(counter, payload))
+    rejected = 0
+    for i in range(128):
+        await ack(dut)
+        res = await send_frame(dut, base ^ (1 << i))
+        if res["host_full"] == 0 and res["fault"] == 1:
+            rejected += 1
+    dut._log.info("link single-bit flips rejected %d/128", rejected)
+    assert rejected == 128, "a single-bit flip was not rejected over the serial link"
