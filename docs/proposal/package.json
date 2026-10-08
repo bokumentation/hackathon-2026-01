@@ -8,7 +8,9 @@
     "build": "node build.mjs"
   },
   "dependencies": {
+    "katex": "^0.18.10",
     "marked": "18.0.14",
+    "marked-katex-extension": "^5.1.13",
     "pdf-lib": "^1.17.1",
     "puppeteer-core": "^25.12.0"
   }

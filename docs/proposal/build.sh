@@ -45,8 +45,8 @@ if [ -z "$FORCE" ] \
   exit 0
 fi
 
-if [ ! -d "$DIR/node_modules/marked" ] || [ ! -d "$DIR/node_modules/puppeteer-core" ] || [ ! -d "$DIR/node_modules/pdf-lib" ]; then
-  echo "Installing build dependencies (marked, puppeteer-core, pdf-lib)..."
+if [ ! -d "$DIR/node_modules/marked" ] || [ ! -d "$DIR/node_modules/puppeteer-core" ] || [ ! -d "$DIR/node_modules/pdf-lib" ] || [ ! -d "$DIR/node_modules/katex" ] || [ ! -d "$DIR/node_modules/marked-katex-extension" ]; then
+  echo "Installing build dependencies (marked, marked-katex-extension, katex, puppeteer-core, pdf-lib)..."
   if [ -f "$DIR/package-lock.json" ]; then
     (cd "$DIR" && npm ci --silent)
   else
@@ -63,6 +63,9 @@ fi
 mkdir -p "$OUT_HTML" "$OUT_PDF"
 rm -rf "$OUT_HTML/assets"
 cp -r "$DIR/assets" "$OUT_HTML/assets"
+mkdir -p "$OUT_HTML/assets/katex"
+cp "$DIR/node_modules/katex/dist/katex.min.css" "$OUT_HTML/assets/katex/"
+cp -r "$DIR/node_modules/katex/dist/fonts" "$OUT_HTML/assets/katex/fonts"
 cp "$DIR/proposal.css" "$OUT_HTML/proposal.css"
 
 PROPOSAL_TS="$TS" PROPOSAL_HTML_DIR="$OUT_HTML" node "$DIR/build.mjs"

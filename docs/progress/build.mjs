@@ -26,6 +26,10 @@ function esc(value) {
     .replace(/>/g, "&gt;");
 }
 
+function emph(value) {
+  return esc(value).replace(/_([^_\n]+)_/g, "<em>$1</em>");
+}
+
 marked.setOptions({ gfm: true, breaks: false });
 
 const doc = {
@@ -56,8 +60,8 @@ const html = `<!doctype html>
   <div class="cover-cat">${esc(c.categoryLabel)}: ${esc(c.category)}</div>
   <div class="cover-hero">
     <h1 class="cover-title">${esc(c.brand)}</h1>
-    <p class="cover-sub">${esc(c.title)}</p>
-    <p class="cover-sub">${esc(c.subtitle)}</p>
+    <p class="cover-sub">${emph(c.title)}</p>
+    <p class="cover-sub">${emph(c.subtitle)}</p>
   </div>
 </section>
 <main class="doc">

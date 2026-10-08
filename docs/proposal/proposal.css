@@ -167,7 +167,10 @@ figure { margin: 7pt 0 9pt; text-align: center; break-inside: avoid; }
 figure img { max-width: 100%; height: auto; }
 figcaption { font-size: 9pt; color: #6b7280; margin-top: 3pt; }
 
-.proto { max-width: 96mm; margin: 6pt auto 9pt; }
+.proto { max-width: 120mm; margin: 6pt auto 9pt; }
 .proto img { width: 100%; height: auto; }
 
 strong { color: #111827; }
+
+.katex { font-size: 1.02em; }
+.katex-display { margin: 8pt 0; overflow-x: auto; }

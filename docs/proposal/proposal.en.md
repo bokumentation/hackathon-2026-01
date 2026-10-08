@@ -1,277 +1,221 @@
-# TRI-ARGA: Authenticated, Replay-Resistant Ingress Boundary for Lightweight Serial Links
+# TRI-ARGA: Three-Layer Portable Data Security Gate with Fail-Closed Principle for Lightweight Serial Links
 
 Category: IC Chip Design & FPGA Implementation
 
-Focus Area: 04 - Secure Communication (secure framing & interface integrity) [1]
+Focus Area: 04 - Secure Communication (secure framing & interface integrity)
 
 ## 1. Executive Summary
 
-TRI-ARGA is a hardware-enforced ingress boundary IP that ensures the host only ever sees authenticated, fresh frames. Frames that fail any check never reach the host.
+**Problem:**
 
-Problem:
+A serial decoder architecture parses a bitstream from an untrusted source directly into registers, then forwards the integrity field to the host without verification. On the Tiny Tapeout 07 Manchester baseline (tt07-bep-decode), we measured that both a corrupt payload and a corrupt integrity field are still forwarded to the host as a valid frame. Without a key and counter mechanism, this class of decoder cannot distinguish a genuine frame from a forged one or a replay attack (replaying an old frame).
 
-Lightweight serial and RF receivers parse an untrusted bitstream directly into registers and forward the integrity field to the host without checking it. On the Tiny Tapeout 07 Manchester baseline `tt07-bep-decode` [2], [7], [8], we measured that a corrupt payload and a corrupt integrity field are still forwarded with `full=1` (CWE-354) [15]. Without a key and a counter, such a receiver cannot distinguish a genuine frame from a forged one or a replayed one [13].
+**Solution:**
 
-Solution:
+We propose a fail-closed ingress gate architecture with three layers of defense in one core:
 
-A fail-closed ingress boundary with three layers of defense in one core:
+1. **L1 Frame Loader:** Shifts a 128-bit frame (counter + payload + tag) and a 64-bit key serially, using a write-once key register lock that stays locked until the system is reset (CWE-1224).
+2. **L2 Authentication:** Implements a fixed-length SIMON-32/64 CBC-MAC, together with monotonic counter verification (CWE-345, CWE-354, CWE-294).
+3. **L3 Atomic Commit:** Data and the validation indicator signal are asserted together (atomic drive) in a single clock cycle only if authentication and freshness verification pass. On failure, the fault indicator is asserted and stays latched (sticky) until it receives an acknowledge signal (CWE-1264, CWE-1245).
 
-1. L1 frame loader: shift in a 128-bit frame (counter + payload + tag) and a 64-bit key serially, with a write-once key that locks until reset (CWE-20) [15].
-2. L2 authentication: keyed SIMON-32/64 [9] in fixed-length CBC-MAC mode [10], plus a strict counter freshness check (CWE-345, CWE-354, CWE-294) [15].
-3. L3 atomic commit: data and `host_full` are released together in one cycle, only if authentication and freshness pass; on failure, `fault` fires and stays sticky until acknowledged (CWE-1264, CWE-1245) [15].
+**Chip:**
 
-Beyond the core, an 8b/10b serial link (Tier B) is built [3] and tested with a single-clock loopback through the L2+L3 core. In that loopback, a clean frame is committed while forgery, replay, and line errors are rejected.
+TRI-ARGA is pure digital IP that is front-end agnostic, so it can be integrated flexibly behind a TT07 SerDes, a Manchester/RF decoder, or a UART.
 
-Chip:
+**Measured Results in Simulation:**
 
-A small pure-digital IP with a single clock, no block RAM, no DSP. The core is front-end-agnostic and can be placed behind the official Area 04 TT07 SerDes baseline [3], a Manchester/RF decoder, or a UART. Targets: sky130 ASIC (Tiny Tapeout) [12] and DE10-Nano FPGA [14].
+- **Security:** Rejects 100% of bit manipulation (single-bit flip 128/128), forgery, wrong keys, and replay attacks with no false reject (0/20). SymbiYosys formal verification confirms the fail-closed properties hold.
+- **Performance & Latency:** Atomic verification completes in 108 clock cycles (2.16 µs at 50 MHz), giving 29 Mbit/s throughput with no bottleneck.
+- **ASIC Synthesis (SkyWater 130nm):** The L1-L3 core is area-efficient (0.0756 mm²) with 2.10 mW typical power (DRC/LVS = 0, WNS = 0.00 ns). Integrating the 8b/10b link (Tier B) brings total power to 3.61 mW.
 
-DE10-Nano implementation:
+**DE10-Nano FPGA Implementation:**
 
-The prototype maps to the Cyclone V fabric without the HPS. `CLOCK_50` (50 MHz) is used directly, one clock domain. The on-board demonstration uses an internal loopback: `link_tx` sends a frame to `link_rx` through the L2+L3 core, and a switch selects the clean, corrupt, or replay case. Status `host_full`, `fault`, `auth_ok`, `fresh_ok`, `done`, and `key_locked` are observed through LEDs and SignalTap. There is no external device and no second clock.
+The prototype is mapped onto the Cyclone V fabric (DE10-Nano) at 50 MHz without using the HPS (Hard Processor System). The on-board demonstration applies an internal loopback mechanism (link_tx to link_rx across the L2+L3 core), with test scenarios (valid, corrupt, or replay) injectable via DIP switch. Validation status and the fault indicator are monitored through on-board LEDs and a SignalTap logic analyzer.
 
-Users:
+**Impact & Benefits:**
 
-Secure-element and identity-device designers, IP integrators needing an ingress-hardening block, and firmware teams that need assurance that a frame read from the host is authenticated.
+- **Hardware-Level Security:** Eliminating overhead ensures the host only processes data that has already been verified.
+- **Silicon Efficiency:** The silicon area requirement is only **0.0756 mm²** with **2.10 mW** power on the SkyWater 130nm ASIC. When integrated with the optional 8b/10b serial link module (Tier B), total power becomes **3.61 mW**.
 
-Measured results:
+**Target Users:**
 
-| Metric | Result | Source |
-| --- | --- | --- |
-| Single-bit flip on frame | 128/128 rejected | cocotb simulation |
-| Forgery, wrong key, replay, stale counter | All rejected | cocotb simulation |
-| False reject | 0 of 20 clean frames | cocotb simulation |
-| End-to-end latency | 108 cycles (2.16 us at 50 MHz) | Simulation |
-| Serial link loopback (Tier B) | clean commit; forgery/replay/line error rejected | cocotb simulation |
-| Fail-closed properties | 9 pass (5 core, 1 Tier B, 3 RF appendix) | SymbiYosys |
-| sky130 hardening (core) | 2x2 tile, 0.0756 mm^2, 2511 cells, 0 DRC, 0 LVS, WNS 0.00, 2.10 mW | OpenLane |
-| sky130 hardening (Tier B) | 2x2 tile, 3220 cells, 2 antenna violations, WNS 0.00, 3.61 mW | OpenLane |
-| FPGA synthesis | 421 ALM, 1029 FF, 0 M10K, 0 DSP, Fmax 97.9 MHz | Quartus 25.1 |
-| FPGA power | 426.2 mW total, 3.76 mW core dynamic | PowerPlay |
+Secure-element and identity-device designers, IP integrators needing an ingress-hardening block, and software/firmware teams that need assurance that a frame read by the host has been authenticated.
 
-Impact:
-
-A corrupt, forged, or replayed frame no longer appears valid to the host. The check happens in hardware, before data crosses the trust boundary, at a cost of under 0.08 mm^2 and 2.1 mW.
-
-## 2. Background & Problem Statement
+## 2. Background and Problem Statement
 
 ### 2.1 Background
 
-Serial and RF links carry data between transceivers, terminals, secure elements, and hosts in identity and payment systems. In lightweight designs the physical line coding (Manchester, 8b/10b) is often treated as sufficient, so the receiver parses an untrusted bitstream and authenticates no frame at all.
+Lightweight serial and RF links carry data between transceivers, terminals, secure elements, and hosts in identity-device ecosystems such as e-KTP. In hardware security architecture, the fail-closed principle states that any process failure (due to data error, key mismatch, or an attack indication) automatically isolates the output data path and blocks data release to the host. Unlike the fail-open approach, which risks forwarding corrupt data during a fault, fail-closed guarantees that the system always returns to a total denial condition (default-deny state).
 
-Three failure classes follow:
+The case study of the 433 MHz Manchester baseline module `tt07-bep-decode` by Zachary Kohnen (2024) is analyzed as an example of a digital receiver decoder architecture. This module processes the digital signal resulting from demodulation by an external RF front-end. In his report, Kohnen explicitly states that the module was designed by prioritizing area efficiency and meeting the submission deadline, so hardware-level security validation was not implemented. Several key findings:
 
-1. No integrity validation (CWE-354, CWE-345) [15]. A keyless CRC or ECC detects random errors only. An active attacker can recompute the value for a forged frame. An unimplemented check provides nothing.
-2. Replay (CWE-294) [15]. An old valid frame remains valid if there is no freshness marker. Replay and jamming-replay attacks on 433 MHz remotes (well-known example: RollJam, Kamkar 2015) [13] show this attack class is practical on cheap RF links.
-3. Non-atomic commit (CWE-1264), fragile FSM (CWE-1245), and unvalidated input (CWE-20) [15]. Data and control signals (`full`, latch enable) can de-synchronize, so the host can read data before the check is complete.
+- **Pass-Through Without Verification:** The baseline module receives a 24-bit integrity field (`tail_1..3`). However, this field is forwarded raw to the host.
+- **Measured Validation Vulnerability:** In simulation, the baseline latches a corrupt payload or integrity field, then automatically asserts `full=1` right after 96 bits are received without checking the validity of the data.
+- **Absence of Cryptographic & Replay Protection:** The baseline design has no keyed authentication or monotonic counter mechanism, so it cannot distinguish a genuine frame from a forged one or a replay attack.
 
-Software verification does not close this gap because software runs after data has already crossed the trust boundary.
+Mitigating this security gap in software is insufficient, because processing happens after data has already crossed the hardware trust boundary. A hardware-level interface protection module is therefore needed before data is handed to the host.
 
-### 2.2 Evidence from a Real Link
+### 2.2 Trade-Off Analysis and Architectural Gap vs Available Solutions
 
-We use `tt07-bep-decode` (433 MHz Manchester, Tiny Tapeout 07) [2], [7], [8] as a measured example, not as a flawed design for its original purpose. It was built to decode a thermostat protocol and makes no security claim. That is precisely why it represents the common pattern in lightweight receivers.
+Existing industry solutions generally fall into several tiers, but each has its own architectural limitations for low-power applications:
 
-- The baseline receives a 24-bit integrity field (`tail_1..3`) and exposes it to the host without checking it.
-- In simulation, the baseline latches a corrupted payload and a corrupted integrity field with `full=1` (CWE-354, measured; details in Appendix F).
-- The field is an undocumented error-correcting code (confirmed by the baseline author) and the algorithm is unsolved. The RF case is therefore used as evidence of the vulnerability class, not as an integrity path we claim to have fixed.
+| **Approach / Architecture**            | **Protection Coverage**                                          | **Architectural Limitation (Trade-Off)**                                                                          |
+| -------------------------------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Parity / Keyless CRC                   | Random line error detection                                      | Cannot prevent forgery, replay attack, or active tampering.                                                      |
+| Physical Coding (8b/10b)               | DC-balance and clock synchronization                             | Does not verify the integrity or validity of payload content.                                                    |
+| Software-Level Verification            | Logic flexibility and easy updates                               | Execution happens after data crosses the hardware trust boundary.                                                |
+| Standard Keyed-MAC (Without Counter)   | Message authentication and integrity (forgery protection)        | Vulnerable to replay of old frames (replay attack).                                                              |
+| Full AEAD Cryptography (e.g. Ascon)    | Authentication, integrity, and confidentiality                   | Requires larger area overhead; still needs separate atomic commit logic on the ingress path.                     |
+| TRI-ARGA (Proposed)                    | Authentication, replay protection, and atomic fail-closed commit | Data confidentiality is not implemented directly (out of scope)                                                  |
 
-The waveform is in Appendix F, Figure F.1.
+### 2.3 Problem Statement
 
-### 2.3 Gap vs Available Solutions
-
-No small-area block combines authentication, freshness, and atomic fail-closed commit at the ingress boundary.
-
-| Approach | Handled | Not handled |
-| --- | --- | --- |
-| Parity or CRC | Random errors | Forgery, replay, framing |
-| Full 8b/10b | DC balance, synchronization | No integrity at all |
-| Standard decoders | Frame start validation | Frame content |
-| Software verification | Flexible | Runs after trust boundary is crossed |
-| MAC without freshness | Forgery | Replay |
-| Full AEAD (e.g. Ascon) | Forgery and confidentiality | Freshness and commit gating still need design; larger area |
-| TRI-ARGA | Forgery, replay, atomic fail-closed commit | Confidentiality (out of scope, see Appendix G) |
-
-### 2.4 Problem Statement
-
-1. How to authenticate a received frame against forgery at an area budget suitable for Tiny Tapeout (CWE-345) [15]?
-2. How to reject replayed frames within one power session without non-volatile memory (CWE-294) [15]?
-3. How to commit data and control atomically, fail-closed, so a frame that fails any check is never visible to the host (CWE-1264, CWE-1245) [15]?
-4. How to make this a reusable core behind different front-ends, especially the official TT07 SerDes baseline [3], on both FPGA and ASIC?
+1. **Low-Power Authentication (CWE-345):** How to design a hardware-level frame authentication mechanism resistant to forgery while meeting the tight silicon area budget of the Tiny Tapeout shuttle?
+2. **Replay Protection Without Non-Volatile Memory (CWE-294):** How to verify message freshness and reject replayed frames within a single power session without relying on non-volatile memory?
+3. **Atomic Commit & Fail-Closed Mechanism (CWE-1264, CWE-1245):** How to guarantee that data release and the validation indicator signal happen atomically and follow the fail-closed principle, so a frame that fails verification is never accessed by the host?
+4. **Front-End Portability & Integrity:** How to design a front-end agnostic core architecture so it can be integrated flexibly behind various serial interfaces (such as the Area 04 TT07 SerDes baseline, a Manchester/RF decoder, or UART), on both ASIC (sky130) and FPGA (Cyclone V) synthesis targets?
 
 ## 3. Proposed Chip Design
 
-TRI-ARGA is a single-clock digital core sitting between an untrusted front-end and the host: a frame arrives, is authenticated, its freshness is checked, then it is atomically released or rejected.
+### 3.1 Solution & System Architecture
 
-### 3.1 Proposed Chip Design
+<figure class="proto"><img src="assets/block-diagram.svg" alt="Authenticated boundary architecture"><figcaption>Figure 1. TRI-ARGA architecture: trust boundary, three layers, separate key path.</figcaption></figure>
 
-<figure class="proto"><img src="assets/block-diagram.svg" alt="Authenticated boundary architecture"><figcaption>Figure 1. TRI-ARGA architecture: trust boundary, three layers, separate key path. Everything from the link is untrusted; the key arrives from the host via a separate path, and only L3 may release data to the host.</figcaption></figure>
+Notes:
 
-The frame format and CBC-MAC chain diagram is in Appendix I, Figure I.1.
+- All data coming from the link is considered untrusted.
+- The key enters from the host through a separate path, and only L3 may release data to the host.
 
-Frame format (128 bits + separate key):
+**Frame Format and Authentication (See Appendix I, Figure I.1 and Table I.1)**
 
-| Field | Width | Function |
-| --- | --- | --- |
-| Counter | 32 bits | Freshness marker, must be strictly greater than the last accepted counter |
-| Payload | 64 bits | Application data |
-| Tag | 32 bits | CBC-MAC over counter + payload |
-| Key | 64 bits | Not in the frame; loaded by the host via a trusted port |
+The data packet received by TRI-ARGA is 128 bits total, processed in a streaming manner, consisting of a 32-bit counter for message freshness verification (freshness check to prevent replay attacks), a 64-bit payload as the main application data, and a 32-bit CBC-MAC tag computed over the counter and payload. This authentication process is combined with a 64-bit secret key injected from the host through a trusted path (port) isolated from the data path.
 
-CBC-MAC chain over three 32-bit blocks (B1 = counter, B2-B3 = payload), IV = 0, 64-bit key:
+Authentication is computed using a CBC-MAC chain over three 32-bit blocks ($B_1 = \text{counter}$, $B_2 \text{ and } B_3 = \text{payload}$) with Initial Vector $\text{IV} = 0$ and a 64-bit key $K$:
 
-C1 = E_K(B1), C2 = E_K(C1 xor B2), tag = C3 = E_K(C2 xor B3)
+$$C_1 = E_K(B_1), \quad C_2 = E_K(C_1 \oplus B_2), \quad \text{Tag} = C_3 = E_K(C_2 \oplus B_3)$$
 
-A frame is accepted only if the computed tag matches the received tag and the counter is strictly greater than the last accepted counter.
+A frame is valid only if the internally computed $\text{Tag}$ exactly equals the $\text{Tag}$ received from the link, and the $\text{Counter}$ value is proven greater than the last recorded counter.
 
-Module summary:
+**RTL Module Details**
 
-| Module | Layer | Function |
-| --- | --- | --- |
-| `l1_serial_loader.v` | L1 | Shift in 64-bit key and 128-bit frame serially; write-once key, locked until reset |
-| `simon32_64.v` | L2 | Serialized SIMON-32/64 block cipher, one round per cycle |
-| `l2_auth.v` | L2 | CBC-MAC over counter + payload (three 32-bit blocks), tag compare, counter freshness |
-| `l3_commit_gatekeeper.v` | L3 | Atomic commit only if auth and freshness pass; on failure holds `host_full` low and raises sticky `fault` |
-| `link_enc_8b10b.v`, `link_dec_10b8b.v`, `l1_link_framing.v`, `link_tx.v`, `link_rx.v`, `link_top.v` | Tier B | 8b/10b serial link with running disparity, K-character framing, word lock, and loopback through L2+L3 |
-| `boundary_top.v` | L2+L3 | L2 and L3 integration |
-| `project.v` | Wrapper | Tiny Tapeout wrapper: instantiates L1 + L2+L3 |
+|**RTL Module Name**|**Layer**|**Function and Hardware Logic**|
+|---|---|---|
+|`l1_serial_loader.v`|L1|Shifts a 64-bit key and a 128-bit frame serially; applies write-once key register locking until reset (CWE-1224) [9].|
+|`simon32_64.v`|L2|Serialized lightweight SIMON-32/64 cipher engine (one round per clock cycle).|
+|`l2_auth.v`|L2|CBC-MAC computation engine, tag comparator, and counter freshness verifier.|
+|`l3_commit_gatekeeper.v`|L3|Atomic commit executor; releases data only if `auth_ok` and `fresh_ok` are high. On failure, holds `host_full` and asserts a sticky `fault` signal.|
+|`boundary_top.v`|L2+L3|Integration module combining the L2 and L3 security processing blocks.|
+|`project.v`|_Wrapper_|Standard Tiny Tapeout top-level wrapper (instantiates the L1 module and `boundary_top`).|
+|`link_enc_8b10b.v`, `link_dec_10b8b.v`, `l1_link_framing.v`, `link_tx.v`, `link_rx.v`, `link_top.v`|Tier B|Optional 8b/10b serial link module with running disparity, K-character framing, word lock, and loopback testing.|
 
-`boundary_top` interface:
+**`boundary_top` Module Interface**
 
-| Signal | Direction | Width | Notes |
-| --- | --- | --- | --- |
-| `key` | Input (host) | 64 | MAC key, loaded via trusted port |
-| `counter`, `payload`, `tag` | Input (link) | 32, 64, 32 | Frame from front-end |
-| `host_data` | Output | 96 | Authenticated counter + payload |
-| `host_full` | Output | 1 | High only if `auth_ok` and `fresh_ok` |
-| `auth_ok`, `fresh_ok`, `done` | Output | 1 | Per-frame status |
-| `fault` | Output | 1 | Sticky until host acknowledges |
+The signal interface between the `boundary_top` security module and the host system is defined as follows:
 
-Processing and memory:
+|**Signal Name**|**Direction**|**Bit Width**|**Functional Description**|
+|---|---|---|---|
+|`key`|Input (host)|64|MAC key, loaded via a trusted internal port.|
+|`counter`, `payload`, `tag`|Input (link)|32, 64, 32|Frame fields from the front-end to be verified.|
+|`host_data`|Output|96|Combined counter and payload, valid to read only if committed.|
+|`host_full`|Output|1|Validation latch signal; high only if authentication and freshness are confirmed.|
+|`auth_ok`, `fresh_ok`, `done`|Output|1|Per-frame processing status indicators.|
+|`fault`|Output|1|Failure indicator (sticky fault); stays high until acknowledged by the host.|
 
-- One-way streaming data path; CBC-MAC runs as blocks arrive.
-- No block RAM and no frame buffer. State is registers only: cipher state, last counter, status flags.
+**Processing and Memory Architecture**
 
-Power:
+- One-way streaming flow; CBC-MAC runs as blocks arrive.
+- No block RAM and no frame buffer. State is register only: cipher state, last counter, and status flags.
 
-- Single-clock digital logic, no DSP, internal PLL, or large memory.
-- The MAC is active only during a frame, so switching activity is minimal when idle. OpenLane result: 2.10 mW typical for the core.
-- Quartus synthesis for the DE10-Nano (Cyclone V) gives a vector-less PowerPlay estimate for the Tier B loopback wrapper: 426.2 mW total with 3.76 mW core dynamic power. This estimate has low confidence and is dominated by device static power, so it is labeled an estimate, not a measurement.
+**Power Consumption (Synthesis Results)**
 
-### 3.2 Technical Design
+- **Core (L1-L3):** OpenLane synthesis (SkyWater 130nm ASIC) records 2.10 mW typical power.
+- **Optional Link (Tier B 8b/10b):** OpenLane sky130 hardening gives 3.61 mW total typical power. As a supporting estimate, Quartus Prime synthesis for the DE10-Nano gives a vector-less PowerPlay estimate of 3.76 mW core dynamic power; this estimate has low confidence and is dominated by device static power, so it is labeled an estimate, not a measurement.
+- The MAC engine is dynamic only while a frame is received, keeping switching activity minimal when idle.
 
-RTL approach:
+**FPGA Resource Usage Estimate for the DE10-Nano from Quartus Prime Synthesis:**
 
-- Verilog-2001 with `default_nettype none`, fully synthesizable, modular per layer.
-- The cipher is wrapped in a block interface, so SIMON-32/64 can be swapped for SIMON-64/128 or Ascon without changing L2 and L3 [9], [11].
-- The 8b/10b link uses the tables as a seed, adds running disparity (RD+/RD-), K-characters, and rewrites framing, alignment, and the serial datapath [3].
+| **Hardware Component**        | **Usage Result (Fit)** | **DE10-Nano Total Capacity** | **Utilization Percentage** |
+| ----------------------------- | ---------------------- | ---------------------------- | -------------------------- |
+| Logic Utilization (ALM)       | 421 ALM                | 41,910 ALM                   | < 1.1%                     |
+| Registers (Flip-Flop)         | 1,029 FF               | 166,036 FF                   | < 0.7%                     |
+| Block RAM (M10K)              | 0 Kbit                 | 5,570 Kbit                   | 0.0%                       |
+| DSP Blocks                    | 0                      | 112                          | 0.0%                       |
+| Phase-Locked Loop (PLL)       | 0                      | 6                            | 0.0%                       |
+| Maximum Frequency ($F_{max}$) | 97.9 MHz               | System Target: 50.0 MHz      | Meets Target               |
 
-Tools:
+**Software and Design Tools:**
 
-- Intel Quartus Prime (synthesis, fit, timing, SignalTap) for the DE10-Nano [14].
+- Intel Quartus Prime (synthesis, fit, timing, SignalTap) for the DE10-Nano.
 - OpenLane/OpenROAD and Yosys for the sky130 ASIC path.
 - Verilator and Icarus Verilog for simulation and lint.
 - cocotb and pytest for automated testbenches.
 - SymbiYosys (formal proofs, smtbmc z3 engine).
 
-FPGA resource usage:
+ASIC target: Tiny Tapeout sky130 130 nm via OpenLane. Results as follows:
 
-Quartus Prime 25.1 post-fit synthesis result for the DE10-Nano (Cyclone V 5CSEBA6U23I7):
+- sky130 hardening of the core: 2×2 tile, die 0.0756 mm², 2511 cells, 0 DRC, 0 LVS, 0 antenna, WNS 0.00, typical power 2.10 mW.
+- sky130 hardening of the core with the serial link (tt_um_link): 2×2 tile, 3220 cells, 2 antenna violations, WNS 0.00, typical power 3.61 mW.
 
-| Resource | Result | DE10-Nano capacity (5CSEBA6U23I7) |
-| --- | --- | --- |
-| Logic (ALM) | 421 | 41,910 ALM |
-| Registers (FF) | 1029 | 166,036 |
-| Block RAM (M10K) | 0 | 5,570 Kbit |
-| DSP | 0 | 112 |
-| PLL | 0 | 6 |
-| Fmax | 97.9 MHz | 50 MHz target |
+### 3.2 Test Plan
 
-These are the Tier B loopback wrapper numbers (`link_demo_top`: `link_tx` + `link_rx` + `boundary_top`), which is the demonstrated design. The design maps with no block RAM, no DSP, and no PLL, and closes timing at 50 MHz with margin (WNS +9.785 ns).
+**RTL Simulation (Measured results in Appendix D; waveform in Appendix I, Figure I.2):**
 
-ASIC target: Tiny Tapeout sky130 130nm via OpenLane [12].
-
-- sky130 hardening of the core (real result): 2x2 tile, die 0.0756 mm^2, 2511 cells, 0 DRC, 0 LVS, 0 antenna, WNS 0.00, typical power 2.10 mW.
-- sky130 hardening of the Tier B serial link (real result): 2x2 tile, 3220 cells, 2 antenna violations, WNS 0.00, typical power 3.61 mW. These are the `tt_um_link` numbers, not the L2+L3 core alone.
-- The RF appendix has a separate real result: 1x2 tile, die 0.0363 mm^2, WNS 0.00, typical power 1.21 mW. These are not the TRI-ARGA core numbers (see Appendix F).
-
-Throughput: 108 cycles per frame at 50 MHz = 2.16 us, equivalent to about 29 Mbit/s payload throughput. This is well above the 433 MHz RF link rate, so authentication is not the bottleneck.
-
-#### 3.2.1 Test Plan
-
-RTL simulation (S1, measured):
-
-- cocotb testbenches drive L1, L2, and commit with the success matrix: clean frames accepted, forgery, wrong key, replay, and stale counter rejected, and 128 of 128 single-bit flips rejected.
-- A link testbench drives the Tier B loopback: a clean frame is committed, while forgery, replay, and line errors are rejected.
+- cocotb testbenches drive L1, L2, and commit with the success matrix: clean frames accepted; forgery, wrong key, replay, and stale counter rejected; and 128 of 128 single-bit flips rejected.
+- The link testbench drives the Tier B loopback: a clean frame is committed, while forgery, replay, and line errors are rejected.
 - Latency is measured per stage: 33 cycles per SIMON block, 107 cycles for MAC and freshness, 108 cycles end-to-end.
 
-The measured authentication and commit waveform (first frame passes, second frame rejected) is in Appendix I, Figure I.2.
+**SymbiYosys Formal Verification (Per-job detail in Appendix K):**
 
-Formal verification (SymbiYosys):
+Nine properties pass: five for the core (`auth_top`, `auth_data_integrity`, `l3_commit_core`, `simon32_64`, `l1_link`), one for the Tier B link (`link_framing`), and three for the Appendix F (`l1_framing`, `l2_integrity`, `l3_commit`).
 
-Nine properties pass: five for the core (`auth_top`, `auth_data_integrity`, `l3_commit_core`, `simon32_64`, `l1_link`), one for the Tier B link (`link_framing`), and three for the RF appendix (`l1_framing`, `l2_integrity`, `l3_commit`). The per-job detail is in Appendix K.
+**DE10-Nano FPGA Board Test (Bootcamp plan in Appendix C; detail in Appendix H):**
 
-DE10-Nano board test (S2, planned):
-
-- Synthesis: Quartus project with board wrapper, SDC, and pin assignments.
+- Synthesis procedure: Quartus project with board wrapper, SDC, and pin assignment. No external device and no second clock; CDC is out of scope.
 - Bitstream implementation (.sof/.rbf) and real-time on-board testing.
 - The on-board demonstration uses an internal loopback from `link_tx` to `link_rx` through the L2+L3 core. A switch selects the case: clean frame, corrupt frame (one payload/tag bit flipped), and replay (the same frame sent again).
-- Internal signal monitoring with SignalTap on `auth_ok`, `fresh_ok`, `done`, `host_full`, and `fault`.
-- There is no external device and no second clock; CDC is out of scope.
+- Internal signal verification with SignalTap on `auth_ok`, `fresh_ok`, `done`, `host_full`, and `fault`.
 
-Success metrics:
+**Target Success Metrics:**
 
-| Metric | Target | Evidence |
-| --- | --- | --- |
-| Single-bit error detection | 128/128 observed; theoretical pass probability ~2^-32 | Simulation |
-| False reject | 0% | Simulation (20 clean frames) |
-| Forgery and replay | Rejected | Simulation, then on-board |
-| End-to-end latency | 108 cycles | Simulation, then SignalTap |
-| Fail-closed | 9 jobs pass | SymbiYosys |
-| FPGA Fmax | 97.9 MHz measured (target at least 50 MHz) | Quartus Timing Analyzer |
+| Metric                 | Target                                          | Evidence                      |
+| ---------------------- | ----------------------------------------------- | ----------------------------- |
+| Single-bit error detection | 128/128 observed; theoretical pass probability ~2^-32 | Simulation                |
+| False reject           | 0%                                              | Simulation (20 clean frames)  |
+| Forgery and replay     | Rejected                                        | Simulation, then on-board     |
+| End-to-end latency     | 108 cycles                                      | Simulation, then SignalTap    |
+| Fail-closed            | 9 jobs pass                                     | SymbiYosys                    |
+| FPGA Fmax              | 97.9 MHz measured (target at least 50 MHz)      | Quartus Timing Analyzer       |
 
-### 3.3 Security Design (Threat Model)
+### 3.3 Security Design (Threat Model and CWE Mapping)
 
-Security is the starting point of this design, not an added feature: every module exists because of one threat in the table below.
+The primary assets protected by the TRI-ARGA architecture include the integrity and authenticity of frames handed to the host, frame freshness, and the confidentiality and integrity of the MAC key register. The trust boundary is set strictly at the silicon level:
 
-Protected assets: integrity and authenticity of frames that reach the host, frame freshness, and MAC key confidentiality.
+- **Untrusted Side:** All data entering from the front-end interface (SerDes, Manchester/RF decoder, or UART), including the counter, payload, and tag fields.
+- **Trusted Side:** The internal host interface and the isolated key-loading port. The secret key never passes through the external link.
 
-Trust boundary:
+Hardware-level threat mitigation metrics and the CWE (Common Weakness Enumeration) vulnerability mapping are defined in the following table:
 
-- Untrusted: everything from the link (SerDes front-end, Manchester/RF, UART), including counter, payload, and tag.
-- Trusted: the host and the key-loading port. The key never crosses the link.
-
-Attacker capability: can eavesdrop, insert, modify, delete, and replay frames on the link; can introduce random bit errors. Does not have the key, cannot read internal registers, and cannot perform side-channel or physical glitch attacks (out of scope, Appendix G).
-
-Threats, mitigations, and evidence:
-
-| Threat | CWE | Hardware mitigation | Evidence |
-| --- | --- | --- | --- |
-| Forged frame | CWE-345 [15] | SIMON-32/64 CBC-MAC, 32-bit tag | Forgery rejected (simulation) |
-| Integrity not checked | CWE-354 [15] | Tag always recomputed and compared before commit | 128/128 bit flips rejected |
-| Frame replay | CWE-294 [15] | Counter must increase strictly | Replay and stale counter rejected |
-| Data/control de-sync | CWE-1264 [15] | One-cycle commit: `host_data` and `host_full` released together from latched frame | Formal property |
-| Stuck or illegal FSM | CWE-1245 [15] | Fully enumerated FSM, timeout, sticky fault | Formal properties, timeout test |
-| Invalid framing | CWE-20 [15] | Wrong-length or wrong-structure frames rejected at the loader | Timeout test (RF appendix) |
-
-The cryptographic design decisions and their limits are in Appendix J. In brief: a 32-bit tag gives about a 2^-32 per-attempt forgery probability [10]; CBC-MAC is secure only for fixed length [10]; a 32-bit block has a birthday bound so keys must rotate; and the accept/reject decision exits at the same cycle for all frames.
+| **Threat / Vulnerability**             | **CWE Code** | **Hardware Mitigation**                                                              | **Validation Evidence**               |
+| :------------------------------------- | :----------- | :----------------------------------------------------------------------------------- | :------------------------------------ |
+| Forged frame (Forgery)                 | CWE-345      | SIMON-32/64 CBC-MAC authentication with a 32-bit tag.                                | Forgery rejected (cocotb simulation)  |
+| Unchecked data integrity               | CWE-354      | Recomputed tag compared atomically before commit.                                    | 128/128 bit-flips rejected            |
+| Replay of old frames                   | CWE-294      | Strictly increasing monotonic counter verification.                                  | Replay and stale counter rejected     |
+| Data and control desynchronized        | CWE-1264     | 1-cycle atomic commit: `host_data` and `host_full` released together.                | SymbiYosys formal verification        |
+| Stuck FSM / illegal state              | CWE-1245     | Fully enumerated FSM, timeout mechanism, and sticky `fault` signal.                  | Formal properties and timeout test    |
+| Unauthorized key overwrite/modification | CWE-1224    | The L1 Loader 64-bit key register is write-once (locked until reset).                | Loader test and formal properties     |
+| Invalid framing                        | CWE-20       | Frames with wrong structure/length are rejected directly at the L1 Loader.           | Timeout test (Appendix F)             |
 
 ## 4. References
 
-1. PERURI. "Buku Panduan Peserta PERURI Chip Hackathon 2026." 2026. https://summit.peruri.co.id/docs/Buku-Panduan-PERURI-Chip-Hackathon.pdf
-2. PERURI. "Peruri Chip Design Datasheet." https://chip.peruri.co.id/datasheet.pdf
-3. Santeep G, M. and N. Shylashree. "TT_UM_SERDES, Tiny Tapeout 07." https://github.com/Santeep/TT_UM_SERDES
-4. Pa1mantri. "tt07_cdc_fifo, Tiny Tapeout 07." https://github.com/Pa1mantri/tt07_cdc_fifo
-5. DusterTheFirst. "tt07-bep-decode, Tiny Tapeout 07." https://github.com/DusterTheFirst/tt07-bep-decode
-6. Z. Kohnen. "Decoding Manchester coded transmissions in a fully digital ASIC." BSc Thesis, 2024.
-7. Z. Kohnen and A. Alvarado. "Manchester decoder of a home thermostat's wireless protocol." FSiC, 2025.
-8. R. Beaulieu et al. "The SIMON and SPECK Families of Lightweight Block Ciphers." IACR ePrint 2013/404.
-9. M. Bellare, J. Kilian, and P. Rogaway. "The Security of the Cipher Block Chaining Message Authentication Code." Journal of Computer and System Sciences, vol. 61, no. 3, 2000.
-10. NIST. SP 800-38B, "Recommendation for Block Cipher Modes of Operation: The CMAC Mode for Authentication." https://csrc.nist.gov/
-11. NIST. SP 800-232, "Ascon-Based Lightweight Cryptography Standards for Constrained Devices." https://csrc.nist.gov/
-12. Tiny Tapeout. "Tiny Tapeout - Make Your Own Chip." https://tinytapeout.com/, 2024.
-13. S. Kamkar. "Drive It Like You Hacked It" (RollJam). DEF CON 23, 2015.
-14. Terasic. "DE10-Nano - Cyclone V FPGA User Manual." https://www.terasic.com.tw/
-15. MITRE. "Common Weakness Enumeration (CWE): CWE-20, CWE-294, CWE-345, CWE-354, CWE-1245, CWE-1264." https://cwe.mitre.org/, 2024.
+1. Pa1mantri. "tt07_cdc_fifo, Tiny Tapeout 07." https://github.com/Pa1mantri/tt07_cdc_fifo
+2. DusterTheFirst. "tt07-bep-decode, Tiny Tapeout 07." https://github.com/DusterTheFirst/tt07-bep-decode
+3. Z. Kohnen. "Decoding Manchester coded transmissions in a fully digital ASIC." BSc Thesis, 2024.
+4. R. Beaulieu et al. "The SIMON and SPECK Families of Lightweight Block Ciphers." IACR ePrint 2013/404, 2013.
+5. M. Bellare, J. Kilian, and P. Rogaway. "The Security of the Cipher Block Chaining Message Authentication Code." *Journal of Computer and System Sciences*, vol. 61, no. 3, 2000.
+6. NIST. SP 800-38B, "Recommendation for Block Cipher Modes of Operation: The CMAC Mode for Authentication." 2016. https://csrc.nist.gov/
+7. NIST. SP 800-232, "Ascon-Based Lightweight Cryptography Standards for Constrained Devices." 2024. https://csrc.nist.gov/
+8. Terasic. "DE10-Nano - Cyclone V FPGA User Manual." 2019. https://www.terasic.com.tw/
+9. MITRE. "Common Weakness Enumeration (CWE): CWE-20, CWE-294, CWE-345, CWE-354, CWE-1245, CWE-1264." 2024. https://cwe.mitre.org/
 
 ## 5. Appendix
 
@@ -284,7 +228,7 @@ Team Tri Arga, Universitas Telkom.
 | Ibrahim Fauzi Rahman | Embedded Hardware/System, IoT, PCB Design, Isolated RS485/CAN Bus | RTL: L1-L3 design and integration |
 | Idris Syaifulloh | DevOps, Machine Learning, Malware Researcher, CI/CD | Verification: cocotb, fault injection, metrics, CI, analysis |
 
-Advisor: Dr. Setia Juli Irzal Ismail, S.T., M.T.
+Advisor: Dr. Setia Juli Irzal Ismail, S.T., M.T. - Universitas Telkom
 
 ### Appendix B. Outputs and Demo
 
@@ -292,6 +236,7 @@ Advisor: Dr. Setia Juli Irzal Ismail, S.T., M.T.
 - sky130 hardening results (GDS, DRC/LVS/timing/power reports).
 - FPGA bitstream (.sof/.rbf), buildable from this repository.
 - Source repository: https://github.com/bokumentation/hackathon-2026-01, and a short technical report.
+- GDS Viewer (Tiny Tapeout chip 3D visualization): https://bokumentation.github.io/hackathon-2026-01/
 
 ### Appendix C. Bootcamp Plan (18-20 October 2026)
 
@@ -325,52 +270,61 @@ One additional cycle for freshness and commit adds replay resistance; 34 additio
 
 ### Appendix F. Problem Evidence (RF)
 
-The baseline `tt07-bep-decode` latches a corrupt payload and integrity field with `full=1` (CWE-354, measured) [5], [6]. Details in `sim/RESULTS.md`; the L1 timeout waveform is in `appendix/rf/figures/sim-boundary-timeout.png`.
+The baseline `tt07-bep-decode` latches a corrupt payload and integrity field with `full=1` (CWE-354, measured) [2], [3]. Details in `sim/RESULTS.md`; the L1 timeout waveform is in `appendix/rf/figures/sim-boundary-timeout.png`.
 
-<figure class="proto"><img src="assets/sim-baseline-vulnerability.png" alt="Baseline vulnerability"><figcaption>Figure F.1. Baseline tt07-bep-decode: full stays high for a clean frame, a corrupt payload, and a corrupt integrity field.</figcaption></figure>
+<figure><img src="assets/gtkwave-tb-serial-baseline.png" alt="Baseline vulnerability"><figcaption>Figure F.1. Baseline tt07-bep-decode: full stays high for a clean frame, a corrupt payload, and a corrupt integrity field.</figcaption></figure>
 
-sky130 hardening result for the RF appendix design (baseline front-end plus L1 framing, parameterized CRC L2 integrity, and the same L3 gate as the core): 1x2 tile, die 0.0363 mm^2, 1233 cells, WNS 0.00, typical power 1.21 mW. These are not the TRI-ARGA core numbers (see 3.2).
+sky130 hardening result for the Appendix F design (baseline front-end plus L1 framing, parameterized CRC L2 integrity, and the same L3 gate as the core): 1x2 tile, die 0.0363 mm², 1233 cells, WNS 0.00, typical power 1.21 mW. These are not the TRI-ARGA core numbers (see 3.1).
 
 ### Appendix G. Limits
 
 | Limit | Impact | Mitigation or plan |
 | --- | --- | --- |
-| No payload confidentiality | Payload readable by eavesdropper | Out of scope; can be added with AEAD (e.g. Ascon) [11] |
+| No payload confidentiality | Payload readable by eavesdropper | Out of scope; can be added with AEAD (e.g. Ascon) [7] |
 | 32-bit tag | Forgery probability ~2^-32 per attempt | Sufficient for lightweight links; longer tag with 64-bit cipher |
 | 32-bit block birthday bound | Security degrades after ~2^16 blocks per key | Mandatory key rotation, recommended every 2^12 frames |
-| CBC-MAC fixed length only | Unsafe for variable-length frames | Frame format fixed at three blocks; switch to CMAC if variable [10] |
+| CBC-MAC fixed length only | Unsafe for variable-length frames | Frame format fixed at three blocks; switch to CMAC if variable [6] |
 | Counter resets to 0 after reset | Old frames can be accepted again after power cycle | Fresh session key every boot |
 | Key provisioning | Core does not specify key source | Host or secure-element responsibility |
 | Side-channel and glitch | Not analyzed | Formal properties prove logic only, not physical resilience |
-| CDC | Core is currently single clock domain | Out of scope; a second clock only via the CDC FIFO in Tier C [4] |
+| CDC | Core is currently single clock domain | Out of scope; a second clock only via the CDC FIFO in Tier C [1] |
 | FPGA power | Resource and timing measured in Quartus; power still a vector-less estimate | Measure on-board power at bootcamp |
 
 ### Appendix H. DE10-Nano FPGA Hardware Test
 
-- Board: Terasic DE10-Nano, Cyclone V SoC (5CSEBA6U23I7), Quartus Prime [14].
+- Board: Terasic DE10-Nano, Cyclone V SoC (5CSEBA6U23I7), Quartus Prime [8].
 - Clock: `CLOCK_50` (50 MHz) directly, one clock domain.
 - Procedure: synthesis (`quartus_sh --flow compile`), bitstream upload (.sof/.rbf), real-time on-board test.
-- Demonstration: the loopback wrapper instantiates `link_tx` and `link_top` (link_rx + boundary_top). A switch selects the clean, corrupt, or replay case; `fault_ack` clears the sticky fault.
+- Demonstration: the loopback wrapper instantiates `link_tx` and `link_top` (`link_rx` + `boundary_top`). A switch selects the clean, corrupt, or replay case; `fault_ack` clears the sticky fault.
 - SignalTap (prepared, awaiting board): taps `host_full`, `fault`, `auth_ok`, `fresh_ok`, `done`, `key_locked`; sample clock `CLOCK_50`, depth 2048, pre-trigger; trigger on `host_full` rising edge for the accept case and `fault` for the reject case. The `.stp` is created in the Quartus GUI, then `quartus_stp ... --enable` adds the SLD wiring and the design is recompiled; the acquisition script and procedure are in the repository.
 - Test scenarios: clean frame committed (`host_full` high); corrupt frame rejected (`host_full` low, `fault` high); replay not committed; fault sticky until acknowledged.
 - Reports for the Tier B loopback wrapper (`link_demo_top`): Fitter 421 ALM / 1029 FF, Timing Analyzer Fmax 97.9 MHz (WNS +9.785 ns), PowerPlay 426.2 mW vector-less (3.76 mW core dynamic).
 - For reference, the Tier A wrapper (`de10nano_top`, L1 serial loader) was previously measured at 242 ALM / 654 FF, Fmax 136.37 MHz.
 - Facility: organizer's FPGA/sandbox at bootcamp.
 
-### Appendix I. Supporting Figures
+### Appendix I. Supporting Figures and Tables
 
 <figure class="proto"><img src="assets/frame-link.svg" alt="Frame format and CBC-MAC chain"><figcaption>Figure I.1. 128-bit frame format (counter + payload + tag) and the SIMON-32/64 CBC-MAC chain.</figcaption></figure>
 
-<figure class="proto"><img src="assets/sim-auth-commit.png" alt="Authentication and commit"><figcaption>Figure I.2. TRI-ARGA core: first frame passes (auth_ok, fresh_ok, host_full high); second frame rejected (host_full stays low, fault high).</figcaption></figure>
+**Table I.1. Frame field specification (128-bit frame + separate 64-bit key)**
+
+| Field | Bit Width | Function |
+| --- | --- | --- |
+| Counter | 32 | Freshness marker; must be greater than the last recorded counter |
+| Payload | 64 | Main application data |
+| Tag | 32 | CBC-MAC over counter and payload |
+| Key | 64 | Not in the frame; loaded by the host via a trusted port |
+
+<figure><img src="assets/gtkwave.png" alt="Authentication and commit"><figcaption>Figure I.2. TRI-ARGA core: first frame passes (auth_ok, fresh_ok, host_full high); second frame rejected (host_full stays low, fault high).</figcaption></figure>
 
 ### Appendix J. Cryptography Notes
 
-- Why SIMON-32/64. This cipher is designed for very small hardware and serializable at one round per cycle, fitting in a 2x2 Tiny Tapeout tile [8]. We are aware that SIMON/SPECK was rejected as an ISO standard in 2018 and that the current NIST lightweight cryptography standard is Ascon [11]. The cipher is therefore wrapped in a modular block interface: it can be swapped for SIMON-64/128 or Ascon without changing L2 and L3, at a larger area cost.
-- CBC-MAC for fixed length only. CBC-MAC is secure only if all messages have the same length [9]. The frame format is fixed at three blocks; if variable-length frames are ever needed, the mode changes to CMAC [10].
-- 32-bit block birthday bound. With a 32-bit block, CBC-MAC security degrades after about 2^16 blocks under the same key, roughly 2x10^4 frames. Integration policy: the key must be rotated well below this limit (recommendation: every 2^12 frames).
-- Forgery probability per attempt is about 2^-32 due to the 32-bit tag [9], [10].
-- Constant decision time. The accept/reject decision exits at the same cycle for all frames. L2 always processes all three blocks without early exit.
-- Post-reset behavior. The last counter resets to 0 after reset. Integration recommendation: the host loads a fresh session key every boot. The key is also write-once: loaded once after reset via the key-loading mode, then locked until reset.
+- **Why SIMON-32/64.** This cipher is designed for very small hardware and serializable at one round per cycle, fitting in a 2x2 Tiny Tapeout tile [4]. We are aware that SIMON/SPECK was rejected as an ISO standard in 2018 and that the current NIST lightweight cryptography standard is Ascon [7]. The cipher is therefore wrapped in a modular block interface: it can be swapped for SIMON-64/128 or Ascon without changing L2 and L3, at a larger area cost.
+- **CBC-MAC for fixed length only.** CBC-MAC is secure only if all messages have the same length [5]. The frame format is fixed at three blocks; if variable-length frames are ever needed, the mode changes to CMAC [6].
+- **32-bit block birthday bound.** With a 32-bit block, CBC-MAC security degrades after about 2^16 blocks under the same key, roughly 2x10^4 frames. Integration policy: the key must be rotated well below this limit (recommendation: every 2^12 frames).
+- **Forgery probability per attempt** is about 2^-32 due to the 32-bit tag [5], [6].
+- **Constant decision time.** The accept/reject decision exits at the same cycle for all frames. L2 always processes all three blocks without early exit.
+- **Post-reset behavior.** The last counter resets to 0 after reset. Integration recommendation: the host loads a fresh session key every boot. The key is also write-once: loaded once after reset via the key-loading mode, then locked until reset.
 
 ### Appendix K. Formal Verification Detail
 
@@ -382,6 +336,6 @@ sky130 hardening result for the RF appendix design (baseline front-end plus L1 f
 | `simon32_64` | `done` rises only after exactly 32 rounds | Core |
 | `l1_link` | 8 properties: key_load/start mutual exclusion, start only after key locked, key_load only before lock, key_locked sticky, single-cycle pulses, and framing fault | L1 |
 | `link_framing` | 8b/10b framing and word lock never rise together with a fault | Tier B |
-| `l1_framing` | `framing_ok` never high together with `timing_fault` or `timeout_fault` | RF appendix |
-| `l2_integrity` | CRC register always starts from initial value when a frame begins | RF appendix |
-| `l3_commit` | `host_full` high only if the last commit decision accepted the frame | RF appendix |
+| `l1_framing` | `framing_ok` never high together with `timing_fault` or `timeout_fault` | Appendix F |
+| `l2_integrity` | CRC register always starts from initial value when a frame begins | Appendix F |
+| `l3_commit` | `host_full` high only if the last commit decision accepted the frame | Appendix F |
