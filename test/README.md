@@ -13,7 +13,7 @@ make crc           # RF CRC streaming latency (1 test, comparison)
 make wrapper       # Tiny Tapeout wrapper (6 tests)
 make link-codec    # 8b/10b encoder/decoder (6 tests)
 make link-framing  # comma, word lock, and timeout (2 tests)
-make link-top      # serial link loopback through the boundary (4 tests)
+make link-top      # serial link loopback through the boundary (5 tests)
 ```
 
 Or run everything from the repository root:
@@ -46,7 +46,7 @@ Each script uses the `cocotb.runner` API with Icarus Verilog directly.
 | `run_project_test.py` / `make wrapper` | 6 | Key-load vs frame-load, key-lock, frame-before-key ignored |
 | `make link-codec` | 6 | 8b/10b encode/decode, running disparity, code and disparity errors |
 | `make link-framing` | 2 | K28.5 comma detect, word lock, timeout fault |
-| `make link-top` | 4 | Loopback clean commit, forgery, replay, and line-error rejection |
+| `make link-top` | 5 | Loopback clean commit, forgery, replay, line-error, and 128/128 bit-flip rejection |
 | `make crc` | 1 | RF CRC-24 streaming latency (integration comparison) |
 
 ## Contents
@@ -79,5 +79,5 @@ Expected results from `sim/RESULTS.md`:
 | wrapper | 6/6 | - |
 | link-codec | 6/6 | - |
 | link-framing | 2/2 | - |
-| link-top | 4/4 | - |
+| link-top | 5/5 | 288 cycles end to end |
 | crc | 1/1 | 73 cycles (CRC-24 streaming) |

@@ -1,5 +1,5 @@
 ## Identitas Tim
-**Judul Ide Desain Chip:** TRI-ARGA: Authenticated, Replay-Resistant Ingress Boundary for Lightweight Serial Links
+**Judul Ide Desain Chip:** TRI-ARGA: Gerbang Keamanan Data Portabel Tiga Lapis berprinsip _Fail-Closed_ untuk Tautan Serial Ringan
 
 **Nama Tim:** Tri Arga
 

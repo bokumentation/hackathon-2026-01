@@ -16,6 +16,7 @@ Raw numbers live in `sim/RESULTS.md`, `synth/area.md`, and `docs/design/quartus-
 | Forgery, wrong key, replay, stale counter | rejected | `sim/RESULTS.md` | `make l2`, `make auth` |
 | Commit latency and sticky fault | 1 cycle, fault holds until ack | `sim/RESULTS.md` | `make auth` |
 | Key separation and frame loading | wrapper accepted/rejected cases | `test/test_project.py` | `make wrapper` |
+| Tier B link loopback | clean commit; forgery/replay/line-error rejected; 128/128 bit flips rejected; 288-cycle end-to-end | `sim/RESULTS.md` | `make link-top` |
 
 ## Formal
 
@@ -47,9 +48,9 @@ Raw numbers live in `sim/RESULTS.md`, `synth/area.md`, and `docs/design/quartus-
 
 | Claim | Value | Artifact | Reproduce |
 | --- | --- | --- | --- |
-| Resource usage | 421 ALM, 1029 FF, 0 M10K, 0 DSP (Tier B loopback wrapper) | `docs/design/quartus-report.md` | `cd fpga/de10nano && make link` |
+| Resource usage | 421 ALM, 1029 FF, 0 M10K, 0 DSP, 0 PLL (Tier B loopback wrapper) | `docs/design/quartus-report.md` | `cd fpga/de10nano && make link` |
 | Timing | Fmax 97.9 MHz, WNS +9.785 ns | `docs/design/quartus-report.md` | `cd fpga/de10nano && make link` |
-| Power (vector-less) | 426.2 mW total, 3.76 mW core dynamic | `docs/design/quartus-report.md` | `cd fpga/de10nano && quartus_pow link_demo_top` |
+| Power (vector-less) | 426.19 mW total, 3.76 mW core dynamic | `docs/design/quartus-report.md` | `cd fpga/de10nano && quartus_pow link_demo_top` |
 
 ## How to run everything
 

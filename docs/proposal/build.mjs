@@ -2,6 +2,7 @@ import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, join, isAbsolute } from "node:path";
 import { fileURLToPath } from "node:url";
 import { marked } from "marked";
+import markedKatex from "marked-katex-extension";
 
 const dir = dirname(fileURLToPath(import.meta.url));
 
@@ -47,6 +48,10 @@ function esc(value) {
     .replace(/>/g, "&gt;");
 }
 
+function emph(value) {
+  return esc(value).replace(/_([^_\n]+)_/g, "<em>$1</em>");
+}
+
 function renderMembers(members) {
   return (members || [])
     .map((m) => {
@@ -63,13 +68,13 @@ function renderCover(c) {
   <div class="cover-cat">${esc(c.categoryLabel)}: ${esc(c.category)}</div>
   <div class="cover-hero">
     <h1 class="cover-title">${esc(c.brand)}</h1>
-    <p class="cover-sub">${esc(c.subtitle)}</p>
+    <p class="cover-sub">${emph(c.subtitle)}</p>
   </div>
   <div class="cover-id">
     <div class="cover-id-h">${esc(c.idHeading)}</div>
     <dl class="cover-dl">
       <dt>${esc(c.chipLabel)}</dt>
-      <dd>${esc(c.chip)}</dd>
+      <dd>${emph(c.chip)}</dd>
       <dt>${esc(c.teamLabel)}</dt>
       <dd>${esc(c.team)}</dd>
       <dt>${esc(c.membersLabel)}</dt>
@@ -86,6 +91,7 @@ function renderCover(c) {
 }
 
 marked.setOptions({ gfm: true, breaks: false });
+marked.use(markedKatex({ throwOnError: false, output: "html", nonStandard: true }));
 
 function boldSubheadings(md) {
   return md.replace(/^([A-Z][^\n*#|`]{2,60}:)\s*$/gm, (_, label) => `**${label}**`);
@@ -109,6 +115,7 @@ for (const doc of docs) {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${doc.title}</title>
+<link rel="stylesheet" href="assets/katex/katex.min.css">
 <link rel="stylesheet" href="proposal.css">
 </head>
 <body>

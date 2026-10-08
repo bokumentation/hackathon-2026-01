@@ -1,16 +1,25 @@
-# TRI-ARGA - Authenticated Fail-Closed Ingress Boundary
+<h1 align="center">TRI-ARGA - Gerbang Keamanan Data Portabel Tiga Lapis (Fail-Closed) untuk Tautan Serial Ringan</h1>
 
-**PERURI Chip Hackathon 2026 · Area 04 Secure Communication**
-Tim *Tri Arga* · Universitas Telkom
+<p align="center">PERURI Chip Design Hackathon 2026 - Topic Area 04 - Secure Communication</p>
 
-[![link](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/link.yaml/badge.svg)](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/link.yaml)
-[![lint](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/lint.yaml/badge.svg)](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/lint.yaml)
-[![synth](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/synth.yaml/badge.svg)](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/synth.yaml)
-[![test](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/test.yaml/badge.svg)](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/test.yaml)
-[![formal](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/formal.yaml/badge.svg)](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/formal.yaml)
-[![sim](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/sim.yaml/badge.svg)](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/sim.yaml)
-[![docs](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/docs.yaml/badge.svg)](https://github.com/bokumentation/hackathon-2026-01/actions/workflows/docs.yaml)
-[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+<p align="center">Tim Tri Arga · Universitas Telkom</p>
+
+<p align="center">
+  <a href="https://github.com/bokumentation/hackathon-2026-01/actions/workflows/link.yaml"><img src="https://github.com/bokumentation/hackathon-2026-01/actions/workflows/link.yaml/badge.svg" alt="link"></a>
+  <a href="https://github.com/bokumentation/hackathon-2026-01/actions/workflows/lint.yaml"><img src="https://github.com/bokumentation/hackathon-2026-01/actions/workflows/lint.yaml/badge.svg" alt="lint"></a>
+  <a href="https://github.com/bokumentation/hackathon-2026-01/actions/workflows/synth.yaml"><img src="https://github.com/bokumentation/hackathon-2026-01/actions/workflows/synth.yaml/badge.svg" alt="synth"></a>
+  <a href="https://github.com/bokumentation/hackathon-2026-01/actions/workflows/test.yaml"><img src="https://github.com/bokumentation/hackathon-2026-01/actions/workflows/test.yaml/badge.svg" alt="test"></a>
+  <a href="https://github.com/bokumentation/hackathon-2026-01/actions/workflows/formal.yaml"><img src="https://github.com/bokumentation/hackathon-2026-01/actions/workflows/formal.yaml/badge.svg" alt="formal"></a>
+  <a href="https://github.com/bokumentation/hackathon-2026-01/actions/workflows/sim.yaml"><img src="https://github.com/bokumentation/hackathon-2026-01/actions/workflows/sim.yaml/badge.svg" alt="sim"></a>
+  <a href="https://github.com/bokumentation/hackathon-2026-01/actions/workflows/docs.yaml"><img src="https://github.com/bokumentation/hackathon-2026-01/actions/workflows/docs.yaml/badge.svg" alt="docs"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue.svg" alt="License: Apache-2.0"></a>
+</p>
+
+<p align="center">
+  <a href="https://bokumentation.github.io/hackathon-2026-01/"><img src="https://img.shields.io/badge/GDS-3D%20viewer-blue.svg" alt="GDS viewer"></a>
+</p>
+
+<p align="center"><strong>Tiny Tapeout note.</strong> This is a PERURI Chip Hackathon 2026 submission (Topic Area 04), not a Tiny Tapeout shuttle submission, so it does not follow the Tiny Tapeout submission guidance. It uses the Tiny Tapeout 07 SerDes <code>TT_UM_SERDES</code> as the link baseline (rewritten), and includes <code>tt07-bep-decode</code> only as CWE-354 problem evidence.</p>
 
 ---
 
@@ -18,87 +27,70 @@ Tim *Tri Arga* · Universitas Telkom
 
 A small, reusable hardware IP block that closes the gap between receiving a serial/RF frame and trusting it.
 
-The problem is measured on a real baseline: the Tiny Tapeout 07 Manchester decoder `tt07-bep-decode` receives a 24-bit integrity field and never checks it, so a corrupt or fault-injected frame still appears valid to the host (CWE-354). The integrity field itself is an undocumented error-correcting code, unsolved.
+The problem is measured on a real reference design: the Tiny Tapeout 07 Manchester decoder `tt07-bep-decode` receives a 24-bit integrity field and never checks it, so a corrupt or fault-injected frame still appears valid to the host. The integrity field itself is an undocumented error-correcting code, unsolved.
 
-TRI-ARGA fixes this with three composable layers:
-
-| Layer | Module | What it does | CWE closed |
-| --- | --- | --- | --- |
-| **L1 serial loader** | `l1_serial_loader.v` | Shift in 64-bit key then 128-bit frame (counter + payload + tag) over a single-bit interface; key-lock, plus framing and timeout watchdogs | CWE-20 |
-| **L2 auth** | `l2_auth.v` | SIMON-32/64 CBC-MAC over `counter + payload`, compare 32-bit tag; counter freshness check | CWE-354, CWE-345, CWE-294 |
-| **L3 commit** | `l3_commit_gatekeeper.v` | Atomic fail-closed commit; sticky fault on any auth or freshness failure | CWE-1264, CWE-1245 |
-
-```
-untrusted link
-      │  frame_bit, load_en, key_mode
-      ▼
-┌─────────────────────────────────┐
-│  L1  l1_serial_loader           │  key-load / frame shift-in FSM
-│      key_locked after 64 bits   │  CWE-20
-└────────────┬────────────────────┘
-             │  counter(32) + payload(64) + tag(32) + start
-             ▼
-┌─────────────────────────────────┐
-│  L2  l2_auth                    │  SIMON-32/64 CBC-MAC (3 blocks)
-│      simon32_64 inside          │  + counter freshness check
-│      auth_ok, fresh_ok          │  CWE-354, CWE-345, CWE-294
-└────────────┬────────────────────┘
-             │  auth_ok & fresh_ok (on frame_done)
-             ▼
-┌─────────────────────────────────┐
-│  L3  l3_commit_gatekeeper       │  atomic fail-closed commit
-│      pass → host_full + data    │  sticky fault on failure
-│      fail → fault (sticky)      │  CWE-1264, CWE-1245
-└────────────┬────────────────────┘
-             │  host_full, host_data (only on pass)
-             ▼
-           host
-```
+TRI-ARGA fixes this with three composable layers (L1 frame loader, L2 authentication, L3 fail-closed commit). Each frame is counter 32 + payload 64 + tag 32 = 128 bit, authenticated with a fixed-length SIMON-32/64 CBC-MAC; the 64-bit key is loaded from the host over a separate path and never crosses the link.
 
 ![Authenticated ingress boundary architecture](assets/block-diagram.svg)
 
-![Link frame format and CBC-MAC chain](assets/frame-link.svg)
+---
+
+## Baseline
+
+This project builds on the Tiny Tapeout 07 SerDes reference, not on the RF decoder.
+
+| Design | Upstream | Role |
+| --- | --- | --- |
+| `TT_UM_SERDES` (TT07) | [Santeep/TT_UM_SERDES](https://github.com/Santeep/TT_UM_SERDES) | Link baseline for Tier B. We keep its 8b/10b tables as the seed and rewrite the framing, alignment, and serial datapath with running disparity, K-characters, and word lock. |
+| `tt07-bep-decode` (TT07) | [DusterTheFirst/tt07-bep-decode](https://github.com/DusterTheFirst/tt07-bep-decode) | Not a baseline. Measured CWE-354 problem evidence: it forwards a corrupt payload and a corrupt 24-bit integrity field to the host with `full=1`. |
+| `tt07_cdc_fifo` (TT07) | [Pa1mantri/tt07_cdc_fifo](https://github.com/Pa1mantri/tt07_cdc_fifo) | Future clock-domain-crossing reference for Tier C; not yet integrated. |
+
+All three are Apache-2.0. See [`NOTICE`](NOTICE) for attribution.
 
 ---
 
 ## Results
 
-| Metric | Value | Reproduced by |
-| --- | --- | --- |
-| Single-bit flip rejection | 128/128 | `make l2` |
-| False reject rate | 0% (20/20 clean frames) | `make l2` |
-| End-to-end latency | 108 cycles @ 50 MHz = 2.16 µs | `make auth` |
-| Commit latency | 1 cycle | `make auth` |
-| Forgery rejected | yes | `make l2`, `make auth` |
-| Replay rejected | yes | `make auth` |
-| Serial link loopback | clean commit, forgery/replay/line-error rejected | `make link-top` |
-| Serial link ASIC | 2x2 (Tier B), 3220 cells, 0 DRC/LVS, 3.61 mW typical, 2 antenna | `gds.yaml` |
-| Formal verification | 9/9 proofs pass (5 core, 1 Tier B, 3 RF appendix), see [Formal verification](#formal-verification) | `make formal`, `sby` |
-| FPGA resources | 421 ALM, 1029 FF, 0 M10K, 0 DSP (Cyclone V, Tier B loopback wrapper) | `fpga/de10nano` `make link` |
-| FPGA Fmax | 97.9 MHz (WNS +9.785 ns) | `fpga/de10nano` `make link` |
-| FPGA power | 426.2 mW total, 3.76 mW core dynamic, vector-less | `quartus_pow` |
-| ASIC die area | 0.0756 mm² (2×2 tile, sky130) | `gds.yaml` |
-| ASIC cell count | 2511 cells | `gds.yaml` |
-| ASIC power | 2.10 mW typical | `gds.yaml` |
-| DRC violations | 0 | `gds.yaml` |
-| LVS violations | 0 | `gds.yaml` |
-| Antenna violations | 0 | `gds.yaml` |
-| ASIC worst setup slack | +10.87 ns | `gds.yaml` |
+| Metric | Tier A core | Tier B link | Reproduce |
+| --- | --- | --- | --- |
+| Single-bit flip rejection | 128/128 | 128/128 | `make l2`, `make link-top` |
+| Line error rejected | - | yes | `make link-top` |
+| Forgery rejected | yes | yes | `make l2`, `make auth`, `make link-top` |
+| Replay / stale counter rejected | yes | yes | `make auth`, `make link-top` |
+| False reject (clean commit) | 0% (20/20 clean frames) | clean commit accepted | `make l2`, `make link-top` |
+| SIMON-32/64 block latency | 33 cycles | 33 cycles (same core) | `make simon` |
+| CBC-MAC + freshness latency | 107 cycles | 107 cycles (same core) | `make l2` |
+| End-to-end latency | 108 cycles @ 50 MHz = 2.16 µs | 288 cycles @ 50 MHz = 5.76 µs | `make auth`, `make link-top` |
+| Payload throughput | ~29 Mbit/s | ~11 Mbit/s | `make auth`, `make link-top` |
+| Commit latency | 1 cycle | 1 cycle (same core) | `make auth` |
+| ASIC tile / die area | 2×2, 0.0756 mm² | 2×2, 0.0756 mm² | `gds.yaml` |
+| ASIC cells | 2511 | 3220 | `gds.yaml` |
+| ASIC power | 2.10 mW typical | 3.61 mW typical | `gds.yaml` |
+| DRC / LVS / antenna | 0 / 0 / 0 | 0 / 0 / 2 | `gds.yaml` |
+| Setup WNS / TNS | 0.00 / 0.00 ns | 0.00 / 0.00 ns | `gds.yaml` |
+| Worst setup / hold slack | +10.87 / +0.12 ns | +9.28 / +0.11 ns | `gds.yaml` |
+| FPGA resources | 242 ALM, 654 FF, 0 M10K, 0 DSP, 0 PLL | 421 ALM, 1029 FF, 0 M10K, 0 DSP, 0 PLL | `fpga/de10nano` |
+| FPGA Fmax | 136.37 MHz (WNS +12.667 ns) | 97.9 MHz (WNS +9.785 ns) | `fpga/de10nano` |
+| FPGA power (vector-less) | 425.40 mW total, 2.42 mW core dynamic | 426.19 mW total, 3.76 mW core dynamic | `quartus_pow` |
+| Formal verification (SymbiYosys) | 5 jobs pass | 1 job passes | `make formal` |
 
-The ASIC numbers are the signoff at commit `00fc423` (run `37504588955`); see [`synth/area.md`](synth/area.md).
-Full evidence: [`sim/RESULTS.md`](sim/RESULTS.md) · [`synth/area.md`](synth/area.md) · [`docs/evidence.md`](docs/evidence.md) · [`docs/design/quartus-report.md`](docs/design/quartus-report.md)
+Tier B is a single-clock loopback (`link_tx` -> link -> `link_rx` -> Tier A core), so the SIMON, CBC-MAC, and commit latencies are the shared core values; the end-to-end latency includes 8b/10b framing. Formal also has 3 RF appendix jobs (`l1_framing`, `l2_integrity`, `l3_commit`), not attributed to a tier. The ASIC core numbers are the signoff at commit `00fc423` (run `37504588955`); the Tier B link signoff is commit `9bbb2e0` (run `37511052813`). Full evidence: [`sim/RESULTS.md`](sim/RESULTS.md) · [`synth/area.md`](synth/area.md) · [`docs/evidence.md`](docs/evidence.md) · [`docs/design/quartus-report.md`](docs/design/quartus-report.md).
 
 ---
 
-## Formal verification
+## Limitation
 
-Formal properties use SymbiYosys (`sby`) over `synth/formal/*.sby`, with the `smtbmc z3` engine. All nine jobs pass.
+It is a research prototype, not a certified secure element. Known limits: no payload confidentiality, no side-channel or glitch resistance, and the RF integrity field remains an unsolved error-correcting code; all results apply only to the artifacts described here.
 
-- Committed link: `auth_top` (fail-closed commit), `auth_data_integrity` (committed data equals the authenticated frame), `l3_commit_core` (committed commit gate), `simon32_64` (exactly 32 rounds), `l1_link` (loader key policy, pulse, framing, and timeout properties), and `link_framing` (8b/10b framing and word lock never rise together with a fault).
-- RF appendix: `l1_framing`, `l2_integrity`, and `l3_commit` verify the archived appendix RTL, not the committed link modules.
-- `auth_data_integrity` is a bounded proof (`mode bmc`, depth 20) with `simon32_64` abstracted by `synth/formal/simon32_64_stub.v`. The data-integrity invariant is independent of the cipher, which is proven separately by `simon32_64.sby`.
+Cryptography notes:
 
-`make formal` runs every job and reports a per-file result, so a single failure no longer aborts the suite.
+- The 32-bit tag gives about a 2^-32 per-attempt forgery probability.
+- CBC-MAC is secure only for fixed-length messages; the 128-bit frame is fixed at three 32-bit blocks.
+- With 32-bit blocks, rotate the key well below the birthday bound (recommended every 2^12 frames).
+- The freshness counter resets to 0 on reset, so load a fresh session key each boot.
+- The cipher is wrapped in a modular block interface and can be swapped for SIMON-64/128 or Ascon without changing L2 or L3.
+
+See [`docs/proposal/`](docs/proposal/) for the full limits (Lampiran G / Appendix G) and cryptography notes (Lampiran J / Appendix J).
 
 ---
 
@@ -106,55 +98,14 @@ Formal properties use SymbiYosys (`sby`) over `synth/formal/*.sby`, with the `sm
 
 | Tier | Status | Description |
 | --- | --- | --- |
-| **Tier A** | ✅ Committed | Authenticated, replay-resistant, fail-closed boundary. Single clock. Simulation evidence, formal proofs, sky130 2×2 signoff. |
-| **Tier B** | ✅ Built (`Security-V3-Serdes`) | 8b/10b serial link with running disparity, K-character comma framing, word lock, and a single-clock loopback through the Tier A core. Simulation only. |
+| **Tier A** | Committed | Authenticated, replay-resistant, fail-closed boundary. Single clock. Simulation evidence, formal proofs, sky130 2×2 signoff. |
+| **Tier B** | Built | 8b/10b serial link with running disparity, K-character comma framing, word lock, and a single-clock loopback through the Tier A core. Simulation only. |
 | **Tier C** | Future | Clock-domain crossing using `tt07_cdc_fifo`. |
 | **Appendix RF** | Archived | Manchester/RF predecessor kept as problem evidence in `appendix/rf/`. |
 
 ---
 
-## Repository layout
-
-```
-.
-├── src/                  Committed RTL (Tier A core plus the Tier B link: link_enc_8b10b, link_dec_10b8b, l1_link_framing, link_tx, link_rx, link_top, project_link)
-├── test/                 cocotb suites + Windows run_*.py scripts
-├── synth/
-│   ├── formal/           SymbiYosys properties (.sby + .sv)
-│   └── area.md           Yosys estimates and sky130 signoff numbers
-├── sim/                  Simulation evidence (boundary + RF appendix), RESULTS.md, and the figures script
-├── fpga/de10nano/        DE10-Nano Quartus project (.qpf/.qsf) and SignalTap script
-├── appendix/rf/          Archived Manchester/RF design (problem evidence)
-├── baseline/             Pinned Tiny Tapeout 07 submodules
-├── docs/
-│   ├── index.md          Documentation entry point
-│   ├── evidence.md       Claim to artifact to reproduce-command index
-│   ├── glossary.md       Terms, abbreviations, and CWE list
-│   ├── demo.md           On-board demo plan (loopback, control map, cases)
-│   ├── proposal/        Competition proposal (ID + EN) and PDF build
-│   ├── progress/        Progress report source and PDF build
-│   ├── design/           Architecture, threat model, trade study, FMEA, Quartus plan/report, SignalTap
-│   ├── setup/            Host setup and repository workflow (Debian 13)
-│   ├── judging/          Submission audit, judge QnA, feasibility, prior-art analysis
-│   ├── competition/      PERURI Chip Hackathon handbook and rules
-│   ├── references/       Third-party papers (Markdown; original PDFs not tracked)
-│   ├── datasheet/        Board and device datasheet notes
-│   ├── submission/       Submission checklist and deliverables
-│   └── deck/             Presentation deck sources (builds into output/)
-├── assets/               SVG figures referenced in README and proposal
-├── output/               Generated PDFs, HTML, and deck (not committed)
-├── gds/                  Generated ASIC output (not committed; see gds.yaml)
-├── openlane/             OpenLane entry configuration
-├── tools/                Integrity-field analysis scripts
-├── .github/workflows/    CI: link, lint, synth, test, formal, sim, gds, and a docs heading check
-├── info.yaml             Tiny Tapeout project metadata
-├── Makefile              Build entry point (`make help` to list all targets)
-└── requirements.txt      Python verification dependencies
-```
-
----
-
-## Quick start
+## Quick start Debian 13
 
 ### Prerequisites
 
@@ -202,52 +153,12 @@ make auth          # Integrated auth + commit tests (6 tests, 108-cycle latency)
 make wrapper       # Tiny Tapeout wrapper tests (6 tests)
 make link-codec    # 8b/10b encoder/decoder tests (6 tests)
 make link-framing  # link comma/word-lock/timeout tests (2 tests)
-make link-top      # serial link loopback through the boundary (4 tests)
+make link-top      # serial link loopback through the boundary (5 tests)
 make figures       # regenerate the proposal and appendix figures from VCDs
 make docs          # build the proposal PDF into output/
 ```
 
-Formal verification is optional; see [Formal verification](#formal-verification).
-
-On **Windows** (no `make`):
-
-```bash
-python test/run_simon_test.py
-python test/run_l2_test.py
-python test/run_auth_test.py
-python test/run_project_test.py
-```
-
-### 4. Full target reference
-
-| Command | Description |
-| --- | --- |
-| `make help` | List all available targets |
-| `make env` | Create the Python virtual environment |
-| `make doctor` | Check for the required host tools |
-| `make submodules` | Initialize and update baseline submodules |
-| `make lint` | RTL lint with Verilator |
-| `make synth-check` | Synthesizability check with Yosys |
-| `make area` | Cell, FF, and Cyclone V resource estimates |
-| `make simon` | SIMON-32/64 cipher and CBC-MAC tests |
-| `make l2` | L2 authentication and freshness tests |
-| `make auth` | Integrated authentication and commit tests |
-| `make crc` | RF CRC streaming latency (comparison) |
-| `make wrapper` | Tiny Tapeout wrapper tests |
-| `make link-codec` | 8b/10b encoder/decoder tests |
-| `make link-framing` | Link comma/word-lock/timeout tests |
-| `make link-top` | Serial link loopback through the boundary |
-| `make test` | RF appendix cocotb suite |
-| `make formal` | SymbiYosys formal properties |
-| `make sim` | RF appendix simulation evidence |
-| `make figures` | Regenerate the proposal and appendix figures from real VCDs |
-| `make docs` | Build the proposal into `output/` |
-| `make docs-force` | Rebuild the proposal even if unchanged |
-| `make docs-all` | Build the proposal, deck, and progress report into `output/` |
-| `make progress` | Build the progress report into `output/` |
-| `make gds` | Instructions for ASIC hardening |
-| `make fpga` | Instructions for DE10-Nano build |
-| `make clean` | Remove build artifacts |
+Formal verification is optional; run `make formal` (jobs in `synth/formal/`).
 
 ---
 
@@ -259,7 +170,7 @@ Trigger it with a workflow dispatch or push a `v*` tag.
 
 Configuration: [`src/config.tcl`](src/config.tcl), [`src/user_config.tcl`](src/user_config.tcl), [`info.yaml`](info.yaml).
 
-The last passing run: 2x2 tile, 2511 cells, 0 DRC, 0 LVS, 0 antenna, WNS 0.00, 2.10 mW typical.
+Core signoff (run 37504588955, commit 00fc423): 2×2 tile, 2511 cells, 0 DRC, 0 LVS, 0 antenna, WNS 0.00, 2.10 mW typical. Tier B link signoff (run 37511052813, commit 9bbb2e0): 2×2 tile, 3220 cells, 0 DRC, 0 LVS, 2 antenna, WNS 0.00, 3.61 mW typical.
 
 ## FPGA build
 
@@ -292,31 +203,6 @@ This adds `output/pptx/DECK-TRIARGA-<timestamp>.pptx` and `output/pdf/DECK-TRIAR
 
 ---
 
-## Security
-
-Two Tier A vulnerabilities were identified and fixed on this branch:
-
-| ID | CWE | Description | Fix |
-| --- | --- | --- | --- |
-| Bug 1 | CWE-1264 | TOCTOU: `boundary_top` passed live input ports to L3 instead of the latched values from L2. Committed data could differ from authenticated data. | `l2_auth` now exposes `counter_q` / `payload_q` latched outputs; `boundary_top` passes these to L3. |
-| Bug 2 | - | Key-path separation: `project.v` and the DE10-Nano wrapper loaded the key from the same 192-bit shift register as the frame. | Separate 64-bit `key_sr` with `key_mode` pin (`SW[0]`) and `key_locked` flag. |
-
-See [`SECURITY.md`](SECURITY.md) for the responsible-disclosure policy.
-
----
-
-## Baselines
-
-| Submodule | Upstream | Role |
-| --- | --- | --- |
-| `baseline/tt07-bep-decode` | [DusterTheFirst/tt07-bep-decode](https://github.com/DusterTheFirst/tt07-bep-decode) | Manchester/RF problem evidence (CWE-354) |
-| `baseline/TT_UM_SERDES` | [Santeep/TT_UM_SERDES](https://github.com/Santeep/TT_UM_SERDES) | Serial link reference (Tier B) |
-| `baseline/tt07_cdc_fifo` | [Pa1mantri/tt07_cdc_fifo](https://github.com/Pa1mantri/tt07_cdc_fifo) | Clock-domain crossing (Tier C) |
-
-All three are Apache-2.0. See [`NOTICE`](NOTICE) for attribution.
-
----
-
 ## Documentation
 
 - Documentation entry point: [`docs/index.md`](docs/index.md)
@@ -328,6 +214,45 @@ All three are Apache-2.0. See [`NOTICE`](NOTICE) for attribution.
 - Submission checklist: [`docs/submission/checklist.md`](docs/submission/checklist.md)
 - On-board demo and bring-up: [`docs/demo.md`](docs/demo.md)
 - Quartus FPGA report: [`docs/design/quartus-report.md`](docs/design/quartus-report.md)
+
+## Repository layout
+
+```
+.
+├── src/                  Committed RTL (Tier A core plus the Tier B link: link_enc_8b10b, link_dec_10b8b, l1_link_framing, link_tx, link_rx, link_top, project_link)
+├── test/                 cocotb suites (plus run_*.py runners)
+├── synth/
+│   ├── formal/           SymbiYosys properties (.sby + .sv)
+│   └── area.md           Yosys estimates and sky130 signoff numbers
+├── sim/                  Simulation evidence (boundary + RF appendix), RESULTS.md, and the figures script
+├── fpga/de10nano/        DE10-Nano Quartus project (.qpf/.qsf) and SignalTap script
+├── appendix/rf/          Archived Manchester/RF design (problem evidence)
+├── baseline/             Pinned Tiny Tapeout 07 submodules
+├── docs/
+│   ├── index.md          Documentation entry point
+│   ├── evidence.md       Claim to artifact to reproduce-command index
+│   ├── glossary.md       Terms, abbreviations, and CWE list
+│   ├── demo.md           On-board demo plan (loopback, control map, cases)
+│   ├── proposal/        Competition proposal (ID + EN) and PDF build
+│   ├── progress/        Progress report source and PDF build
+│   ├── design/           Architecture, threat model, trade study, FMEA, Quartus plan/report, SignalTap
+│   ├── setup/            Host setup and repository workflow (Debian 13)
+│   ├── judging/          Submission audit, judge QnA, feasibility, prior-art analysis
+│   ├── competition/      PERURI Chip Hackathon handbook and rules
+│   ├── references/       Third-party papers (Markdown; original PDFs not tracked)
+│   ├── datasheet/        Board and device datasheet notes
+│   ├── submission/       Submission checklist and deliverables
+│   └── deck/             Presentation deck sources (builds into output/)
+├── assets/               SVG figures referenced in README and proposal
+├── output/               Generated PDFs, HTML, and deck (not committed)
+├── gds/                  Generated ASIC output (not committed; see gds.yaml)
+├── openlane/             OpenLane entry configuration
+├── tools/                Integrity-field analysis scripts
+├── .github/workflows/    CI: link, lint, synth, test, formal, sim, gds, and a docs heading check
+├── info.yaml             Tiny Tapeout project metadata
+├── Makefile              Build entry point (`make help` to list all targets)
+└── requirements.txt      Python verification dependencies
+```
 
 ## Contributing
 

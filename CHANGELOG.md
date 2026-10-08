@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Initial repository structure for the SALARAS-RX Tiny Tapeout and DE10-Nano flow.
+- Initial repository structure for the TRI-ARGA Tiny Tapeout and DE10-Nano flow.
 - Pinned baseline submodules: `tt07-bep-decode`, `TT_UM_SERDES`, `tt07_cdc_fifo`.
 - RTL skeletons for layer L1 (framing/FSM validator), L2 (integrity verify), and
   L3 (atomic commit gatekeeper).
